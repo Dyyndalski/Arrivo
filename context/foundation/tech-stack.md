@@ -5,7 +5,7 @@ project_name: arrivo
 hints:
   language_family: js
   team_size: solo
-  deployment_target: cloudflare-pages
+  deployment_target: cloudflare-workers   # @astrojs/cloudflare v14 deploys to Workers via `wrangler deploy`, not Pages (see infrastructure.md)
   ci_provider: github-actions
   ci_default_flow: auto-deploy-on-merge
   bootstrapper_confidence: first-class
