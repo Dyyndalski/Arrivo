@@ -4,7 +4,8 @@
       "PowerShell(Set-Clipboard *)",
       "PowerShell(npx @przeprogramowani/10x-cli@latest get m1l2)",
       "Bash(git --version)",
-      "Bash(git config *)"
+      "Bash(git config *)",
+      "Bash(echo \"identity for this repo: $\\(git config user.name\\) <$\\(git config user.email\\)>\")"
     ]
   }
 }
