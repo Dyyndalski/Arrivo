@@ -14,7 +14,7 @@
   "dependencies": {
     "@astrojs/check": "^0.9.8",
     "@astrojs/cloudflare": "^14.1.5",
-    "@astrojs/react": "^5.0.4",
+    "@astrojs/react": "^6.0.0",
     "@astrojs/sitemap": "^3.7.2",
     "@eslint/config-helpers": "^0.6.0",
     "@radix-ui/react-slot": "^1.1.2",
@@ -36,12 +36,12 @@
   "devDependencies": {
     "@eslint/compat": "^2.0.3",
     "@eslint/js": "^9.29.0",
-    "eslint": "^10.8.0",
+    "eslint": "^9.0.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-astro": "^1.7.0",
-    "eslint-plugin-jsx-a11y": "^6.4.1",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
     "eslint-plugin-prettier": "^5.5.5",
-    "eslint-plugin-react": "^7.22.0",
+    "eslint-plugin-react": "^7.37.0",
     "eslint-plugin-react-compiler": "^19.1.0-rc.2",
     "eslint-plugin-react-hooks": "^7.1.1",
     "husky": "9.1.7",
@@ -53,9 +53,6 @@
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.59.2",
     "wrangler": "^4.90.0"
-  },
-  "overrides": {
-    "vite": "^7.3.2"
   },
   "lint-staged": {
     "*.{ts,tsx,astro}": [
