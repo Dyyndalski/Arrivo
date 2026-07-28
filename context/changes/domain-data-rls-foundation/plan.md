@@ -247,27 +247,27 @@ Migrations are **forward-only** (Worker rollback doesn't revert the DB). The sch
 
 #### Automated
 
-- [x] 1.1 Local stack starts (`supabase start` exits 0)
-- [x] 1.2 Scratch migration applies (`supabase migration new` + `supabase db reset` exit 0)
-- [x] 1.3 `npm run build` still passes
+- [x] 1.1 Local stack starts (`supabase start` exits 0) — 1bf08ff
+- [x] 1.2 Scratch migration applies (`supabase migration new` + `supabase db reset` exit 0) — 1bf08ff
+- [x] 1.3 `npm run build` still passes — 1bf08ff
 
 #### Manual
 
-- [x] 1.4 Local Studio reachable at localhost:54323
-- [x] 1.5 Scratch `scaffold_check` migration deleted; `supabase db push --dry-run` targets `lhruerozshudatypngna` and reports an empty pending set
+- [x] 1.4 Local Studio reachable at localhost:54323 — 1bf08ff
+- [x] 1.5 Scratch `scaffold_check` migration deleted; `supabase db push --dry-run` targets `lhruerozshudatypngna` and reports an empty pending set — 1bf08ff
 
 ### Phase 2: Profiles schema + role + trigger + RLS + pgTAP tests
 
 #### Automated
 
-- [ ] 2.1 Migration applies cleanly (`supabase db reset` exits 0)
-- [ ] 2.2 `supabase test db` passes (pgTAP isolation + role-immutability + auto-create + invalid-role-defaults-safely)
-- [ ] 2.3 `npm run lint` and `npm run build` pass
+- [x] 2.1 Migration applies cleanly (`supabase db reset` exits 0)
+- [x] 2.2 `supabase test db` passes (pgTAP isolation + role-immutability + auto-create + invalid-role-defaults-safely)
+- [x] 2.3 `npm run lint` and `npm run build` pass
 
 #### Manual
 
-- [ ] 2.4 New user (local) → correctly-roled `profiles` row; garbage role metadata → defaults to `client` without error
-- [ ] 2.5 `supabase db push` to hosted; table/policies/trigger + backfill present
+- [x] 2.4 New user (local) → correctly-roled `profiles` row; garbage role metadata → defaults to `client` without error
+- [x] 2.5 `supabase db push` to hosted; table/policies/trigger + backfill present
 
 ### Phase 3: App integration + privacy contract
 
