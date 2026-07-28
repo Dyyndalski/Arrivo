@@ -1,18 +1,32 @@
 import { defineMiddleware } from "astro:middleware";
 import { createClient } from "@/lib/supabase";
+import type { UserRole } from "@/types";
 
 const PROTECTED_ROUTES = ["/dashboard"];
 
 export const onRequest = defineMiddleware(async (context, next) => {
   const supabase = createClient(context.request.headers, context.cookies);
 
+  context.locals.user = null;
+  context.locals.role = null;
+
   if (supabase) {
     const {
       data: { user },
     } = await supabase.auth.getUser();
     context.locals.user = user ?? null;
-  } else {
-    context.locals.user = null;
+
+    if (user) {
+      // Reach Supabase over the HTTP client only (never a direct Postgres connection).
+      // RLS lets a user read only their own profile row; a briefly-absent profile -> null.
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", user.id)
+        .maybeSingle()
+        .overrideTypes<{ role: UserRole }, { merge: false }>();
+      context.locals.role = profile?.role ?? null;
+    }
   }
 
   if (PROTECTED_ROUTES.some((route) => context.url.pathname.startsWith(route))) {

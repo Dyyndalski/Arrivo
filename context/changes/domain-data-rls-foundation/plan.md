@@ -260,23 +260,23 @@ Migrations are **forward-only** (Worker rollback doesn't revert the DB). The sch
 
 #### Automated
 
-- [x] 2.1 Migration applies cleanly (`supabase db reset` exits 0)
-- [x] 2.2 `supabase test db` passes (pgTAP isolation + role-immutability + auto-create + invalid-role-defaults-safely)
-- [x] 2.3 `npm run lint` and `npm run build` pass
+- [x] 2.1 Migration applies cleanly (`supabase db reset` exits 0) — 0af8abf
+- [x] 2.2 `supabase test db` passes (pgTAP isolation + role-immutability + auto-create + invalid-role-defaults-safely) — 0af8abf
+- [x] 2.3 `npm run lint` and `npm run build` pass — 0af8abf
 
 #### Manual
 
-- [x] 2.4 New user (local) → correctly-roled `profiles` row; garbage role metadata → defaults to `client` without error
-- [x] 2.5 `supabase db push` to hosted; table/policies/trigger + backfill present
+- [x] 2.4 New user (local) → correctly-roled `profiles` row; garbage role metadata → defaults to `client` without error — 0af8abf
+- [x] 2.5 `supabase db push` to hosted; table/policies/trigger + backfill present — 0af8abf
 
 ### Phase 3: App integration + privacy contract
 
 #### Automated
 
-- [ ] 3.1 `npx astro sync` + `npm run build` pass (types resolve)
-- [ ] 3.2 `npm run lint` passes
+- [x] 3.1 `npx astro sync` + `npm run build` pass (types resolve)
+- [x] 3.2 `npm run lint` passes
 
 #### Manual
 
-- [ ] 3.3 Signed-in user → `context.locals.role` reflects their role
-- [ ] 3.4 `wrangler deploy` succeeds; landing + auth work, no regression
+- [x] 3.3 Signed-in user → `context.locals.role` reflects their role
+- [x] 3.4 `wrangler deploy` succeeds; landing + auth work, no regression
