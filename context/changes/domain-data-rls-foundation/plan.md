@@ -273,10 +273,10 @@ Migrations are **forward-only** (Worker rollback doesn't revert the DB). The sch
 
 #### Automated
 
-- [x] 3.1 `npx astro sync` + `npm run build` pass (types resolve)
-- [x] 3.2 `npm run lint` passes
+- [x] 3.1 `npx astro sync` + `npm run build` pass (types resolve) — 13b6870
+- [x] 3.2 `npm run lint` passes — 13b6870
 
 #### Manual
 
-- [x] 3.3 Signed-in user → `context.locals.role` reflects their role
-- [x] 3.4 `wrangler deploy` succeeds; landing + auth work, no regression
+- [x] 3.3 Signed-in user → `context.locals.role` reflects their role — 13b6870
+- [x] 3.4 `wrangler deploy` succeeds; landing + auth work, no regression — 13b6870
