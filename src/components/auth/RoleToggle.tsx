@@ -30,7 +30,7 @@ export function RoleToggle({ value, onChange, error }: Props) {
                 onChange(v);
               }}
               className={cn(
-                "flex flex-col items-center gap-1 rounded-lg border px-3 py-3 text-center transition-colors focus:outline-none focus:ring-2 focus:ring-purple-400",
+                "flex flex-col items-center gap-1 rounded-lg border px-3 py-3 text-center transition-colors focus:ring-2 focus:ring-purple-400 focus:outline-none",
                 selected
                   ? "border-purple-400 bg-purple-500/20 text-white"
                   : "border-white/20 bg-white/10 text-blue-100/70 hover:border-white/40",

@@ -267,13 +267,13 @@ None beyond the existing per-request auth cost. Recovery endpoints are low-frequ
 
 #### Automated
 
-- [x] 2.1 `npm run build` passes; `npm run lint` no real errors
+- [x] 2.1 `npm run build` passes; `npm run lint` no real errors — 2ba821b
 
 #### Manual
 
-- [x] 2.2 "Forgot password?" link on sign-in routes to `/auth/forgot-password`
-- [x] 2.3 Submitting an email lands on the "check your email" page
-- [x] 2.4 Reset email appears in Mailpit (`:54324`) with a working link
+- [x] 2.2 "Forgot password?" link on sign-in routes to `/auth/forgot-password` — 2ba821b
+- [x] 2.3 Submitting an email lands on the "check your email" page — 2ba821b
+- [x] 2.4 Reset email appears in Mailpit (`:54324`) with a working link — 2ba821b
 
 ### Phase 3: Password recovery — reset
 
