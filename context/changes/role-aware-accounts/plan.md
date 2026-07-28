@@ -255,25 +255,25 @@ None beyond the existing per-request auth cost. Recovery endpoints are low-frequ
 
 #### Automated
 
-- [x] 1.1 `npx astro sync` + `npm run build` pass
-- [x] 1.2 `npm run lint` reports no real (non-line-ending) errors
+- [x] 1.1 `npx astro sync` + `npm run build` pass — c4c90e8
+- [x] 1.2 `npm run lint` reports no real (non-line-ending) errors — c4c90e8
 
 #### Manual
 
-- [x] 1.3 Sign up as specialist → `profiles.role = specialist`; as client → `client`
-- [x] 1.4 Sign-up without a role is blocked with a field error
+- [x] 1.3 Sign up as specialist → `profiles.role = specialist`; as client → `client` — c4c90e8
+- [x] 1.4 Sign-up without a role is blocked with a field error — c4c90e8
 
 ### Phase 2: Password recovery — request
 
 #### Automated
 
-- [ ] 2.1 `npm run build` passes; `npm run lint` no real errors
+- [x] 2.1 `npm run build` passes; `npm run lint` no real errors
 
 #### Manual
 
-- [ ] 2.2 "Forgot password?" link on sign-in routes to `/auth/forgot-password`
-- [ ] 2.3 Submitting an email lands on the "check your email" page
-- [ ] 2.4 Reset email appears in Mailpit (`:54324`) with a working link
+- [x] 2.2 "Forgot password?" link on sign-in routes to `/auth/forgot-password`
+- [x] 2.3 Submitting an email lands on the "check your email" page
+- [x] 2.4 Reset email appears in Mailpit (`:54324`) with a working link
 
 ### Phase 3: Password recovery — reset
 
