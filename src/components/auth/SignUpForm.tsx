@@ -4,6 +4,8 @@ import { FormField } from "@/components/auth/FormField";
 import { PasswordToggle } from "@/components/auth/PasswordToggle";
 import { SubmitButton } from "@/components/auth/SubmitButton";
 import { ServerError } from "@/components/auth/ServerError";
+import { RoleToggle } from "@/components/auth/RoleToggle";
+import type { UserRole } from "@/types";
 
 const MIN_PASSWORD_LENGTH = 6;
 
@@ -12,15 +14,22 @@ interface Props {
 }
 
 export default function SignUpForm({ serverError }: Props) {
+  const [role, setRole] = useState<UserRole | "">("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [errors, setErrors] = useState<{ email?: string; password?: string; confirmPassword?: string }>({});
+  const [errors, setErrors] = useState<{ role?: string; email?: string; password?: string; confirmPassword?: string }>(
+    {},
+  );
 
   function validate() {
     const next: typeof errors = {};
+
+    if (!role) {
+      next.role = "Please choose whether you're a client or a specialist";
+    }
 
     if (!email.trim()) {
       next.email = "Email is required";
@@ -64,6 +73,15 @@ export default function SignUpForm({ serverError }: Props) {
 
   return (
     <form method="POST" action="/api/auth/signup" className="space-y-4" onSubmit={handleSubmit} noValidate>
+      <RoleToggle
+        value={role}
+        onChange={(r) => {
+          setRole(r);
+          clearError("role");
+        }}
+        error={errors.role}
+      />
+
       <FormField
         id="email"
         type="email"

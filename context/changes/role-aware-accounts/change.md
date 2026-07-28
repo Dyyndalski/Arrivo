@@ -1,7 +1,7 @@
 ---
 change_id: role-aware-accounts
 title: Role-aware accounts
-status: new
+status: implementing
 created: 2026-07-28
 updated: 2026-07-28
 archived_at: null
