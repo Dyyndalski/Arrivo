@@ -28,7 +28,16 @@ values
 select is((select role::text from public.profiles where id = '11111111-1111-1111-1111-111111111111'), 'specialist', 'valid role metadata yields a specialist profile');
 select is((select role::text from public.profiles where id = '22222222-2222-2222-2222-222222222222'), 'client', 'absent role metadata defaults to client');
 select is((select role::text from public.profiles where id = '33333333-3333-3333-3333-333333333333'), 'client', 'garbage role metadata defaults to client without erroring');
-select is((select count(*)::int from public.profiles), 3, 'exactly one profile per auth user');
+select is(
+  (select count(*)::int from public.profiles
+   where id in (
+     '11111111-1111-1111-1111-111111111111',
+     '22222222-2222-2222-2222-222222222222',
+     '33333333-3333-3333-3333-333333333333'
+   )),
+  3,
+  'exactly one profile per fixture auth user (scoped, isolation-robust)'
+);
 
 -- RLS isolation: as authenticated user A, only A's own row is visible.
 set local role authenticated;
