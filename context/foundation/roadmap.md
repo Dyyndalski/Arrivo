@@ -27,7 +27,7 @@ Arrivo is a home-visit-first marketplace for beauty/hair services: it connects c
 
 | ID   | Change ID                     | Outcome (user can …)                                                        | Prerequisites | PRD refs                          | Status   |
 | ---- | ----------------------------- | --------------------------------------------------------------------------- | ------------- | --------------------------------- | -------- |
-| F-01 | domain-data-rls-foundation    | (foundation) roles link accounts to client/specialist; address stays private until a booking is accepted | —             | Access Control, NFR (privacy)     | ready    |
+| F-01 | domain-data-rls-foundation    | (foundation) roles link accounts to client/specialist; address stays private until a booking is accepted | —             | Access Control, NFR (privacy)     | done     |
 | S-01 | role-aware-accounts           | sign up as a client or specialist, sign in/out, recover a password          | F-01          | FR-001, FR-002                    | proposed |
 | S-02 | specialist-service-listing    | (specialist) create a profile with declared areas and list a service        | S-01          | US-02, FR-004, FR-005             | proposed |
 | S-03 | area-matched-discovery        | (client) set your area and find specialists who serve it, filtered by type/price, with a rating summary | S-01, S-02    | FR-003, FR-006, FR-007, FR-008, FR-009 | proposed |
@@ -59,7 +59,7 @@ What's already in place in the codebase as of 2026-07-28 (auto-researched + user
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** Sequenced first because it is the smallest cross-cutting contract every slice needs, and because the address-privacy guardrail is a launch-blocking property that is far cheaper to get right before any address or booking data exists than to retrofit. Kept minimal — it establishes roles + the privacy policy pattern only; each slice adds its own entities on top.
-- **Status:** ready
+- **Status:** done
 
 ## Slices
 
@@ -177,4 +177,4 @@ What's already in place in the codebase as of 2026-07-28 (auto-researched + user
 
 ## Done
 
-(Empty on first generation. `/10x-archive` appends here when a change whose Change ID matches a roadmap item is archived.)
+- **F-01: (foundation) roles link accounts to client/specialist; address stays private until a booking is accepted** — Archived 2026-07-28 → `context/archive/2026-07-28-domain-data-rls-foundation/`. Lesson: —.

@@ -1,10 +1,10 @@
 ---
 change_id: domain-data-rls-foundation
 title: Domain roles + address-privacy policy
-status: impl_reviewed
+status: archived
 created: 2026-07-28
 updated: 2026-07-28
-archived_at: null
+archived_at: 2026-07-28T16:52:21Z
 ---
 
 ## Notes
