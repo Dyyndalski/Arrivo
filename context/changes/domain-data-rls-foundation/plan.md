@@ -247,14 +247,14 @@ Migrations are **forward-only** (Worker rollback doesn't revert the DB). The sch
 
 #### Automated
 
-- [ ] 1.1 Local stack starts (`supabase start` exits 0)
-- [ ] 1.2 Scratch migration applies (`supabase migration new` + `supabase db reset` exit 0)
-- [ ] 1.3 `npm run build` still passes
+- [x] 1.1 Local stack starts (`supabase start` exits 0)
+- [x] 1.2 Scratch migration applies (`supabase migration new` + `supabase db reset` exit 0)
+- [x] 1.3 `npm run build` still passes
 
 #### Manual
 
-- [ ] 1.4 Local Studio reachable at localhost:54323
-- [ ] 1.5 Scratch `scaffold_check` migration deleted; `supabase db push --dry-run` targets `lhruerozshudatypngna` and reports an empty pending set
+- [x] 1.4 Local Studio reachable at localhost:54323
+- [x] 1.5 Scratch `scaffold_check` migration deleted; `supabase db push --dry-run` targets `lhruerozshudatypngna` and reports an empty pending set
 
 ### Phase 2: Profiles schema + role + trigger + RLS + pgTAP tests
 
