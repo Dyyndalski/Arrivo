@@ -279,11 +279,11 @@ None beyond the existing per-request auth cost. Recovery endpoints are low-frequ
 
 #### Automated
 
-- [ ] 3.1 `npx astro sync` + `npm run build` pass; `npm run lint` no real errors
+- [x] 3.1 `npx astro sync` + `npm run build` pass; `npm run lint` no real errors
 
 #### Manual
 
-- [ ] 3.2 Reset link → `/auth/reset-password` renders (session established)
-- [ ] 3.3 Setting a new password → sign-in with success message; new password works
-- [ ] 3.4 Direct visit to `/auth/reset-password` without a token → bounced to `/auth/forgot-password`
+- [x] 3.2 Reset link → `/auth/reset-password` renders (session established)
+- [x] 3.3 Setting a new password → sign-in with success message; new password works
+- [x] 3.4 Direct visit to `/auth/reset-password` without a token → bounced to `/auth/forgot-password`
 - [ ] 3.5 `wrangler deploy` + hosted redirect-URL config → reset flow works end-to-end on the live URL
