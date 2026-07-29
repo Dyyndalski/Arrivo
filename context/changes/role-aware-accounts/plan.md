@@ -286,4 +286,4 @@ None beyond the existing per-request auth cost. Recovery endpoints are low-frequ
 - [x] 3.2 Reset link → `/auth/reset-password` renders (session established) — c0180cc
 - [x] 3.3 Setting a new password → sign-in with success message; new password works — c0180cc
 - [x] 3.4 Direct visit to `/auth/reset-password` without a token → bounced to `/auth/forgot-password` — c0180cc
-- [ ] 3.5 `wrangler deploy` + hosted redirect-URL config → reset flow works end-to-end on the live URL
+- [x] 3.5 `wrangler deploy` + hosted redirect-URL config → reset flow works end-to-end on the live URL — verified live (worker cd51117b)
