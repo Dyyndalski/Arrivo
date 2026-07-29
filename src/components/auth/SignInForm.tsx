@@ -7,10 +7,11 @@ import { ServerError } from "@/components/auth/ServerError";
 
 interface Props {
   serverError?: string | null;
+  initialEmail?: string;
 }
 
-export default function SignInForm({ serverError }: Props) {
-  const [email, setEmail] = useState("");
+export default function SignInForm({ serverError, initialEmail }: Props) {
+  const [email, setEmail] = useState(initialEmail ?? "");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});

@@ -4,6 +4,7 @@ import SignInForm from "@/components/auth/SignInForm";
 
 const error = Astro.url.searchParams.get("error");
 const message = Astro.url.searchParams.get("message");
+const email = Astro.url.searchParams.get("email");
 ---
 
 <Layout title="Sign in">
@@ -21,7 +22,7 @@ const message = Astro.url.searchParams.get("message");
           </p>
         )
       }
-      <SignInForm serverError={error} client:load />
+      <SignInForm serverError={error} initialEmail={email ?? undefined} client:load />
       <p class="mt-3 text-center text-sm">
         <a href="/auth/forgot-password" class="text-blue-100/60 hover:text-purple-300 hover:underline"
           >Forgot password?</a

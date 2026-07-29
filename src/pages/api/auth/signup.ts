@@ -19,7 +19,24 @@ export const POST: APIRoute = async (context) => {
   if (!supabase) {
     return context.redirect(`/auth/signup?error=${encodeURIComponent("Supabase is not configured")}`);
   }
-  const { error } = await supabase.auth.signUp({ email, password, options: { data: { role } } });
+  const { data, error } = await supabase.auth.signUp({ email, password, options: { data: { role } } });
+
+  // Already-registered email → send to sign-in (email prefilled), BEFORE the generic error
+  // branch. Two signals cover both Confirm-email settings: an empty `identities` array
+  // (confirmations ON / hosted returns an obfuscated user with no error) and an
+  // "already registered" error (confirmations OFF / local). An existing-but-unconfirmed
+  // email is intentionally NOT flagged — Supabase resends confirmation, so it falls through
+  // to /auth/confirm-email below.
+  const alreadyRegistered =
+    data.user?.identities?.length === 0 || (!!error && /already.*(registered|exists)/i.test(error.message));
+
+  if (alreadyRegistered) {
+    const params = new URLSearchParams({
+      message: "This email is already registered — sign in instead.",
+      email,
+    });
+    return context.redirect(`/auth/signin?${params.toString()}`);
+  }
 
   if (error) {
     return context.redirect(`/auth/signup?error=${encodeURIComponent(error.message)}`);
