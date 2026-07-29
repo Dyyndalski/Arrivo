@@ -28,7 +28,9 @@ export const POST: APIRoute = async (context) => {
   // email is intentionally NOT flagged — Supabase resends confirmation, so it falls through
   // to /auth/confirm-email below.
   const alreadyRegistered =
-    data.user?.identities?.length === 0 || (!!error && /already.*(registered|exists)/i.test(error.message));
+    data.user?.identities?.length === 0 ||
+    (error as { code?: string } | null)?.code === "user_already_exists" ||
+    (!!error && /already.*(registered|exists)/i.test(error.message));
 
   if (alreadyRegistered) {
     const params = new URLSearchParams({

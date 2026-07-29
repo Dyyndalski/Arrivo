@@ -126,11 +126,11 @@ No database or schema changes. No config changes required (detection handles bot
 
 #### Automated
 
-- [x] 1.1 `npx astro sync` + `npm run build` pass
-- [x] 1.2 `npm run lint` reports no real (non-CRLF) errors
+- [x] 1.1 `npx astro sync` + `npm run build` pass — c8c7c45
+- [x] 1.2 `npm run lint` reports no real (non-CRLF) errors — c8c7c45
 
 #### Manual
 
-- [x] 1.3 Local: sign up with an existing email → redirected to sign-in with green message + prefilled email
-- [x] 1.4 New email → still lands on `/auth/confirm-email` (no regression)
+- [x] 1.3 Local: sign up with an existing email → redirected to sign-in with green message + prefilled email — c8c7c45
+- [x] 1.4 New email → still lands on `/auth/confirm-email` (no regression) — c8c7c45
 - [ ] 1.5 Hosted (after deploy): existing email → same redirect + message + prefill (exercises the `identities:[]` path)
