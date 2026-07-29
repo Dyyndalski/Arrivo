@@ -3,7 +3,7 @@ project: Arrivo
 version: 1
 status: draft
 created: 2026-07-28
-updated: 2026-07-28
+updated: 2026-07-29
 prd_version: 1
 main_goal: market-feedback
 top_blocker: time
@@ -28,7 +28,7 @@ Arrivo is a home-visit-first marketplace for beauty/hair services: it connects c
 | ID   | Change ID                     | Outcome (user can …)                                                        | Prerequisites | PRD refs                          | Status   |
 | ---- | ----------------------------- | --------------------------------------------------------------------------- | ------------- | --------------------------------- | -------- |
 | F-01 | domain-data-rls-foundation    | (foundation) roles link accounts to client/specialist; address stays private until a booking is accepted | —             | Access Control, NFR (privacy)     | done     |
-| S-01 | role-aware-accounts           | sign up as a client or specialist, sign in/out, recover a password          | F-01          | FR-001, FR-002                    | proposed |
+| S-01 | role-aware-accounts           | sign up as a client or specialist, sign in/out, recover a password          | F-01          | FR-001, FR-002                    | done     |
 | S-02 | specialist-service-listing    | (specialist) create a profile with declared areas and list a service        | S-01          | US-02, FR-004, FR-005             | proposed |
 | S-03 | area-matched-discovery        | (client) set your area and find specialists who serve it, filtered by type/price, with a rating summary | S-01, S-02    | FR-003, FR-006, FR-007, FR-008, FR-009 | proposed |
 | S-04 | client-booking-request        | (client) request a booking from a matched specialist, proposing a date/time | S-03          | US-01, FR-010                     | proposed |
@@ -73,7 +73,7 @@ What's already in place in the codebase as of 2026-07-28 (auto-researched + user
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** Extends the generic Supabase auth that already exists (baseline) with the role choice and recovery the domain needs; must land before either side can act. Small, but it's the gate every downstream slice sits behind.
-- **Status:** proposed
+- **Status:** done
 
 ### S-02: Specialist profile + service listing
 
@@ -178,3 +178,4 @@ What's already in place in the codebase as of 2026-07-28 (auto-researched + user
 ## Done
 
 - **F-01: (foundation) roles link accounts to client/specialist; address stays private until a booking is accepted** — Archived 2026-07-28 → `context/archive/2026-07-28-domain-data-rls-foundation/`. Lesson: —.
+- **S-01: a visitor can sign up as either a client or a specialist, sign in and out, and recover a forgotten password** — Archived 2026-07-29 → `context/archive/2026-07-28-role-aware-accounts/`. Lesson: —.

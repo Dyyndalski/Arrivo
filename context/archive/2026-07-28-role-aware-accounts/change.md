@@ -1,10 +1,10 @@
 ---
 change_id: role-aware-accounts
 title: Role-aware accounts
-status: impl_reviewed
+status: archived
 created: 2026-07-28
-updated: 2026-07-28
-archived_at: null
+updated: 2026-07-29
+archived_at: 2026-07-29T16:42:49Z
 ---
 
 ## Notes
