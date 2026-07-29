@@ -1,10 +1,10 @@
 ---
 change_id: signup-existing-email
 title: Block sign-up with an already-registered email
-status: impl_reviewed
+status: archived
 created: 2026-07-29
 updated: 2026-07-29
-archived_at: null
+archived_at: 2026-07-29T18:36:00Z
 ---
 
 ## Notes
