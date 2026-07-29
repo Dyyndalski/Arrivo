@@ -35,9 +35,11 @@ export const onRequest = defineMiddleware(async (context, next) => {
     }
   }
 
-  // Password-recovery: /auth/reset-password needs the recovery session established by
-  // /auth/callback (exchangeCodeForSession). Absent it (a direct visit or an expired
-  // link), bounce to request a fresh link rather than the generic sign-in redirect.
+  // /auth/reset-password requires a session — normally the recovery session established
+  // by /auth/callback (exchangeCodeForSession), though an already-signed-in user may also
+  // reach it (changing their own password is benign). With no session at all (a direct
+  // visit or an expired link), bounce to request a fresh link rather than the generic
+  // sign-in redirect.
   if (context.url.pathname === "/auth/reset-password" && !context.locals.user) {
     return context.redirect(
       `/auth/forgot-password?error=${encodeURIComponent("Link expired or invalid — request a new one")}`,
