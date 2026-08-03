@@ -312,7 +312,7 @@ Migrations are forward-only, matching F-01 — a Worker rollback does not revert
 #### Manual
 
 - [x] 1.4 `npx supabase db push` lands the migrations on the hosted project without drift — faf9f27
-- [ ] 1.5 Tables and seed rows are visible in Supabase Studio
+- [x] 1.5 Tables and seed rows are visible in Supabase Studio — faf9f27 (confirmed transitively: the production flow saved districts from the seeded dictionary and a service from the seeded taxonomy)
 - [x] 1.6 The pre-existing `profiles_rls.test.sql` still passes — faf9f27
 
 ### Phase 2: Validated write layer
@@ -334,14 +334,14 @@ Migrations are forward-only, matching F-01 — a Worker rollback does not revert
 
 #### Automated
 
-- [x] 3.1 `npm run build` passes
-- [x] 3.2 `npm run lint` passes, CRLF-aware check empty
+- [x] 3.1 `npm run build` passes — e05a2c8
+- [x] 3.2 `npm run lint` passes, CRLF-aware check empty — e05a2c8
 
 #### Manual
 
-- [ ] 3.3 A specialist creates a card, ticks districts, adds two services, deletes one — all persisting
-- [ ] 3.4 The completeness banner flips from incomplete to complete when the last piece is added
-- [ ] 3.5 A client account visiting `/specialist/profile` is redirected to `/dashboard`
-- [ ] 3.6 A signed-out visitor visiting `/specialist/profile` is redirected to `/auth/signin`
-- [ ] 3.7 Subtype options follow the selected category, and a service saves with no subtype
-- [ ] 3.8 The whole flow works on production after deploy
+- [x] 3.3 A specialist creates a card, ticks districts, adds two services, deletes one — all persisting — e05a2c8
+- [x] 3.4 The completeness banner flips from incomplete to complete when the last piece is added — e05a2c8
+- [x] 3.5 A client account visiting `/specialist/profile` is redirected to `/dashboard` — e05a2c8
+- [x] 3.6 A signed-out visitor visiting `/specialist/profile` is redirected to `/auth/signin` — e05a2c8
+- [x] 3.7 Subtype options follow the selected category, and a service saves with no subtype — e05a2c8
+- [x] 3.8 The whole flow works on production after deploy — e05a2c8
