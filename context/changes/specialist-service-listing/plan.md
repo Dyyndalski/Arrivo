@@ -319,16 +319,16 @@ Migrations are forward-only, matching F-01 — a Worker rollback does not revert
 
 #### Automated
 
-- [ ] 2.1 `npm run build` passes
-- [ ] 2.2 `npm run lint` passes and the CRLF-aware `prettier/prettier` check is empty
-- [ ] 2.3 `zod` is present in `package.json` dependencies
+- [x] 2.1 `npm run build` passes
+- [x] 2.2 `npm run lint` passes and the CRLF-aware `prettier/prettier` check is empty
+- [x] 2.3 `zod` is present in `package.json` dependencies
 
 #### Manual
 
-- [ ] 2.4 A valid profile post creates the card and its areas on the local stack
-- [ ] 2.5 Over-long name, empty area list, and negative price are each rejected with `?error=`
-- [ ] 2.6 A client-role session posting to `/api/specialist/profile` is refused
-- [ ] 2.7 Regression: sign-up, sign-in, forgot-password and reset-password all still work after the retrofit
+- [x] 2.4 A valid profile post creates the card and its areas on the local stack
+- [x] 2.5 Over-long name, empty area list, and negative price are each rejected with `?error=`
+- [x] 2.6 A client-role session posting to `/api/specialist/profile` is refused
+- [x] 2.7 Regression: sign-up, sign-in, forgot-password and reset-password all still work after the retrofit
 
 ### Phase 3: Specialist UI and role gating
 

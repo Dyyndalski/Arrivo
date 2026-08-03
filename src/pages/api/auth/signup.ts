@@ -1,19 +1,23 @@
 import type { APIRoute } from "astro";
 import { createClient } from "@/lib/supabase";
+import { parseOrError } from "@/lib/schemas/parse";
+import { signUpSchema } from "@/lib/schemas/auth";
 
 export const POST: APIRoute = async (context) => {
   const form = await context.request.formData();
-  const email = form.get("email") as string;
-  const password = form.get("password") as string;
-  const role = form.get("role") as string;
 
-  // Validate the client-controlled role server-side (defense in depth; the F-01
-  // handle_new_user trigger also defaults an unrecognized value to `client`).
-  if (role !== "client" && role !== "specialist") {
-    return context.redirect(
-      `/auth/signup?error=${encodeURIComponent("Please choose whether you're a client or a specialist")}`,
-    );
+  // Schema-validated (was: raw `as string` casts plus a hand-rolled role guard). The role
+  // check is still defense in depth — the F-01 handle_new_user trigger also defaults an
+  // unrecognized value to `client` — and its message is unchanged.
+  const parsed = parseOrError(signUpSchema, {
+    email: form.get("email"),
+    password: form.get("password"),
+    role: form.get("role"),
+  });
+  if (!parsed.ok) {
+    return context.redirect(`/auth/signup?error=${encodeURIComponent(parsed.error)}`);
   }
+  const { email, password, role } = parsed.data;
 
   const supabase = createClient(context.request.headers, context.cookies);
   if (!supabase) {

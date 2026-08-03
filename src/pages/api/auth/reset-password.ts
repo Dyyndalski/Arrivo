@@ -1,18 +1,18 @@
 import type { APIRoute } from "astro";
 import { createClient } from "@/lib/supabase";
-
-const MIN_PASSWORD_LENGTH = 6;
+import { parseOrError } from "@/lib/schemas/parse";
+import { resetPasswordSchema } from "@/lib/schemas/auth";
 
 export const POST: APIRoute = async (context) => {
   const form = await context.request.formData();
-  const password = form.get("password");
 
   // Defense-in-depth: the React form enforces this, but a direct POST bypasses it.
-  if (typeof password !== "string" || password.length < MIN_PASSWORD_LENGTH) {
-    return context.redirect(
-      `/auth/reset-password?error=${encodeURIComponent(`Password must be at least ${MIN_PASSWORD_LENGTH} characters`)}`,
-    );
+  // (Was a hand-rolled typeof/length check; the message is unchanged.)
+  const parsed = parseOrError(resetPasswordSchema, { password: form.get("password") });
+  if (!parsed.ok) {
+    return context.redirect(`/auth/reset-password?error=${encodeURIComponent(parsed.error)}`);
   }
+  const { password } = parsed.data;
 
   const supabase = createClient(context.request.headers, context.cookies);
   if (!supabase) {
