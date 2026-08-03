@@ -3,7 +3,8 @@ import { Plus, CircleAlert } from "lucide-react";
 import { SubmitButton } from "@/components/auth/SubmitButton";
 import { ServerError } from "@/components/auth/ServerError";
 import { cn } from "@/lib/utils";
-import { PRICE_MAX_CENTS, PRICE_MIN_CENTS } from "@/lib/schemas/specialist";
+// From ./limits, never ./specialist — that module pulls zod into the client bundle.
+import { PRICE_MAX_CENTS, PRICE_MIN_CENTS } from "@/lib/schemas/limits";
 import type { ServiceCategory, ServiceSubtype } from "@/types";
 
 interface Props {

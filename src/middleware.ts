@@ -13,6 +13,15 @@ const PROTECTED_ROUTES = ["/dashboard", "/specialist"];
 // well would mean a redirect where a form post expects one specific response.
 const SPECIALIST_ROUTES = ["/specialist"];
 
+/**
+ * Match on a path boundary, not a bare prefix. `startsWith("/specialist")` would also claim
+ * `/specialists` — which is exactly the shape S-03's public browse page is likely to take,
+ * and it would silently require a specialist account to view (impl-review F3).
+ */
+function matchesRoute(pathname: string, route: string): boolean {
+  return pathname === route || pathname.startsWith(`${route}/`);
+}
+
 export const onRequest = defineMiddleware(async (context, next) => {
   const supabase = createClient(context.request.headers, context.cookies);
 
@@ -38,13 +47,13 @@ export const onRequest = defineMiddleware(async (context, next) => {
     }
   }
 
-  if (PROTECTED_ROUTES.some((route) => context.url.pathname.startsWith(route))) {
+  if (PROTECTED_ROUTES.some((route) => matchesRoute(context.url.pathname, route))) {
     if (!context.locals.user) {
       return context.redirect("/auth/signin");
     }
   }
 
-  if (SPECIALIST_ROUTES.some((route) => context.url.pathname.startsWith(route))) {
+  if (SPECIALIST_ROUTES.some((route) => matchesRoute(context.url.pathname, route))) {
     if (context.locals.role !== "specialist") {
       return context.redirect("/dashboard");
     }

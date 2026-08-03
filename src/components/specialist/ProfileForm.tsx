@@ -4,7 +4,8 @@ import { FormField } from "@/components/auth/FormField";
 import { SubmitButton } from "@/components/auth/SubmitButton";
 import { ServerError } from "@/components/auth/ServerError";
 import { AreaPicker } from "@/components/specialist/AreaPicker";
-import { DISPLAY_NAME_MAX, DISPLAY_NAME_MIN } from "@/lib/schemas/specialist";
+// From ./limits, never ./specialist — that module pulls zod into the client bundle.
+import { DISPLAY_NAME_MAX, DISPLAY_NAME_MIN } from "@/lib/schemas/limits";
 import type { ServiceArea } from "@/types";
 
 interface Props {

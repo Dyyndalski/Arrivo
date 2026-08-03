@@ -1,12 +1,14 @@
 import { z } from "zod";
+import {
+  DICTIONARY_ID_MAX,
+  DISPLAY_NAME_MAX,
+  DISPLAY_NAME_MIN,
+  PRICE_MAX_CENTS,
+  PRICE_MIN_CENTS,
+} from "@/lib/schemas/limits";
 
-/** Mirrors the CHECK constraints in the specialist_profiles migration — keep the two in step. */
-export const DISPLAY_NAME_MIN = 2;
-export const DISPLAY_NAME_MAX = 60;
-
-/** 1 zł .. 100 000 zł, stored as integer grosze. Never floating point for money. */
-export const PRICE_MIN_CENTS = 100;
-export const PRICE_MAX_CENTS = 10_000_000;
+// The bounds live in ./limits.ts, which imports nothing. Do NOT re-export them from here:
+// anything that imports a constant from this module also imports zod (impl-review F1).
 
 export const specialistProfileSchema = z.object({
   // Trimmed here as well as checked in the database: the migration rejects untrimmed input
@@ -26,13 +28,6 @@ export const specialistProfileSchema = z.object({
     // primary key would reject the batch outright, so collapse duplicates first.
     .transform((ids) => [...new Set(ids)]),
 });
-
-/**
- * The dictionary ids are `smallint` columns. Without this bound a larger number reaches
- * Postgres and comes back as 22003 (numeric_value_out_of_range) — a generic "try again" for
- * what is really "that is not a service type". Keep in step with the migration's column types.
- */
-const DICTIONARY_ID_MAX = 32767;
 
 const dictionaryId = (label: string) =>
   z.coerce.number({ error: label }).int({ error: label }).positive({ error: label }).max(DICTIONARY_ID_MAX, {

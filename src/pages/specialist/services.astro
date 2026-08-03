@@ -18,8 +18,11 @@ let categories: ServiceCategory[] = [];
 let subtypes: ServiceSubtype[] = [];
 let loadError: string | null = null;
 
-if (!supabase || !user) {
+// Three distinct causes, three distinct messages (impl-review F2).
+if (!supabase) {
   loadError = "Supabase is not configured";
+} else if (!user) {
+  loadError = "Your session has expired — sign in again";
 } else {
   try {
     const [loadedCard, taxonomy] = await Promise.all([getOwnCard(supabase, user.id), getTaxonomy(supabase)]);
@@ -31,7 +34,9 @@ if (!supabase || !user) {
   }
 }
 
-const error = Astro.url.searchParams.get("error") ?? loadError;
+// A failed POST comes back as ?error= and belongs inside the form. A failed load replaces the
+// form and the list entirely rather than rendering them empty.
+const formError = Astro.url.searchParams.get("error");
 const message = Astro.url.searchParams.get("message");
 ---
 
@@ -44,7 +49,7 @@ const message = Astro.url.searchParams.get("message");
         Your services
       </h1>
 
-      <CardStatus missing={missingPieces(card)} />
+      {!loadError && <CardStatus missing={missingPieces(card)} />}
 
       {
         message && (
@@ -54,12 +59,22 @@ const message = Astro.url.searchParams.get("message");
         )
       }
 
-      <ServiceList services={card.services} categories={categories} subtypes={subtypes} />
+      {
+        loadError ? (
+          <p class="rounded-2xl border border-red-500/30 bg-red-900/20 px-4 py-6 text-center text-sm text-red-300">
+            {loadError}
+          </p>
+        ) : (
+          <>
+            <ServiceList services={card.services} categories={categories} subtypes={subtypes} />
 
-      <div class="rounded-2xl border border-white/10 bg-white/10 p-6 backdrop-blur-xl">
-        <h2 class="mb-4 text-sm font-medium text-blue-100/80">Add a service</h2>
-        <ServiceForm categories={categories} subtypes={subtypes} serverError={error} client:load />
-      </div>
+            <div class="rounded-2xl border border-white/10 bg-white/10 p-6 backdrop-blur-xl">
+              <h2 class="mb-4 text-sm font-medium text-blue-100/80">Add a service</h2>
+              <ServiceForm categories={categories} subtypes={subtypes} serverError={formError} client:load />
+            </div>
+          </>
+        )
+      }
     </div>
   </div>
 </Layout>
