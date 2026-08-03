@@ -1,19 +1,44 @@
 ---
 import Layout from "@/layouts/Layout.astro";
 
-const { user } = Astro.locals;
+const { user, role } = Astro.locals;
 ---
 
 <Layout title="Dashboard">
   <div class="bg-cosmic flex min-h-screen items-center justify-center p-4">
-    <div class="rounded-2xl border border-white/10 bg-white/10 p-8 text-center text-white backdrop-blur-xl">
+    <div
+      class="w-full max-w-md rounded-2xl border border-white/10 bg-white/10 p-8 text-center text-white backdrop-blur-xl"
+    >
       <h1 class="mb-4 bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-3xl font-bold text-transparent">
         Dashboard
       </h1>
       <p class="text-blue-100/80">
         Welcome, <span class="font-semibold text-white">{user?.email}</span>
       </p>
-      <p class="mt-2 text-sm text-blue-100/50">This page is only for authenticated users.</p>
+
+      {
+        role === "specialist" ? (
+          <div class="mt-6 space-y-2 text-left">
+            <a
+              href="/specialist/profile"
+              class="block rounded-xl border border-white/15 bg-white/5 px-4 py-3 transition-colors hover:border-purple-400/50 hover:bg-white/10"
+            >
+              <span class="font-medium">Your profile</span>
+              <span class="block text-sm text-blue-100/50">Business name and the districts you travel to</span>
+            </a>
+            <a
+              href="/specialist/services"
+              class="block rounded-xl border border-white/15 bg-white/5 px-4 py-3 transition-colors hover:border-purple-400/50 hover:bg-white/10"
+            >
+              <span class="font-medium">Your services</span>
+              <span class="block text-sm text-blue-100/50">What you offer and what it costs</span>
+            </a>
+          </div>
+        ) : (
+          <p class="mt-2 text-sm text-blue-100/50">This page is only for authenticated users.</p>
+        )
+      }
+
       <form method="POST" action="/api/auth/signout" class="mt-6">
         <button
           type="submit"

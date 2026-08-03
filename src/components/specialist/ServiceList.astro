@@ -1,0 +1,51 @@
+---
+import type { Service, ServiceCategory, ServiceSubtype } from "@/types";
+
+// No interactivity here — each row's remove button is a native form post, so this stays an
+// Astro component rather than a React island.
+interface Props {
+  services: Service[];
+  categories: ServiceCategory[];
+  subtypes: ServiceSubtype[];
+}
+
+const { services, categories, subtypes } = Astro.props;
+
+const categoryName = new Map(categories.map((c) => [c.id, c.name]));
+const subtypeName = new Map(subtypes.map((s) => [s.id, s.name]));
+
+// Prices are integer grosze; render with a comma, which is how Polish prices are written.
+const formatPrice = (cents: number) =>
+  `${(cents / 100).toLocaleString("pl-PL", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`;
+---
+
+{
+  services.length === 0 ? (
+    <p class="rounded-xl border border-white/10 bg-white/5 px-4 py-6 text-center text-sm text-blue-100/50">
+      No services yet. Add your first one to make your card visible.
+    </p>
+  ) : (
+    <ul class="divide-y divide-white/10 overflow-hidden rounded-xl border border-white/10 bg-white/5">
+      {services.map((service) => (
+        <li class="flex items-center gap-3 px-4 py-3">
+          <div class="min-w-0 flex-1">
+            <p class="truncate font-medium text-white">{categoryName.get(service.category_id) ?? "Unknown type"}</p>
+            {service.subtype_id !== null && (
+              <p class="truncate text-xs text-blue-100/50">{subtypeName.get(service.subtype_id)}</p>
+            )}
+          </div>
+          <span class="shrink-0 font-medium text-purple-200">{formatPrice(service.price_cents)}</span>
+          <form method="POST" action={`/api/specialist/services/${service.id}/delete`}>
+            <button
+              type="submit"
+              class="rounded-lg border border-white/20 px-2.5 py-1 text-xs text-blue-100/70 transition-colors hover:border-red-400/50 hover:text-red-300"
+              aria-label={`Remove ${categoryName.get(service.category_id) ?? "service"}`}
+            >
+              Remove
+            </button>
+          </form>
+        </li>
+      ))}
+    </ul>
+  )
+}

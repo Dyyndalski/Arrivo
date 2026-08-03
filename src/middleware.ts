@@ -2,7 +2,16 @@ import { defineMiddleware } from "astro:middleware";
 import { createClient } from "@/lib/supabase";
 import type { UserRole } from "@/types";
 
-const PROTECTED_ROUTES = ["/dashboard"];
+const PROTECTED_ROUTES = ["/dashboard", "/specialist"];
+
+// Routes only a specialist-role account may open. Checked after PROTECTED_ROUTES, so a signed
+// -out visitor still gets the sign-in redirect rather than being bounced to a dashboard they
+// cannot see either.
+//
+// This covers pages only. The /api/specialist/* endpoints carry their own role check (and the
+// RLS policies behind them are the boundary that actually has to hold) — gating them here as
+// well would mean a redirect where a form post expects one specific response.
+const SPECIALIST_ROUTES = ["/specialist"];
 
 export const onRequest = defineMiddleware(async (context, next) => {
   const supabase = createClient(context.request.headers, context.cookies);
@@ -32,6 +41,12 @@ export const onRequest = defineMiddleware(async (context, next) => {
   if (PROTECTED_ROUTES.some((route) => context.url.pathname.startsWith(route))) {
     if (!context.locals.user) {
       return context.redirect("/auth/signin");
+    }
+  }
+
+  if (SPECIALIST_ROUTES.some((route) => context.url.pathname.startsWith(route))) {
+    if (context.locals.role !== "specialist") {
+      return context.redirect("/dashboard");
     }
   }
 

@@ -1,0 +1,38 @@
+---
+// Renders the completeness rule from src/lib/services/specialists.ts. Deliberately shows what
+// is MISSING rather than a bare "incomplete": a specialist who cannot tell why their card is
+// invisible has no way to fix it, and an invisible card is the failure mode this whole slice
+// exists to avoid.
+interface Props {
+  missing: string[];
+}
+
+const { missing } = Astro.props;
+const complete = missing.length === 0;
+---
+
+<div
+  class:list={[
+    "flex items-start gap-3 rounded-xl border px-4 py-3 text-sm",
+    complete ? "border-emerald-400/30 bg-emerald-500/10" : "border-amber-400/30 bg-amber-500/10",
+  ]}
+>
+  <span class:list={["mt-0.5 shrink-0", complete ? "text-emerald-300" : "text-amber-300"]}>
+    {complete ? "●" : "○"}
+  </span>
+  <div>
+    {
+      complete ? (
+        <>
+          <p class="font-medium text-emerald-200">Your card is live</p>
+          <p class="text-emerald-100/60">Clients in your districts can find you.</p>
+        </>
+      ) : (
+        <>
+          <p class="font-medium text-amber-200">Not visible to clients yet</p>
+          <p class="text-amber-100/70">Still needed: {missing.join(", ")}.</p>
+        </>
+      )
+    }
+  </div>
+</div>

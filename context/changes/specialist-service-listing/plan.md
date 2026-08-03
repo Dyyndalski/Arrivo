@@ -334,8 +334,8 @@ Migrations are forward-only, matching F-01 — a Worker rollback does not revert
 
 #### Automated
 
-- [ ] 3.1 `npm run build` passes
-- [ ] 3.2 `npm run lint` passes, CRLF-aware check empty
+- [x] 3.1 `npm run build` passes
+- [x] 3.2 `npm run lint` passes, CRLF-aware check empty
 
 #### Manual
 
