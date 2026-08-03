@@ -99,6 +99,7 @@ All tables, seed data, grants, policies, and the pgTAP suite that proves the wri
 - `public.specialist_areas` — `specialist_id` → `specialist_profiles` (cascade), `area_id` → `service_areas`, PK on the pair. Join table: editing means delete + insert, so no `update` path is needed.
 - `public.services` — `id uuid PK`, `specialist_id` → `specialist_profiles` (cascade), `category_id` (not null) → `service_categories`, `subtype_id` (nullable), `price_cents integer not null check (price_cents > 0)`, timestamps, and the composite FK from *Critical Implementation Details*.
 - Price is stored in grosze as an integer — no floating point for money. Currency is implicitly PLN in v1; no column.
+- **Addendum (impl-review F4, 2026-08-03):** a `set_updated_at()` trigger function plus `before update` triggers on `specialist_profiles` and `services`. The contract above named the `updated_at` columns but no keeper, so without this they would freeze at insert time. Asserted in the pgTAP suite (the trigger overrides a client-supplied timestamp).
 
 #### 3. RLS policies and grants
 
@@ -304,15 +305,15 @@ Migrations are forward-only, matching F-01 — a Worker rollback does not revert
 
 #### Automated
 
-- [x] 1.1 `npx supabase db reset` applies every migration cleanly from scratch
-- [x] 1.2 `npx supabase test db` is green, including `specialist_listing_rls.test.sql`
-- [x] 1.3 Seed counts are correct: 18 areas, 6 categories, every subtype attached to a category
+- [x] 1.1 `npx supabase db reset` applies every migration cleanly from scratch — faf9f27
+- [x] 1.2 `npx supabase test db` is green, including `specialist_listing_rls.test.sql` — faf9f27
+- [x] 1.3 Seed counts are correct: 18 areas, 6 categories, every subtype attached to a category — faf9f27
 
 #### Manual
 
-- [x] 1.4 `npx supabase db push` lands the migrations on the hosted project without drift
+- [x] 1.4 `npx supabase db push` lands the migrations on the hosted project without drift — faf9f27
 - [ ] 1.5 Tables and seed rows are visible in Supabase Studio
-- [x] 1.6 The pre-existing `profiles_rls.test.sql` still passes
+- [x] 1.6 The pre-existing `profiles_rls.test.sql` still passes — faf9f27
 
 ### Phase 2: Validated write layer
 
