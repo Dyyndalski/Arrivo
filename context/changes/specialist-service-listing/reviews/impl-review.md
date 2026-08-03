@@ -5,7 +5,7 @@
 - **Plan**: `context/changes/specialist-service-listing/plan.md`
 - **Scope**: Full plan (phases 1–3), with emphasis on phase 3 and cross-phase interactions
 - **Date**: 2026-08-03
-- **Verdict**: NEEDS ATTENTION
+- **Verdict**: NEEDS ATTENTION → resolved (F1–F3 fixed in `aac0345`; F4, F5 deliberately deferred)
 - **Findings**: 0 critical, 1 warning, 4 observations
 
 ## Verdicts
@@ -34,7 +34,7 @@
 - **Detail**: Both React islands import bounds (`DISPLAY_NAME_MIN/MAX`, `PRICE_MIN_CENTS/MAX`) from `@/lib/schemas/specialist`. That module calls `import { z } from "zod"` and constructs its schemas at module scope, so the import cannot be tree-shaken down to the constants — the whole library follows them into the island. Measured in the deployed output: `dist/client/_astro/specialist.oTcJN1d4.js` is **65 KB** and contains zod's runtime (`ZodError`, `_zod` markers), making it the largest client chunk after React itself. Nothing in the browser ever calls a zod schema; validation runs in the endpoint.
   This lands badly against two things the PRD is explicit about: the p95 "results in under a second" NFR, and a primary persona of elderly / limited-mobility clients who are not on fast devices. It is also a pattern the next slices will copy — S-03's filter UI will want the same constants.
 - **Fix**: Move the shared bounds into a dependency-free module (e.g. `src/lib/schemas/limits.ts`) and have both `specialist.ts` and the two islands import from there. The server keeps validating through zod; the browser gets four numbers.
-- **Decision**: PENDING
+- **Decision**: FIXED — `aac0345`. Measured: the 65,218 B shared chunk is gone; ProfileForm 3,404 B + ServiceForm 3,289 B + limits 77 B replace it (~58 KB less JS on specialist pages).
 
 ### F2 — The load-failure path shows an empty form and blames the wrong thing
 
@@ -44,7 +44,7 @@
 - **Location**: `src/pages/specialist/profile.astro:19-21`, `src/pages/specialist/services.astro:22-24`
 - **Detail**: When the card cannot be loaded, both pages fall back to the empty default (`{ profile: null, area_ids: [], services: [] }`) and render normally — so a specialist with a saved profile sees a blank name, no districts ticked, and a banner saying their card is not visible. The accompanying message is `"Supabase is not configured"`, which is also emitted for `!user`, a different cause entirely. No data is actually at risk (submitting an empty form is blocked by validation), but the screen states something false about the specialist's saved work.
 - **Fix**: Separate the two causes, and on a load failure render the error in place of the form rather than around an empty one.
-- **Decision**: PENDING
+- **Decision**: FIXED — `aac0345`. Caveat: the happy path was re-verified, but the load-failure branch itself was not exercised (inducing a mid-request Supabase failure was not attempted).
 
 ### F3 — Route prefixes match more than they name
 
@@ -54,7 +54,7 @@
 - **Location**: `src/middleware.ts:5-15`
 - **Detail**: Both lists are tested with `startsWith`, so `/specialist` also claims `/specialists`, `/specialist-signup`, and anything else sharing the prefix — as `/dashboard` already did before this slice. Harmless today because no such route exists, and it fails closed (an unintended match is gated, not exposed). It becomes a trap the moment someone adds a public `/specialists` browse page, which is exactly what S-03 is: that page would silently require a specialist account to view.
 - **Fix**: Match on a path boundary — `pathname === route || pathname.startsWith(route + "/")`.
-- **Decision**: PENDING
+- **Decision**: FIXED — `aac0345`. Verified: a client hitting `/specialists` now gets 404 rather than `302 /dashboard`.
 
 ### F4 — The completeness rule is a cross-slice contract with nothing enforcing it
 
@@ -64,7 +64,7 @@
 - **Location**: `src/lib/services/specialists.ts:158-172`
 - **Detail**: `isCardComplete()` decides what a specialist is told about their own visibility. S-03's discovery query will decide what clients actually see. These are two implementations of one rule in two slices, and they are only kept in agreement by intent. If they diverge, the failure is silent and asymmetric in the worst direction: a specialist reads "Your card is live" while no client can find them — supply that believes it is participating and is not, against a success metric of "≥50% of specialists receive a booking". This is recorded in `change.md`, but a note is not a guard.
 - **Fix**: When S-03 lands, have the discovery query consume the same predicate — either by building the query from it, or by adding a test that asserts a card `isCardComplete()` accepts is one discovery returns. Decide the mechanism when the query exists, not now.
-- **Decision**: PENDING
+- **Decision**: DEFERRED to S-03 — recorded in `change.md` and carried here deliberately; there is nothing to build against until the discovery query exists.
 
 ### F5 — No automated coverage for anything above the database
 
@@ -74,4 +74,4 @@
 - **Location**: `package.json`
 - **Detail**: The slice added 27 pgTAP assertions and no JS tests, per plan and per CLAUDE.md (test strategy is a later module). The consequence is visible in this change's own history: phase 2's F1/F2 were confirmed only because the schemas were run by hand under `node --experimental-strip-types`, and both had already survived a full end-to-end pass. The validation layer and the completeness rule are pure functions with no I/O — the cheapest possible things to test — and they are precisely where the bugs were.
 - **Fix**: Out of scope to fix here. Worth raising when the test-runner decision is made, with `src/lib/schemas/` and `isCardComplete` as the first candidates.
-- **Decision**: PENDING
+- **Decision**: DEFERRED — test strategy belongs to a later module per CLAUDE.md; adding a runner inside this slice would have been scope creep.
