@@ -2,7 +2,7 @@ import type { APIRoute } from "astro";
 import { createClient } from "@/lib/supabase";
 import { parseOrError } from "@/lib/schemas/parse";
 import { serviceIdSchema } from "@/lib/schemas/specialist";
-import { deleteService, NotAllowedError } from "@/lib/services/specialists";
+import { deleteService, NoCardError, NotAllowedError } from "@/lib/services/specialists";
 
 const PAGE = "/specialist/services";
 
@@ -28,15 +28,22 @@ export const POST: APIRoute = async (context) => {
     return context.redirect(`${PAGE}?error=${encodeURIComponent(parsed.error)}`);
   }
 
+  let removed = false;
   try {
-    await deleteService(supabase, user.id, parsed.data);
+    removed = await deleteService(supabase, user.id, parsed.data);
   } catch (err) {
-    if (err instanceof NotAllowedError) {
+    if (err instanceof NotAllowedError || err instanceof NoCardError) {
       return context.redirect(`${PAGE}?error=${encodeURIComponent(err.message)}`);
     }
     // eslint-disable-next-line no-console -- server-side diagnostics (Workers observability)
     console.error("specialist/services/delete: deleteService failed", err);
     return context.redirect(`${PAGE}?error=${encodeURIComponent("Could not remove the service — try again")}`);
+  }
+
+  // Nothing matched: a stale tab or a double submit. Saying "removed" would contradict the
+  // list the user is about to see.
+  if (!removed) {
+    return context.redirect(`${PAGE}?message=${encodeURIComponent("That service is no longer there")}`);
   }
 
   return context.redirect(`${PAGE}?message=${encodeURIComponent("Service removed")}`);

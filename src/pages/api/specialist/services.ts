@@ -2,7 +2,7 @@ import type { APIRoute } from "astro";
 import { createClient } from "@/lib/supabase";
 import { parseOrError } from "@/lib/schemas/parse";
 import { serviceSchema } from "@/lib/schemas/specialist";
-import { addService, NotAllowedError } from "@/lib/services/specialists";
+import { addService, NoCardError, NotAllowedError } from "@/lib/services/specialists";
 
 const PAGE = "/specialist/services";
 
@@ -38,10 +38,10 @@ export const POST: APIRoute = async (context) => {
       price_cents: parsed.data.price,
     });
   } catch (err) {
-    if (err instanceof NotAllowedError) {
-      // Also the path a specialist hits before saving their card: services has a foreign key
-      // to specialist_profiles, so "no card yet" surfaces as 23503 here too.
-      return context.redirect(`${PAGE}?error=${encodeURIComponent("Save your profile first, then add services")}`);
+    // Two different remedies, so two different messages: NoCardError means "save a profile",
+    // NotAllowedError means "this account cannot do that at all".
+    if (err instanceof NoCardError || err instanceof NotAllowedError) {
+      return context.redirect(`${PAGE}?error=${encodeURIComponent(err.message)}`);
     }
     // eslint-disable-next-line no-console -- server-side diagnostics (Workers observability)
     console.error("specialist/services: addService failed", err);

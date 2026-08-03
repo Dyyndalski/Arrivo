@@ -2,7 +2,7 @@ import type { APIRoute } from "astro";
 import { createClient } from "@/lib/supabase";
 import { parseOrError } from "@/lib/schemas/parse";
 import { specialistProfileSchema } from "@/lib/schemas/specialist";
-import { NotAllowedError, upsertOwnCard } from "@/lib/services/specialists";
+import { NoCardError, NotAllowedError, upsertOwnCard } from "@/lib/services/specialists";
 
 const PAGE = "/specialist/profile";
 
@@ -35,7 +35,7 @@ export const POST: APIRoute = async (context) => {
   try {
     await upsertOwnCard(supabase, user.id, parsed.data);
   } catch (err) {
-    if (err instanceof NotAllowedError) {
+    if (err instanceof NotAllowedError || err instanceof NoCardError) {
       return context.redirect(`${PAGE}?error=${encodeURIComponent(err.message)}`);
     }
     // eslint-disable-next-line no-console -- server-side diagnostics (Workers observability)

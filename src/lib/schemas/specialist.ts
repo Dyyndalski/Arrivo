@@ -43,11 +43,17 @@ export const serviceSchema = z.object({
   category_id: dictionaryId("Choose a service type"),
 
   // Optional by design: the taxonomy is two-level but the subtype narrows rather than
-  // qualifies. An empty select posts "", which must read as "not chosen", not as invalid.
-  subtype_id: z
-    .union([z.literal(""), dictionaryId("Choose a valid option for that service type")])
-    .optional()
-    .transform((v) => (v === "" || v === undefined ? null : v)),
+  // qualifies, so "not chosen" is a valid answer and must not read as invalid.
+  //
+  // Normalize the empty representations up front instead of enumerating them in a union.
+  // "Absent" arrives three different ways — an empty select posts "", FormData.get() returns
+  // null for a field that isn't in the body at all, and a direct caller may omit the key —
+  // and a union would also swallow the message below, reporting zod's generic "Invalid input"
+  // for every failure (impl-review F1, F2).
+  subtype_id: z.preprocess(
+    (v) => (v === "" || v === null || v === undefined ? null : v),
+    dictionaryId("Choose a valid option for that service type").nullable(),
+  ),
 
   // Accepted as PLN text (both "120.50" and "120,50" — Polish keyboards produce the comma),
   // converted to grosze exactly once, here.

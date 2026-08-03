@@ -28,8 +28,28 @@ export class NotAllowedError extends Error {
   }
 }
 
+/**
+ * The caller is a specialist but has no card yet, so a child row has nothing to hang off.
+ * Distinct from NotAllowedError because the remedy is different — save a profile, not get a
+ * different account — and answering both with one message sends people to re-save a profile
+ * they already have (impl-review F5).
+ *
+ * Caveat: 23503 also covers an in-range but non-existent subtype id. Reaching that needs a
+ * tampered request (the schema bounds ids to smallint), and the fallback message stays
+ * survivable, so the two are not separated further here.
+ */
+export class NoCardError extends Error {
+  constructor() {
+    super("Save your profile first, then add services");
+    this.name = "NoCardError";
+  }
+}
+
 function rethrow(error: { code?: string; message: string } | null): void {
   if (!error) return;
+  if (error.code === "23503") {
+    throw new NoCardError();
+  }
   if (error.code && NOT_ALLOWED_CODES.has(error.code)) {
     throw new NotAllowedError();
   }
@@ -81,12 +101,15 @@ export async function getOwnCard(supabase: Client, userId: string): Promise<Spec
 /**
  * Write the card and replace its declared areas.
  *
- * Area editing is delete-then-insert because the join table has no UPDATE path by design.
- * These are two statements without a surrounding transaction — PostgREST has no cross-request
- * transaction — so a failure between them leaves the areas cleared. Acceptable here: the user
- * is looking at the form, the failure is reported, and re-submitting is idempotent. The
- * alternative (an RPC wrapping both) is more machinery than a two-row edit warrants at MVP
- * scale; revisit if area editing ever becomes a background operation.
+ * PostgREST has no cross-request transaction, so replacing a selection is two statements and
+ * one of them can fail alone. ADD FIRST, THEN REMOVE — never the reverse (impl-review F3).
+ * Deleting first means a failed insert leaves the specialist with ZERO areas, which by the
+ * completeness rule silently drops their card out of discovery, with only a generic "could
+ * not save" to explain it. In this order a failed add changes nothing and a failed remove
+ * leaves a superset: the card over-declares for a moment instead of vanishing.
+ *
+ * Editing a selection is add/remove rather than update because the join table has no UPDATE
+ * path by design — it is all primary key.
  */
 export async function upsertOwnCard(
   supabase: Client,
@@ -98,13 +121,19 @@ export async function upsertOwnCard(
     .upsert({ id: userId, display_name: input.display_name }, { onConflict: "id" });
   rethrow(profileError);
 
-  const { error: deleteError } = await supabase.from("specialist_areas").delete().eq("specialist_id", userId);
-  rethrow(deleteError);
+  const { error: addError } = await supabase.from("specialist_areas").upsert(
+    input.area_ids.map((area_id) => ({ specialist_id: userId, area_id })),
+    { onConflict: "specialist_id,area_id", ignoreDuplicates: true },
+  );
+  rethrow(addError);
 
-  const { error: insertError } = await supabase
+  // Safe to interpolate: area_ids are schema-validated integers, never raw request strings.
+  const { error: pruneError } = await supabase
     .from("specialist_areas")
-    .insert(input.area_ids.map((area_id) => ({ specialist_id: userId, area_id })));
-  rethrow(insertError);
+    .delete()
+    .eq("specialist_id", userId)
+    .not("area_id", "in", `(${input.area_ids.join(",")})`);
+  rethrow(pruneError);
 }
 
 export async function addService(
@@ -116,11 +145,22 @@ export async function addService(
   rethrow(error);
 }
 
-export async function deleteService(supabase: Client, userId: string, serviceId: string): Promise<void> {
+/**
+ * Returns whether a row was actually removed. PostgREST reports no error when a delete
+ * matches nothing, so without asking for the rows back a stale tab or a double submit would
+ * be answered with "Service removed" and then contradicted on reload (impl-review F4).
+ */
+export async function deleteService(supabase: Client, userId: string, serviceId: string): Promise<boolean> {
   // Scoped by specialist_id as well as id: RLS already refuses someone else's row, but this
   // makes the intent explicit and keeps the query honest if policies are ever relaxed.
-  const { error } = await supabase.from("services").delete().eq("id", serviceId).eq("specialist_id", userId);
+  const { data, error } = await supabase
+    .from("services")
+    .delete()
+    .eq("id", serviceId)
+    .eq("specialist_id", userId)
+    .select("id");
   rethrow(error);
+  return (data ?? []).length > 0;
 }
 
 // --- The completeness rule ----------------------------------------------------------------

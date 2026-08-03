@@ -9,7 +9,7 @@
 -- the day a seed file or a second city appears.
 
 begin;
-select plan(17);
+select plan(20);
 
 -- Let the role-switched sub-tests below call pgTAP assertion functions. pgtap lives in its
 -- own schema; grant usage/execute on it to both switched-to roles, for this tx only.
@@ -112,6 +112,35 @@ select is(
   (select updated_at from public.specialist_profiles where id = '44444444-4444-4444-4444-444444444444'),
   now(),
   'set_updated_at overrides a client-supplied updated_at'
+);
+
+-- The bounds below also live in src/lib/schemas/specialist.ts as zod rules, and nothing
+-- structural keeps the two copies in step (impl-review F6). These assertions are the guard:
+-- move a bound in a migration and a test naming the schema file fails, instead of valid-
+-- looking input starting to fail after it has already passed validation.
+select throws_ok(
+  $$update public.specialist_profiles set display_name = repeat('x', 61)
+     where id = '44444444-4444-4444-4444-444444444444'$$,
+  '23514',
+  NULL,
+  'DB bound matches schema: a 61-character display_name is refused'
+);
+
+select throws_ok(
+  $$update public.specialist_profiles set display_name = '  Studio  '
+     where id = '44444444-4444-4444-4444-444444444444'$$,
+  '23514',
+  NULL,
+  'DB bound matches schema: an untrimmed display_name is refused'
+);
+
+select throws_ok(
+  $$insert into public.services (specialist_id, category_id, price_cents)
+    select '44444444-4444-4444-4444-444444444444', id, 0
+    from public.service_categories where slug = 'makijaz'$$,
+  '23514',
+  NULL,
+  'DB bound matches schema: a zero price is refused'
 );
 
 -- ===========================================================================
