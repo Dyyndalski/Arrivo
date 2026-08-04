@@ -760,17 +760,17 @@ they are amended by new files rather than edited.
 
 #### Automated
 
-- [ ] 2.1 `npx supabase db reset` applies every migration cleanly from scratch
-- [ ] 2.2 `npx supabase test db` is green, including the two pre-existing suites
-- [ ] 2.3 Seed counts correct: 10 cities, ~60 areas, every area has `city_id` and `name_en`
-- [ ] 2.4 `npm run build` and the CRLF-aware lint check pass after the type changes
-- [ ] 2.5 `npm run check` passes
+- [x] 2.1 `npx supabase db reset` applies every migration cleanly from scratch
+- [x] 2.2 `npx supabase test db` is green, including the two pre-existing suites
+- [x] 2.3 Seed counts correct: 10 cities, ~60 areas, every area has `city_id` and `name_en`
+- [x] 2.4 `npm run build` and the CRLF-aware lint check pass after the type changes
+- [x] 2.5 `npm run check` passes
 
 #### Manual
 
-- [ ] 2.6 `npx supabase db push` lands on hosted without drift and the production specialist's Warsaw areas still resolve
-- [ ] 2.7 `discoverable_specialists` returns the production specialist when queried as `anon`
-- [ ] 2.8 Another user's `client_profiles` row is unreadable through PostgREST
+- [x] 2.6 `npx supabase db push` lands on hosted without drift and the production specialist's Warsaw areas still resolve
+- [x] 2.7 `discoverable_specialists` returns the production specialist when queried as `anon`
+- [x] 2.8 Another user's `client_profiles` row is unreadable through PostgREST
 
 ### Phase 3: Retrofit — shell, auth and dashboard
 

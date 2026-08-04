@@ -25,3 +25,39 @@ export const PRICE_MAX_CENTS = 10_000_000;
  * what is really "that is not a service type".
  */
 export const DICTIONARY_ID_MAX = 32767;
+
+// --- S-03 ---------------------------------------------------------------------------------
+// Mirror 20260804120100_client_profiles.sql and 20260804120200_listing_details.sql. The pgTAP
+// suite pins the database side, so a drift fails a named test rather than surfacing as a
+// constraint violation the user cannot act on.
+
+/** FR-015 specialist bio. */
+export const BIO_MAX = 600;
+
+/** The specialist's own wording for a service. Supplements the taxonomy, never replaces it. */
+export const SERVICE_NAME_MIN = 2;
+export const SERVICE_NAME_MAX = 80;
+
+/** 15 minutes .. 10 hours. Rejects a stray "1" meant as an hour and a typo proposing a two-day visit. */
+export const DURATION_MIN_MINUTES = 15;
+export const DURATION_MAX_MINUTES = 600;
+
+export const NAME_MIN = 1;
+export const NAME_MAX = 60;
+export const PHONE_MIN = 6;
+export const PHONE_MAX = 24;
+export const STREET_MIN = 2;
+export const STREET_MAX = 120;
+
+/** Polish format, e.g. 00-001. Safe to pin: every seeded area is in a Polish city. */
+export const POSTAL_CODE_PATTERN = /^\d{2}-\d{3}$/;
+
+/**
+ * FR-014: how many ratings a specialist needs before an average is shown instead of the
+ * "New specialist" label.
+ *
+ * Lives here rather than in the `discoverable_specialists` view so changing it is a one-line edit
+ * and not a migration. The view reports `rating_count` and `rating_avg`; this decides what to say
+ * about them. Read in exactly one place — `ratingLabel()` in src/lib/services/discovery.ts.
+ */
+export const RATING_THRESHOLD = 3;

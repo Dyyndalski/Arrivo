@@ -213,8 +213,14 @@ select is(
   'anon can read declared areas (scoped to fixture)'
 );
 
+-- S-03 replaced the free-text `city` column with a FK to public.cities. The assertion is
+-- unchanged in intent — Warsaw still has its 18 districts — but it now reaches them through the
+-- dictionary rather than a string literal.
 select is(
-  (select count(*)::int from public.service_areas where city = 'Warszawa'),
+  (select count(*)::int
+     from public.service_areas a
+     join public.cities c on c.id = a.city_id
+    where c.slug = 'warszawa'),
   18,
   'the area dictionary is seeded with 18 Warsaw districts'
 );
