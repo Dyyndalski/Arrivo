@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arrivo — Zespół</title>
+<link rel="stylesheet" href="../_shared/styles.css">
+</head>
+<body>
+
+<div class="page-shell">
+
+  <div class="sidebar">
+    <div class="logo"><span class="mark">A</span> Arrivo</div>
+    <a href="dashboard-specialist.html"><span class="ico"></span> Dashboard</a>
+    <a href="services.html"><span class="ico"></span> Usługi</a>
+    <a href="team.html" class="active"><span class="ico"></span> Zespół</a>
+    <a href="booking-requests-specialist.html"><span class="ico"></span> Rezerwacje</a>
+    <a href="profile.html"><span class="ico"></span> Profil</a>
+    <div class="sidebar-foot">
+      <div class="flex items-center gap-3">
+        <div class="avatar avatar-sm">AK</div>
+        <div>
+          <div style="font-size:13px;font-weight:600;">Anna Kowalska</div>
+          <span class="badge badge-specialist">Specjalista</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="main-col">
+    <div class="navbar">
+      <div style="font-weight:600; font-size:15px;">Zespół</div>
+      <div class="nav-actions"><div class="avatar avatar-sm">AK</div></div>
+    </div>
+
+    <div class="content">
+      <div class="page-head">
+        <div>
+          <h1>Twój zespół</h1>
+          <p>Dodaj pracowników, żeby mogli obsługiwać rezerwacje w Twoim imieniu</p>
+        </div>
+      </div>
+
+      <div class="two-col" style="grid-template-columns: 1fr 340px; align-items:flex-start;">
+
+        <div>
+          <div class="list-item">
+            <div class="avatar avatar-md">MW</div>
+            <div class="grow">
+              <h4>Magda Wiśniewska</h4>
+              <div class="meta">Stylistka paznokci · dołączyła 3 mies. temu</div>
+            </div>
+            <span class="badge badge-accepted">Aktywna</span>
+            <button class="btn btn-ghost btn-sm">Edytuj</button>
+          </div>
+
+          <div class="list-item">
+            <div class="avatar avatar-md">TN</div>
+            <div class="grow">
+              <h4>Tomasz Nowicki</h4>
+              <div class="meta">Fryzjer · dołączył 2 tyg. temu</div>
+            </div>
+            <span class="badge badge-pending">Zaproszenie wysłane</span>
+            <button class="btn btn-ghost btn-sm">Edytuj</button>
+          </div>
+
+          <div class="empty-state" style="padding:32px 20px; margin-top:8px;">
+            <div class="ico">👥</div>
+            <h3>To wszyscy członkowie zespołu</h3>
+            <p>Dodaj kolejną osobę, żeby obsłużyć więcej rezerwacji jednocześnie</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Zaproś pracownika</div>
+          <div class="card-sub">Wyślemy zaproszenie e-mailem</div>
+
+          <div class="field">
+            <label>Imię i nazwisko</label>
+            <input type="text" placeholder="np. Magda Wiśniewska">
+          </div>
+          <div class="field">
+            <label>Adres e-mail</label>
+            <input type="email" placeholder="magda@przyklad.pl">
+          </div>
+          <div class="field">
+            <label>Specjalizacja</label>
+            <select>
+              <option>Fryzjerstwo</option>
+              <option>Stylizacja paznokci</option>
+              <option>Makijaż</option>
+              <option>Pielęgnacja skóry</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Uprawnienia</label>
+            <select>
+              <option>Może przyjmować rezerwacje</option>
+              <option>Tylko podgląd kalendarza</option>
+            </select>
+          </div>
+          <button class="btn btn-primary btn-block">Wyślij zaproszenie</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

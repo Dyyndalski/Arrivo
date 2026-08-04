@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arrivo — Rejestracja</title>
+<link rel="stylesheet" href="../_shared/styles.css">
+</head>
+<body>
+
+  <div class="auth-shell">
+    <div class="auth-card" style="max-width:440px;">
+      <div class="auth-logo"><span class="mark">A</span> Arrivo</div>
+      <div class="auth-title">Załóż konto</div>
+      <p class="auth-sub">Najpierw powiedz nam, kim jesteś</p>
+
+      <div class="role-grid">
+        <div class="role-card selected" onclick="selectRole(this)">
+          <div class="role-ico">🙋</div>
+          <h4>Jestem klientem</h4>
+          <p>Szukam specjalisty, który przyjedzie do mnie</p>
+        </div>
+        <div class="role-card" onclick="selectRole(this)">
+          <div class="role-ico">💼</div>
+          <h4>Jestem specjalistą</h4>
+          <p>Oferuję usługi z dojazdem do klienta</p>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Imię i nazwisko</label>
+        <input type="text" placeholder="Jan Kowalski">
+      </div>
+      <div class="field">
+        <label>Adres e-mail</label>
+        <input type="email" placeholder="ty@przyklad.pl">
+      </div>
+      <div class="field">
+        <label>Hasło</label>
+        <input type="password" placeholder="Min. 8 znaków">
+      </div>
+
+      <button class="btn btn-primary btn-block">Utwórz konto</button>
+
+      <div class="auth-foot">
+        Masz już konto? <a href="sign-in.html">Zaloguj się</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function selectRole(el) {
+      document.querySelectorAll('.role-card').forEach(c => c.classList.remove('selected'));
+      el.classList.add('selected');
+    }
+  </script>
+
+</body>
+</html>

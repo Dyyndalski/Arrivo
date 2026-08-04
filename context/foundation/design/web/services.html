@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arrivo — Usługi</title>
+<link rel="stylesheet" href="../_shared/styles.css">
+</head>
+<body>
+
+<div class="page-shell">
+
+  <div class="sidebar">
+    <div class="logo"><span class="mark">A</span> Arrivo</div>
+    <a href="dashboard-specialist.html"><span class="ico"></span> Dashboard</a>
+    <a href="services.html" class="active"><span class="ico"></span> Usługi</a>
+    <a href="team.html"><span class="ico"></span> Zespół</a>
+    <a href="booking-requests-specialist.html"><span class="ico"></span> Rezerwacje</a>
+    <a href="profile.html"><span class="ico"></span> Profil</a>
+    <div class="sidebar-foot">
+      <div class="flex items-center gap-3">
+        <div class="avatar avatar-sm">AK</div>
+        <div>
+          <div style="font-size:13px;font-weight:600;">Anna Kowalska</div>
+          <span class="badge badge-specialist">Specjalista</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="main-col">
+    <div class="navbar">
+      <div style="font-weight:600; font-size:15px;">Usługi</div>
+      <div class="nav-actions"><div class="avatar avatar-sm">AK</div></div>
+    </div>
+
+    <div class="content">
+      <div class="page-head">
+        <div>
+          <h1>Twoje usługi</h1>
+          <p>Klienci widzą je na Twoim publicznym profilu</p>
+        </div>
+      </div>
+
+      <div class="two-col" style="grid-template-columns: 1fr 340px; align-items:flex-start;">
+
+        <div>
+          <div class="list-item">
+            <div style="width:44px;height:44px;border-radius:10px;background:var(--primary-soft);flex-shrink:0;"></div>
+            <div class="grow">
+              <h4>Strzyżenie damskie</h4>
+              <div class="meta">Fryzjerstwo · 60 min</div>
+            </div>
+            <div style="font-weight:700;">150 zł</div>
+            <button class="btn btn-ghost btn-sm">Edytuj</button>
+          </div>
+
+          <div class="list-item">
+            <div style="width:44px;height:44px;border-radius:10px;background:var(--teal-soft);flex-shrink:0;"></div>
+            <div class="grow">
+              <h4>Koloryzacja + odżywka</h4>
+              <div class="meta">Fryzjerstwo · 120 min</div>
+            </div>
+            <div style="font-weight:700;">320 zł</div>
+            <button class="btn btn-ghost btn-sm">Edytuj</button>
+          </div>
+
+          <div class="list-item">
+            <div style="width:44px;height:44px;border-radius:10px;background:var(--warning-soft);flex-shrink:0;"></div>
+            <div class="grow">
+              <h4>Modelowanie i stylizacja</h4>
+              <div class="meta">Fryzjerstwo · 45 min</div>
+            </div>
+            <div style="font-weight:700;">90 zł</div>
+            <button class="btn btn-ghost btn-sm">Edytuj</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Dodaj nową usługę</div>
+          <div class="card-sub">Pojawi się od razu na Twoim profilu</div>
+
+          <div class="field">
+            <label>Nazwa usługi</label>
+            <input type="text" placeholder="np. Manicure hybrydowy">
+          </div>
+          <div class="field">
+            <label>Kategoria</label>
+            <select>
+              <option>Fryzjerstwo</option>
+              <option>Stylizacja paznokci</option>
+              <option>Makijaż</option>
+              <option>Pielęgnacja skóry</option>
+            </select>
+          </div>
+          <div class="two-col">
+            <div class="field">
+              <label>Cena (zł)</label>
+              <input type="number" placeholder="120">
+            </div>
+            <div class="field">
+              <label>Czas trwania (min)</label>
+              <input type="number" placeholder="60">
+            </div>
+          </div>
+          <div class="field">
+            <label>Opis (opcjonalnie)</label>
+            <textarea placeholder="Co obejmuje usługa..."></textarea>
+          </div>
+          <button class="btn btn-primary btn-block">Dodaj usługę</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

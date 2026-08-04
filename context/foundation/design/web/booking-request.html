@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arrivo — Rezerwacja</title>
+<link rel="stylesheet" href="../_shared/styles.css">
+</head>
+<body>
+
+  <div class="navbar">
+    <div class="logo"><span class="mark">A</span> Arrivo</div>
+    <div class="nav-links">
+      <a href="discover.html">Odkrywaj</a>
+      <a href="bookings-client.html">Moje rezerwacje</a>
+      <a href="profile.html">Profil</a>
+    </div>
+    <div class="nav-actions"><div class="avatar avatar-sm">MN</div></div>
+  </div>
+
+  <div class="content" style="max-width:600px;">
+    <div class="breadcrumb"><a href="specialist-profile.html">Anna Kowalska</a><span class="sep">/</span><span class="current">Rezerwacja</span></div>
+
+    <div class="steps">
+      <div class="step done"><span class="dot">✓</span> Usługa</div>
+      <span class="line"></span>
+      <div class="step current"><span class="dot">2</span> Termin i adres</div>
+      <span class="line"></span>
+      <div class="step"><span class="dot">3</span> Potwierdzenie</div>
+    </div>
+
+    <div class="page-head">
+      <div>
+        <h1>Zaproponuj termin</h1>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:16px;">
+      <div class="flex items-center gap-3">
+        <div class="avatar avatar-md">AK</div>
+        <div class="grow">
+          <div style="font-weight:700;">Strzyżenie damskie</div>
+          <div class="text-sm text-muted">Anna Kowalska · 60 min</div>
+        </div>
+        <div style="font-weight:700;">150 zł</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="two-col">
+        <div class="field">
+          <label>Data</label>
+          <input type="date">
+        </div>
+        <div class="field">
+          <label>Godzina</label>
+          <input type="time">
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Adres wizyty</label>
+        <input type="text" value="ul. Kwiatowa 12/3, Warszawa">
+        <div class="hint">🔒 Ten dokładny adres zobaczy specjalistka dopiero po zaakceptowaniu rezerwacji. Do tego czasu widzi jedynie okolicę "Mokotów".</div>
+      </div>
+
+      <div class="field">
+        <label>Wiadomość dla specjalistki (opcjonalnie)</label>
+        <textarea placeholder="np. proszę o dzwonek do domofonu 12"></textarea>
+      </div>
+
+      <button class="btn btn-primary btn-block">Wyślij zapytanie o rezerwację</button>
+      <p class="text-sm text-muted" style="text-align:center; margin-top:12px;">Anna potwierdzi lub odrzuci w ciągu 24 godzin</p>
+    </div>
+  </div>
+
+</body>
+</html>

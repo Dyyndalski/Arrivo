@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arrivo — Onboarding klienta</title>
+<link rel="stylesheet" href="../_shared/styles.css">
+</head>
+<body>
+
+  <div class="navbar">
+    <div class="logo"><span class="mark">A</span> Arrivo</div>
+    <div class="nav-actions"><span class="text-sm text-muted">Krok 1 z 1</span></div>
+  </div>
+
+  <div class="auth-shell" style="min-height: calc(100vh - 65px);">
+    <div class="auth-card" style="max-width:480px;">
+      <div class="auth-title" style="text-align:left;">Skąd do Ciebie dojeżdżamy?</div>
+      <p class="auth-sub" style="text-align:left; margin-bottom:22px;">Twój dokładny adres widzi tylko specjalista, który zaakceptuje rezerwację. Do tego czasu pokazujemy jedynie przybliżoną okolicę.</p>
+
+      <div class="field">
+        <label>Miasto</label>
+        <input type="text" placeholder="Warszawa">
+      </div>
+      <div class="two-col">
+        <div class="field">
+          <label>Ulica i numer</label>
+          <input type="text" placeholder="ul. Kwiatowa 12/3">
+        </div>
+        <div class="field">
+          <label>Kod pocztowy</label>
+          <input type="text" placeholder="00-001">
+        </div>
+      </div>
+
+      <div class="card-sm" style="background:var(--surface-alt); border:1px dashed var(--border-strong); text-align:center; color:var(--muted); margin-bottom:20px;">
+        🗺️ Podgląd mapy — zaznaczony przybliżony obszar
+      </div>
+
+      <a href="discover.html" class="btn btn-primary btn-block">Zapisz i przejdź do Arrivo</a>
+    </div>
+  </div>
+
+</body>
+</html>

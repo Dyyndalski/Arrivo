@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arrivo — Onboarding specjalisty</title>
+<link rel="stylesheet" href="../_shared/styles.css">
+</head>
+<body>
+
+  <div class="navbar">
+    <div class="logo"><span class="mark">A</span> Arrivo</div>
+    <div class="nav-actions"><span class="text-sm text-muted">Konfiguracja profilu</span></div>
+  </div>
+
+  <div class="content" style="max-width:640px;">
+    <div class="steps">
+      <div class="step done"><span class="dot">✓</span> Konto</div>
+      <span class="line"></span>
+      <div class="step current"><span class="dot">2</span> Profil firmowy</div>
+      <span class="line"></span>
+      <div class="step"><span class="dot">3</span> Usługi</div>
+    </div>
+
+    <div class="page-head">
+      <div>
+        <h1>Opowiedz o sobie klientom</h1>
+        <p>Ten profil zobaczą osoby przeglądające Arrivo w Twojej okolicy.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="flex items-center gap-4" style="margin-bottom:24px;">
+        <div class="avatar-upload">
+          <div class="avatar avatar-lg">AK</div>
+          <div class="edit-btn">📷</div>
+        </div>
+        <div>
+          <div style="font-weight:700; margin-bottom:2px;">Zdjęcie profilowe</div>
+          <div class="text-sm text-muted">JPG lub PNG, min. 400×400px</div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Nazwa profilu / marki</label>
+        <input type="text" placeholder="np. Anna Kowalska Beauty">
+      </div>
+
+      <div class="field">
+        <label>Kategoria usług</label>
+        <select>
+          <option>Fryzjerstwo</option>
+          <option>Stylizacja paznokci</option>
+          <option>Makijaż</option>
+          <option>Pielęgnacja skóry</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>O mnie</label>
+        <textarea placeholder="Kilka zdań o doświadczeniu i stylu pracy..."></textarea>
+      </div>
+
+      <div class="field">
+        <label>Obszar działania</label>
+        <input type="text" placeholder="np. Warszawa — Mokotów, Ochota, Śródmieście">
+        <div class="hint">Klienci poza tym obszarem nie zobaczą Twojego profilu w wynikach.</div>
+      </div>
+
+      <div class="flex justify-between" style="margin-top: 8px;">
+        <a href="sign-up.html" class="btn btn-ghost">Wstecz</a>
+        <a href="services.html" class="btn btn-primary">Dalej — dodaj pierwszą usługę</a>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
