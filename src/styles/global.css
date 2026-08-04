@@ -25,6 +25,10 @@
  * BOTH subsets are required. Polish diacritics — ą ć ę ł ń ś ź ż — live in latin-ext
  * (U+0100-02BA); a latin-only subset renders "Śródmieście" and "Żoliborz" in fallback glyphs.
  * Unicode ranges copied verbatim from the Google Fonts CSS2 response.
+ *
+ * Both families are SIL OFL 1.1. Serving them from our own origin is redistribution, so the
+ * licence texts ship alongside them — see public/fonts/README.md, OFL-Inter.txt and
+ * OFL-Fraunces.txt. Do not delete those when touching the font files.
  * ------------------------------------------------------------------------- */
 
 @font-face {
@@ -81,9 +85,6 @@
  * ------------------------------------------------------------------------- */
 
 :root {
-  /* Radii — mockup --r-sm/md/lg. */
-  --radius: 0.875rem;
-
   /* shadcn surface + text roles, re-pointed. */
   --background: #faf7f3;
   --foreground: #241c2c;

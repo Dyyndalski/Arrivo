@@ -9,6 +9,7 @@
     "astro": "astro",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
+    "check": "astro check",
     "format": "prettier --write ."
   },
   "dependencies": {

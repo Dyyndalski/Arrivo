@@ -400,6 +400,7 @@ phone/postal-code bounds. `limits.ts` stays dependency-free.
   `specialist_listing_rls` suites
 - Seed counts: 10 cities, ~60 areas, every area has a `city_id` and a `name_en`
 - `npm run build` and the CRLF-aware lint check pass after the type changes
+- `npm run check` passes (`astro check` — the only gate that sees type errors, incl. pl/en catalog parity)
 
 #### Manual Verification:
 
@@ -472,6 +473,7 @@ statistics tiles: the numbers in `dashboard-specialist.html` need bookings.
 
 - `npm run build` passes
 - `npm run lint` passes, CRLF-aware check empty
+- `npm run check` passes — no untranslated catalog key, no type error
 - No auth endpoint redirects with a non-key error string: `grep -rn "error=" src/pages/api/auth/`
   shows keys only
 
@@ -556,6 +558,7 @@ quietly wrong, which is the intended failure mode. Remove the docstring warning 
 
 - `npm run build` passes
 - `npm run lint` passes, CRLF-aware check empty
+- `npm run check` passes — no untranslated catalog key, no type error
 - `grep -rn "isCardComplete" src/` returns nothing — no caller left on the old predicate
 
 #### Manual Verification:
@@ -657,6 +660,7 @@ when `client_profiles` has no `area_id` — without it the wedge filter cannot d
 
 - `npm run build` passes
 - `npm run lint` passes, CRLF-aware check empty
+- `npm run check` passes — no untranslated catalog key, no type error
 - `grep -rn "RATING_THRESHOLD" src/` shows exactly one read, in `discovery.ts`
 - No client-side JS is emitted for `/specialists`: no island script in the built page
 
@@ -740,17 +744,17 @@ they are amended by new files rather than edited.
 
 #### Automated
 
-- [x] 1.1 `npm run build` passes
-- [x] 1.2 `npm run lint` passes and the CRLF-aware prettier check is empty
-- [x] 1.3 `npx astro sync` succeeds after the `env.d.ts` change
-- [x] 1.4 No `fonts.googleapis.com` reference in the built output
+- [x] 1.1 `npm run build` passes — 168ea67
+- [x] 1.2 `npm run lint` passes and the CRLF-aware prettier check is empty — 168ea67
+- [x] 1.3 `npx astro sync` succeeds after the `env.d.ts` change — 168ea67
+- [x] 1.4 No `fonts.googleapis.com` reference in the built output — 168ea67
 
 #### Manual
 
-- [x] 1.5 Existing screens render in the new palette without layout breakage
-- [x] 1.6 Language switcher flips Topbar strings and the choice survives a reload
-- [x] 1.7 Polish diacritics render correctly in both fonts
-- [x] 1.8 A fresh visitor with Polish `Accept-Language` and no cookie gets Polish
+- [x] 1.5 Existing screens render in the new palette without layout breakage — 168ea67
+- [x] 1.6 Language switcher flips Topbar strings and the choice survives a reload — 168ea67
+- [x] 1.7 Polish diacritics render correctly in both fonts — 168ea67
+- [x] 1.8 A fresh visitor with Polish `Accept-Language` and no cookie gets Polish — 168ea67
 
 ### Phase 2: Schema and data
 
@@ -760,12 +764,13 @@ they are amended by new files rather than edited.
 - [ ] 2.2 `npx supabase test db` is green, including the two pre-existing suites
 - [ ] 2.3 Seed counts correct: 10 cities, ~60 areas, every area has `city_id` and `name_en`
 - [ ] 2.4 `npm run build` and the CRLF-aware lint check pass after the type changes
+- [ ] 2.5 `npm run check` passes
 
 #### Manual
 
-- [ ] 2.5 `npx supabase db push` lands on hosted without drift and the production specialist's Warsaw areas still resolve
-- [ ] 2.6 `discoverable_specialists` returns the production specialist when queried as `anon`
-- [ ] 2.7 Another user's `client_profiles` row is unreadable through PostgREST
+- [ ] 2.6 `npx supabase db push` lands on hosted without drift and the production specialist's Warsaw areas still resolve
+- [ ] 2.7 `discoverable_specialists` returns the production specialist when queried as `anon`
+- [ ] 2.8 Another user's `client_profiles` row is unreadable through PostgREST
 
 ### Phase 3: Retrofit — shell, auth and dashboard
 
@@ -773,14 +778,15 @@ they are amended by new files rather than edited.
 
 - [ ] 3.1 `npm run build` passes
 - [ ] 3.2 `npm run lint` passes, CRLF-aware check empty
-- [ ] 3.3 Auth endpoints redirect with error keys only, no English sentences
+- [ ] 3.3 `npm run check` passes — no untranslated catalog key, no type error
+- [ ] 3.4 Auth endpoints redirect with error keys only, no English sentences
 
 #### Manual
 
-- [ ] 3.4 Full auth regression in both locales: sign up (both roles), sign in, sign out, forgot → reset → sign in
-- [ ] 3.5 A wrong password shows a translated message, not a raw key
-- [ ] 3.6 Every auth screen matches its mockup in layout and hierarchy
-- [ ] 3.7 The language switcher works from an auth screen while signed out
+- [ ] 3.5 Full auth regression in both locales: sign up (both roles), sign in, sign out, forgot → reset → sign in
+- [ ] 3.6 A wrong password shows a translated message, not a raw key
+- [ ] 3.7 Every auth screen matches its mockup in layout and hierarchy
+- [ ] 3.8 The language switcher works from an auth screen while signed out
 
 ### Phase 4: Retrofit — specialist panel, new fields, two-step area picker
 
@@ -788,16 +794,17 @@ they are amended by new files rather than edited.
 
 - [ ] 4.1 `npm run build` passes
 - [ ] 4.2 `npm run lint` passes, CRLF-aware check empty
-- [ ] 4.3 No caller of `isCardComplete` remains in `src/`
+- [ ] 4.3 `npm run check` passes — no untranslated catalog key, no type error
+- [ ] 4.4 No caller of `isCardComplete` remains in `src/`
 
 #### Manual
 
-- [ ] 4.4 Selections in two cities both persist across a city switch and a save
-- [ ] 4.5 "Select all in this city" saves every area of that city
-- [ ] 4.6 Bio, duration and custom service name save and re-display; a service without them still saves
-- [ ] 4.7 Card-status banner flips when the last service is deleted, and back
-- [ ] 4.8 Role gating on `/specialist/*` still holds for a client and for a signed-out visitor
-- [ ] 4.9 Specialist panel has no untranslated strings in either locale
+- [ ] 4.5 Selections in two cities both persist across a city switch and a save
+- [ ] 4.6 "Select all in this city" saves every area of that city
+- [ ] 4.7 Bio, duration and custom service name save and re-display; a service without them still saves
+- [ ] 4.8 Card-status banner flips when the last service is deleted, and back
+- [ ] 4.9 Role gating on `/specialist/*` still holds for a client and for a signed-out visitor
+- [ ] 4.10 Specialist panel has no untranslated strings in either locale
 
 ### Phase 5: Discovery
 
@@ -805,16 +812,17 @@ they are amended by new files rather than edited.
 
 - [ ] 5.1 `npm run build` passes
 - [ ] 5.2 `npm run lint` passes, CRLF-aware check empty
-- [ ] 5.3 `RATING_THRESHOLD` is read in exactly one place
-- [ ] 5.4 `/specialists` emits no client-side island script
+- [ ] 5.3 `npm run check` passes — no untranslated catalog key, no type error
+- [ ] 5.4 `RATING_THRESHOLD` is read in exactly one place
+- [ ] 5.5 `/specialists` emits no client-side island script
 
 #### Manual
 
-- [ ] 5.5 Area matching includes the covering specialist and excludes the non-covering one; the toggle reveals the second
-- [ ] 5.6 Category, price range and price sort each work and combine
-- [ ] 5.7 A signed-out visitor can browse and open a profile
-- [ ] 5.8 A specialist with no services is absent from results and their own banner agrees
-- [ ] 5.9 A non-discoverable specialist's profile URL returns 404
-- [ ] 5.10 Discovery has no untranslated strings; dictionary names follow the active locale
-- [ ] 5.11 Results render in under a second on a throttled connection
-- [ ] 5.12 The whole flow works on production after deploy
+- [ ] 5.6 Area matching includes the covering specialist and excludes the non-covering one; the toggle reveals the second
+- [ ] 5.7 Category, price range and price sort each work and combine
+- [ ] 5.8 A signed-out visitor can browse and open a profile
+- [ ] 5.9 A specialist with no services is absent from results and their own banner agrees
+- [ ] 5.10 A non-discoverable specialist's profile URL returns 404
+- [ ] 5.11 Discovery has no untranslated strings; dictionary names follow the active locale
+- [ ] 5.12 Results render in under a second on a throttled connection
+- [ ] 5.13 The whole flow works on production after deploy

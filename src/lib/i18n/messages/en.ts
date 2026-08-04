@@ -2,8 +2,11 @@ import type { MessageKey } from "./pl";
 
 /**
  * Typed against the Polish key space on purpose: `Record<MessageKey, string>` turns a missing
- * translation into a type error at build time. Do not widen this type or add keys that are not
- * in `./pl.ts` — the Polish catalog is the one that defines what exists.
+ * translation into a type error. Do not widen this type or add keys that are not in `./pl.ts` —
+ * the Polish catalog is the one that defines what exists.
+ *
+ * The type error only surfaces under `npm run check`; `astro build` does not typecheck. See the
+ * note in `./pl.ts`.
  */
 export const en: Record<MessageKey, string> = {
   "app.name": "Arrivo",

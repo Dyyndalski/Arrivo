@@ -1,7 +1,11 @@
 /**
  * Polish is the authoritative catalog: it defines the key space, and `./en.ts` is typed against
- * it so a key added here without an English counterpart fails the build rather than falling back
- * silently at runtime.
+ * it so a key added here without an English counterpart is a type error.
+ *
+ * That contract is only enforced by `npm run check` (`astro check`), which CI runs — `astro build`
+ * does not typecheck and type-aware ESLint reports lint rules, not compile errors. Do not drop
+ * that CI step: an unpaired key renders the literal string "undefined", or throws in `t()` when
+ * the message takes params.
  *
  * Flat, dotted keys — a nested object buys grouping and costs a lookup helper plus a recursive
  * key type for no benefit at this size.

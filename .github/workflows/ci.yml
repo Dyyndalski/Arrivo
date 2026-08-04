@@ -17,6 +17,10 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npx astro sync
+      # Type errors before style errors. `npm run lint` is type-aware but reports lint rules,
+      # not TS compile errors — without this step a type-level contract (e.g. the pl/en message
+      # catalog parity in src/lib/i18n) passes CI and fails at runtime instead.
+      - run: npm run check
       - run: npm run lint
       - run: npm run build
         env:
