@@ -1,10 +1,10 @@
 ---
 change_id: specialist-service-listing
 title: Specialist service listing
-status: implemented
+status: archived
 created: 2026-08-03
-updated: 2026-08-03
-archived_at: null
+updated: 2026-08-04
+archived_at: 2026-08-04T13:42:29Z
 ---
 
 ## Notes
