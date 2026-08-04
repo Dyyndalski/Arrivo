@@ -1,0 +1,70 @@
+---
+import { LOCALES } from "@/lib/i18n";
+import { useTranslations } from "@/lib/i18n/t";
+import { cn } from "@/lib/utils";
+
+/**
+ * A form, not a client island: switching language must work with no JavaScript, and the target
+ * persona includes people on slow or old devices. One submit button per locale keeps it to plain
+ * HTML.
+ *
+ * `redirectTo` carries the current path so the switch lands the visitor back where they were
+ * rather than on the home page. The endpoint validates it before redirecting.
+ */
+interface Props {
+  /**
+   * TRANSITIONAL. `surface` is the real design system. `inverse` exists only for the screens
+   * still wrapped in `bg-cosmic`, where theme tokens would render dark-on-dark. Remove the
+   * variant together with the last `bg-cosmic` caller.
+   */
+  tone?: "surface" | "inverse";
+  class?: string;
+}
+
+const { tone = "surface", class: className } = Astro.props;
+
+const { locale } = Astro.locals;
+const t = useTranslations(locale);
+
+const here = Astro.url.pathname + Astro.url.search;
+
+const TONES = {
+  surface: {
+    active: "bg-foreground text-background",
+    idle: "text-muted-foreground hover:text-foreground",
+  },
+  inverse: {
+    active: "bg-white/90 text-slate-900",
+    idle: "text-white/60 hover:text-white",
+  },
+} as const;
+---
+
+<form
+  method="POST"
+  action="/api/locale"
+  class:list={[cn("flex items-center gap-1", className)]}
+  aria-label={t("language.label")}
+>
+  <input type="hidden" name="redirectTo" value={here} />
+  {
+    LOCALES.map((code) => {
+      const active = code === locale;
+      return (
+        <button
+          type="submit"
+          name="locale"
+          value={code}
+          aria-current={active ? "true" : undefined}
+          aria-label={active ? undefined : t("language.switchTo", { language: t(`language.${code}`) })}
+          class:list={[
+            "rounded-full px-2 py-0.5 text-xs font-semibold uppercase transition-colors",
+            active ? TONES[tone].active : cn(TONES[tone].idle, "cursor-pointer"),
+          ]}
+        >
+          {code}
+        </button>
+      );
+    })
+  }
+</form>

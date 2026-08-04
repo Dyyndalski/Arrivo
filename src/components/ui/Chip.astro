@@ -1,0 +1,36 @@
+---
+import { cn } from "@/lib/utils";
+
+/**
+ * The mockups' `.chip` — used for the discovery filter bar. Renders as a link when `href` is
+ * given, because filtering is server-side navigation with no client JS (see the plan's
+ * "Filtering without JavaScript"), and as a plain span otherwise.
+ */
+interface Props {
+  active?: boolean;
+  href?: string;
+  class?: string;
+}
+
+const { active = false, href, class: className } = Astro.props;
+
+const classes = cn(
+  "inline-flex items-center rounded-full border px-3.5 py-2 text-sm font-medium transition-colors",
+  active
+    ? "bg-foreground text-background border-foreground"
+    : "bg-card text-ink-soft border-border-strong hover:border-foreground/40",
+  className,
+);
+---
+
+{
+  href ? (
+    <a href={href} class:list={[classes]} aria-current={active ? "true" : undefined}>
+      <slot />
+    </a>
+  ) : (
+    <span class:list={[classes]}>
+      <slot />
+    </span>
+  )
+}

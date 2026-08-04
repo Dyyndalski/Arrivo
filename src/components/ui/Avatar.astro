@@ -1,0 +1,33 @@
+---
+import { cn } from "@/lib/utils";
+import { initialsOf } from "@/lib/initials";
+
+interface Props {
+  /** Display name. Initials are derived from it; there are no uploaded photos in v1. */
+  name: string | null | undefined;
+  size?: "sm" | "md" | "lg";
+  class?: string;
+}
+
+const SIZES = {
+  sm: "size-8 text-[13px]",
+  md: "size-11 text-base",
+  lg: "size-24 text-3xl",
+} as const;
+
+const { name, size = "md", class: className } = Astro.props;
+const initials = initialsOf(name);
+---
+
+<span
+  class:list={[
+    cn(
+      "bg-surface-alt text-ink-soft flex shrink-0 items-center justify-center rounded-full font-bold",
+      SIZES[size],
+      className,
+    ),
+  ]}
+  aria-hidden="true"
+>
+  {initials}
+</span>

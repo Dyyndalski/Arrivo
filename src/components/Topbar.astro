@@ -1,5 +1,14 @@
 ---
-const { user } = Astro.locals;
+import LanguageSwitcher from "@/components/LanguageSwitcher.astro";
+import { useTranslations } from "@/lib/i18n/t";
+
+/**
+ * Still on the starter's dark palette: this renders inside Welcome's `bg-cosmic` wrapper, which
+ * phase 3 retires. Only the strings and the language switcher change here — the mockups' navbar
+ * (context/foundation/design/web/discover.html) arrives with that retrofit.
+ */
+const { user, locale } = Astro.locals;
+const t = useTranslations(locale);
 ---
 
 <div
@@ -10,25 +19,30 @@ const { user } = Astro.locals;
       <>
         <span class="text-blue-100/70">{user.email}</span>
         <div class="flex items-center gap-3">
+          <LanguageSwitcher tone="inverse" />
           <a href="/dashboard" class="text-purple-300 transition-colors hover:text-purple-100 hover:underline">
-            Dashboard
+            {t("nav.dashboard")}
           </a>
           <form method="POST" action="/api/auth/signout">
-            <button type="submit" class="text-purple-300 transition-colors hover:text-purple-100 hover:underline">
-              Sign out
+            <button
+              type="submit"
+              class="cursor-pointer text-purple-300 transition-colors hover:text-purple-100 hover:underline"
+            >
+              {t("nav.signOut")}
             </button>
           </form>
         </div>
       </>
     ) : (
       <>
-        <span class="text-blue-100/70">Not signed in</span>
-        <div class="flex gap-3">
+        <span class="text-blue-100/70">{t("nav.signedOut")}</span>
+        <div class="flex items-center gap-3">
+          <LanguageSwitcher tone="inverse" />
           <a href="/auth/signin" class="text-purple-300 transition-colors hover:text-purple-100 hover:underline">
-            Sign in
+            {t("nav.signIn")}
           </a>
           <a href="/auth/signup" class="text-purple-300 transition-colors hover:text-purple-100 hover:underline">
-            Sign up
+            {t("nav.signUp")}
           </a>
         </div>
       </>

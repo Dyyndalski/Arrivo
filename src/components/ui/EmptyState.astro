@@ -1,0 +1,24 @@
+---
+import { cn } from "@/lib/utils";
+
+interface Props {
+  title: string;
+  description?: string;
+  class?: string;
+}
+
+const { title, description, class: className } = Astro.props;
+---
+
+<div
+  class:list={[
+    cn(
+      "border-border-strong text-muted-foreground rounded-lg border-[1.5px] border-dashed px-5 py-14 text-center",
+      className,
+    ),
+  ]}
+>
+  <p class="text-foreground mb-1.5 text-base font-semibold">{title}</p>
+  {description && <p class="mx-auto mb-4 max-w-prose text-sm">{description}</p>}
+  <slot />
+</div>

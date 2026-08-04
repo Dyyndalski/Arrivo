@@ -1,82 +1,141 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+/*
+ * Arrivo design system.
+ *
+ * Ported from context/foundation/design/_shared/styles.css — that file is the source of truth
+ * for the visual language and the mockups in context/foundation/design/web/ are what it renders.
+ * When a value here and a value there disagree, the mockup stylesheet wins.
+ *
+ * Single light theme by design: the mockups define no dark variant. The `dark` custom variant
+ * below is kept — and deliberately scoped to a `.dark` ancestor that never exists — so the
+ * `dark:` utilities already baked into src/components/ui/button.tsx stay inert instead of
+ * activating off the visitor's OS preference, which is what Tailwind's built-in variant would do.
+ */
 @custom-variant dark (&:is(.dark *));
 
-:root {
-  --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+/* ---------------------------------------------------------------------------
+ * Fonts — self-hosted.
+ *
+ * The mockups pull these from fonts.googleapis.com with an @import. That is a render-blocking
+ * request to a third-party host on every page load, against a p95 "results in under a second"
+ * NFR and a primary persona on slow devices, so the files are served from our own origin.
+ *
+ * BOTH subsets are required. Polish diacritics — ą ć ę ł ń ś ź ż — live in latin-ext
+ * (U+0100-02BA); a latin-only subset renders "Śródmieście" and "Żoliborz" in fallback glyphs.
+ * Unicode ranges copied verbatim from the Google Fonts CSS2 response.
+ * ------------------------------------------------------------------------- */
+
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 400 800;
+  font-display: swap;
+  src: url("/fonts/inter-latin-ext.woff2") format("woff2");
+  unicode-range:
+    U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F,
+    U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
 }
 
-.dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 400 800;
+  font-display: swap;
+  src: url("/fonts/inter-latin.woff2") format("woff2");
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC,
+    U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "Fraunces";
+  font-style: normal;
+  font-weight: 500 600;
+  font-display: swap;
+  src: url("/fonts/fraunces-latin-ext.woff2") format("woff2");
+  unicode-range:
+    U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F,
+    U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+  font-family: "Fraunces";
+  font-style: normal;
+  font-weight: 500 600;
+  font-display: swap;
+  src: url("/fonts/fraunces-latin.woff2") format("woff2");
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC,
+    U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* ---------------------------------------------------------------------------
+ * Palette.
+ *
+ * The shadcn token names (--background, --primary, --muted-foreground, …) are kept and
+ * re-pointed rather than replaced: src/components/ui/button.tsx and every `bg-background` /
+ * `text-muted-foreground` already in the tree resolve to the new language without being edited.
+ * The Arrivo-specific tokens below them have new names because shadcn has no equivalent.
+ * ------------------------------------------------------------------------- */
+
+:root {
+  /* Radii — mockup --r-sm/md/lg. */
+  --radius: 0.875rem;
+
+  /* shadcn surface + text roles, re-pointed. */
+  --background: #faf7f3;
+  --foreground: #241c2c;
+  --card: #ffffff;
+  --card-foreground: #241c2c;
+  --popover: #ffffff;
+  --popover-foreground: #241c2c;
+  --primary: #c1573b;
+  --primary-foreground: #ffffff;
+  --secondary: #f4eee6;
+  --secondary-foreground: #241c2c;
+  --muted: #f4eee6;
+  --muted-foreground: #9a8fa0;
+  --accent: #f5e1d8;
+  --accent-foreground: #8a3d28;
+  --destructive: #c1433b;
+  --border: #e8e0d3;
+  --input: #d9cdbb;
+  --ring: #c1573b;
+
+  /* Arrivo tokens with no shadcn counterpart. */
+  --ink-soft: #6b6070;
+  --surface-alt: #f4eee6;
+  --border-strong: #d9cdbb;
+  --primary-dark: #a24630;
+  --primary-soft: #f5e1d8;
+  --primary-soft-text: #8a3d28;
+  --teal: #2f8f82;
+  --teal-soft: #dceeea;
+  --teal-soft-text: #1f6459;
+  --success: #2f8f60;
+  --success-soft: #def0e5;
+  --success-soft-text: #1f6444;
+  --warning: #c98a2c;
+  --warning-soft: #f7ebd6;
+  --danger: #c1433b;
+  --danger-soft: #f6dedc;
 }
 
 @theme inline {
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-display: "Fraunces", ui-serif, Georgia, serif;
+
+  --radius-sm: 0.625rem;
+  --radius-md: 0.875rem;
+  --radius-lg: 1.25rem;
+  --radius-xl: 1.5rem;
+
+  --shadow-sm: 0 1px 2px rgb(36 28 44 / 0.05);
+  --shadow-md: 0 8px 24px rgb(36 28 44 / 0.08);
+  --shadow-lg: 0 20px 48px rgb(36 28 44 / 0.14);
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -95,21 +154,36 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-  --color-chart-1: var(--chart-1);
-  --color-chart-2: var(--chart-2);
-  --color-chart-3: var(--chart-3);
-  --color-chart-4: var(--chart-4);
-  --color-chart-5: var(--chart-5);
-  --color-sidebar: var(--sidebar);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-ring: var(--sidebar-ring);
+
+  --color-ink-soft: var(--ink-soft);
+  --color-surface-alt: var(--surface-alt);
+  --color-border-strong: var(--border-strong);
+  --color-primary-dark: var(--primary-dark);
+  --color-primary-soft: var(--primary-soft);
+  --color-primary-soft-text: var(--primary-soft-text);
+  --color-teal: var(--teal);
+  --color-teal-soft: var(--teal-soft);
+  --color-teal-soft-text: var(--teal-soft-text);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-success-soft-text: var(--success-soft-text);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
 }
 
+/*
+ * TRANSITIONAL — remove when the last caller is gone.
+ *
+ * The starter's dark gradient. Ten screens wrap themselves in it and put white text on top:
+ * Welcome, the six auth pages, dashboard, and both /specialist/* pages. Deleting it with the rest
+ * of the old theme would leave white-on-cream — unreadable, not merely unstyled — on every screen
+ * in the app until phases 3 and 4 retrofit them.
+ *
+ * Each screen drops its `bg-cosmic` wrapper as it is retrofitted. The phase that retires the last
+ * caller deletes this block too; `grep -rn "bg-cosmic" src/` is the check.
+ */
 @utility bg-cosmic {
   background-image: linear-gradient(to bottom, #0a0e1a, #0f1529, #0a0e1a);
 }
@@ -118,7 +192,13 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+
+  h1,
+  h2 {
+    @apply font-display;
   }
 }

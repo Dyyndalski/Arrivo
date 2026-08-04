@@ -740,17 +740,17 @@ they are amended by new files rather than edited.
 
 #### Automated
 
-- [ ] 1.1 `npm run build` passes
-- [ ] 1.2 `npm run lint` passes and the CRLF-aware prettier check is empty
-- [ ] 1.3 `npx astro sync` succeeds after the `env.d.ts` change
-- [ ] 1.4 No `fonts.googleapis.com` reference in the built output
+- [x] 1.1 `npm run build` passes
+- [x] 1.2 `npm run lint` passes and the CRLF-aware prettier check is empty
+- [x] 1.3 `npx astro sync` succeeds after the `env.d.ts` change
+- [x] 1.4 No `fonts.googleapis.com` reference in the built output
 
 #### Manual
 
-- [ ] 1.5 Existing screens render in the new palette without layout breakage
-- [ ] 1.6 Language switcher flips Topbar strings and the choice survives a reload
-- [ ] 1.7 Polish diacritics render correctly in both fonts
-- [ ] 1.8 A fresh visitor with Polish `Accept-Language` and no cookie gets Polish
+- [x] 1.5 Existing screens render in the new palette without layout breakage
+- [x] 1.6 Language switcher flips Topbar strings and the choice survives a reload
+- [x] 1.7 Polish diacritics render correctly in both fonts
+- [x] 1.8 A fresh visitor with Polish `Accept-Language` and no cookie gets Polish
 
 ### Phase 2: Schema and data
 

@@ -1,16 +1,25 @@
 ---
+import LanguageSwitcher from "@/components/LanguageSwitcher.astro";
 import Layout from "@/layouts/Layout.astro";
+import { useTranslations } from "@/lib/i18n/t";
 
-const { user, role } = Astro.locals;
+// Still on the starter's dark palette — phase 3 rebuilds this screen against the mockups. Only
+// the language switcher and the strings that already have catalog keys land here, so the i18n
+// mechanism is reachable from behind the sign-in and not only from the landing page.
+const { user, role, locale } = Astro.locals;
+const t = useTranslations(locale);
 ---
 
-<Layout title="Dashboard">
+<Layout title={t("nav.dashboard")}>
   <div class="bg-cosmic flex min-h-screen items-center justify-center p-4">
     <div
       class="w-full max-w-md rounded-2xl border border-white/10 bg-white/10 p-8 text-center text-white backdrop-blur-xl"
     >
+      <div class="mb-4 flex justify-end">
+        <LanguageSwitcher tone="inverse" />
+      </div>
       <h1 class="mb-4 bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-3xl font-bold text-transparent">
-        Dashboard
+        {t("nav.dashboard")}
       </h1>
       <p class="text-blue-100/80">
         Welcome, <span class="font-semibold text-white">{user?.email}</span>
@@ -42,9 +51,9 @@ const { user, role } = Astro.locals;
       <form method="POST" action="/api/auth/signout" class="mt-6">
         <button
           type="submit"
-          class="rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm transition-colors hover:bg-white/20"
+          class="cursor-pointer rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm transition-colors hover:bg-white/20"
         >
-          Sign out
+          {t("nav.signOut")}
         </button>
       </form>
     </div>

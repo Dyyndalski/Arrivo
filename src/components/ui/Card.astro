@@ -1,0 +1,15 @@
+---
+import { cn } from "@/lib/utils";
+
+interface Props {
+  /** `sm` is the mockups' `.card-sm` — tighter padding and a smaller radius. */
+  size?: "default" | "sm";
+  class?: string;
+}
+
+const { size = "default", class: className } = Astro.props;
+---
+
+<div class:list={[cn("bg-card border-border border", size === "sm" ? "rounded-md p-4" : "rounded-lg p-6", className)]}>
+  <slot />
+</div>

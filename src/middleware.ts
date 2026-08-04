@@ -1,4 +1,5 @@
 import { defineMiddleware } from "astro:middleware";
+import { LOCALE_COOKIE, resolveLocale } from "@/lib/i18n";
 import { createClient } from "@/lib/supabase";
 import type { UserRole } from "@/types";
 
@@ -23,6 +24,13 @@ function matchesRoute(pathname: string, route: string): boolean {
 }
 
 export const onRequest = defineMiddleware(async (context, next) => {
+  // Resolved before anything can redirect: a redirect response is still a rendered page in the
+  // browser's history, and the target page reads locals.locale on the way in.
+  context.locals.locale = resolveLocale(
+    context.cookies.get(LOCALE_COOKIE)?.value,
+    context.request.headers.get("accept-language"),
+  );
+
   const supabase = createClient(context.request.headers, context.cookies);
 
   context.locals.user = null;
