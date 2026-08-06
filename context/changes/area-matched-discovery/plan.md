@@ -805,19 +805,19 @@ they are amended by new files rather than edited.
 
 #### Automated
 
-- [x] 4.1 `npm run build` passes
-- [x] 4.2 `npm run lint` passes, CRLF-aware check empty
-- [x] 4.3 `npm run check` passes — no untranslated catalog key, no type error
-- [x] 4.4 No caller of `isCardComplete` remains in `src/`
+- [x] 4.1 `npm run build` passes — 4e4d023
+- [x] 4.2 `npm run lint` passes, CRLF-aware check empty — 4e4d023
+- [x] 4.3 `npm run check` passes — no untranslated catalog key, no type error — 4e4d023
+- [x] 4.4 No caller of `isCardComplete` remains in `src/` — 4e4d023
 
 #### Manual
 
-- [x] 4.5 Selections in two cities both persist across a city switch and a save
-- [x] 4.6 "Select all in this city" saves every area of that city
-- [x] 4.7 Bio, duration and custom service name save and re-display; a service without them still saves
-- [x] 4.8 Card-status banner flips when the last service is deleted, and back
-- [x] 4.9 Role gating on `/specialist/*` still holds for a client and for a signed-out visitor
-- [x] 4.10 Specialist panel has no untranslated strings in either locale
+- [x] 4.5 Selections in two cities both persist across a city switch and a save — 4e4d023
+- [x] 4.6 "Select all in this city" saves every area of that city — 4e4d023
+- [x] 4.7 Bio, duration and custom service name save and re-display; a service without them still saves — 4e4d023
+- [x] 4.8 Card-status banner flips when the last service is deleted, and back — 4e4d023
+- [x] 4.9 Role gating on `/specialist/*` still holds for a client and for a signed-out visitor — 4e4d023
+- [x] 4.10 Specialist panel has no untranslated strings in either locale — 4e4d023
 
 ### Phase 5: Discovery
 

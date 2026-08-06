@@ -12,8 +12,13 @@ import type { MissingPieceKey } from "@/lib/services/specialists";
  * `missing` comes from `missingPieces()`, which the view cannot express: it answers yes/no, and a
  * specialist told only "not visible" has no way to act.
  *
- * If they ever disagree this renders "live" above a list of missing pieces — visibly incoherent,
- * which is deliberate. The failure that costs a specialist their bookings is the silent one.
+ * The two are rendered INDEPENDENTLY, and that is the load-bearing detail. The headline follows
+ * the view; the list of missing pieces appears whenever it is non-empty, whatever the view said.
+ * So a disagreement — which is reachable, since the page issues `getOwnCard()` and
+ * `isDiscoverable()` as two separate round trips and a service can be deleted between them —
+ * shows up as "your card is live" sitting above a list of things it is missing. Incoherent on
+ * purpose. Branching the list on `discoverable` would have hidden exactly the direction that
+ * costs a specialist their bookings (phase-4 impl-review F1).
  */
 interface Props {
   discoverable: boolean;
@@ -38,8 +43,10 @@ const missingText = missing.map((key) => t(key)).join(", ");
     <p class="font-semibold">
       {discoverable ? t("specialist.card.liveTitle") : t("specialist.card.incompleteTitle")}
     </p>
-    <p class="opacity-80">
-      {discoverable ? t("specialist.card.liveBody") : t("specialist.card.incompleteBody", { missing: missingText })}
-    </p>
+
+    {discoverable && <p class="opacity-80">{t("specialist.card.liveBody")}</p>}
+
+    {/* Not `: ` — an empty list would render "Still needed: ." with nothing before the period. */}
+    {missing.length > 0 && <p class="opacity-80">{t("specialist.card.incompleteBody", { missing: missingText })}</p>}
   </div>
 </div>

@@ -7,7 +7,7 @@ import ServiceList from "@/components/specialist/ServiceList.astro";
 import { serviceFormStrings } from "@/components/specialist/strings";
 import { createClient } from "@/lib/supabase";
 import { getOwnCard, getTaxonomy, isDiscoverable, missingPieces } from "@/lib/services/specialists";
-import { useTranslations, tUnknown } from "@/lib/i18n/t";
+import { useTranslations, tUnknown, isMessageKey } from "@/lib/i18n/t";
 import type { MissingPieceKey } from "@/lib/services/specialists";
 import type { ServiceCategory, ServiceSubtype, SpecialistCard } from "@/types";
 
@@ -57,10 +57,10 @@ const message = Astro.url.searchParams.get("message");
     {!loadError && <CardStatus discoverable={discoverable} missing={missing} />}
 
     {
-      message && (
-        <p class="bg-success-soft text-success-soft-text rounded-sm px-3.5 py-2.5 text-sm">
-          {tUnknown(locale, message, "specialist.message.serviceAdded")}
-        </p>
+      /* Only a recognised key renders — see the same note in profile.astro. Here the fallback
+         was worse: it claimed a service had been ADDED, over a list that had not changed. */
+      message && isMessageKey(message) && (
+        <p class="bg-success-soft text-success-soft-text rounded-sm px-3.5 py-2.5 text-sm">{t(message)}</p>
       )
     }
 

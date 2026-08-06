@@ -6,7 +6,7 @@ import ProfileForm from "@/components/specialist/ProfileForm";
 import { profileFormStrings } from "@/components/specialist/strings";
 import { createClient } from "@/lib/supabase";
 import { getAreaDictionary, getOwnCard, isDiscoverable, missingPieces } from "@/lib/services/specialists";
-import { useTranslations, tUnknown } from "@/lib/i18n/t";
+import { useTranslations, tUnknown, isMessageKey } from "@/lib/i18n/t";
 import type { MissingPieceKey } from "@/lib/services/specialists";
 import type { City, ServiceArea, SpecialistCard } from "@/types";
 
@@ -58,10 +58,12 @@ const message = Astro.url.searchParams.get("message");
     {!loadError && <CardStatus discoverable={discoverable} missing={missing} />}
 
     {
-      message && (
-        <p class="bg-success-soft text-success-soft-text rounded-sm px-3.5 py-2.5 text-sm">
-          {tUnknown(locale, message, "specialist.message.profileSaved")}
-        </p>
+      /* Only a recognised key renders. Unlike an error, where a generic fallback is honest
+         because something did go wrong, a success fallback would assert that a specific thing
+         succeeded — a hand-edited URL would show a green "Profile saved" over an unchanged form
+         (phase-4 impl-review F3). */
+      message && isMessageKey(message) && (
+        <p class="bg-success-soft text-success-soft-text rounded-sm px-3.5 py-2.5 text-sm">{t(message)}</p>
       )
     }
 

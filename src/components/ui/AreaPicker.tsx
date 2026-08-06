@@ -116,14 +116,24 @@ export function AreaPicker({ cities, areas, mode, selected, onChange, name, loca
           </button>
         )}
 
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3" role="group" aria-label={strings.label}>
+        {/* Roles follow the mode, not the markup. In `multi` each district is an independent
+            toggle; in `single` exactly one may be chosen, which is a radio group — announcing
+            those as pressed/unpressed buttons hides the "one of these" rule from a screen reader
+            (phase-4 impl-review F2). RoleToggle.tsx is the precedent in this codebase. */}
+        <div
+          className="grid grid-cols-2 gap-2 sm:grid-cols-3"
+          role={mode === "single" ? "radiogroup" : "group"}
+          aria-label={strings.label}
+        >
           {visible.map((area) => {
             const isSelected = selected.includes(area.id);
             return (
               <button
                 key={area.id}
                 type="button"
-                aria-pressed={isSelected}
+                role={mode === "single" ? "radio" : undefined}
+                aria-checked={mode === "single" ? isSelected : undefined}
+                aria-pressed={mode === "single" ? undefined : isSelected}
                 onClick={() => {
                   toggle(area.id);
                 }}
