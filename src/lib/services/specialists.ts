@@ -30,6 +30,9 @@ type Client = NonNullable<ReturnType<typeof createClient>>;
 const NOT_ALLOWED_CODES = new Set(["42501", "23503"]);
 
 export class NotAllowedError extends Error {
+  /** A message-catalog key — the endpoint puts it in `?error=` and the page translates it. */
+  readonly key = "specialist.error.notAllowed" as const;
+
   constructor() {
     super("You need a specialist account to do that");
     this.name = "NotAllowedError";
@@ -47,6 +50,9 @@ export class NotAllowedError extends Error {
  * survivable, so the two are not separated further here.
  */
 export class NoCardError extends Error {
+  /** A message-catalog key — the endpoint puts it in `?error=` and the page translates it. */
+  readonly key = "specialist.error.noCard" as const;
+
   constructor() {
     super("Save your profile first, then add services");
     this.name = "NoCardError";
@@ -148,11 +154,11 @@ export async function getOwnCard(supabase: Client, userId: string): Promise<Spec
 export async function upsertOwnCard(
   supabase: Client,
   userId: string,
-  input: { display_name: string; area_ids: number[] },
+  input: { display_name: string; bio: string | null; area_ids: number[] },
 ): Promise<void> {
   const { error: profileError } = await supabase
     .from("specialist_profiles")
-    .upsert({ id: userId, display_name: input.display_name }, { onConflict: "id" });
+    .upsert({ id: userId, display_name: input.display_name, bio: input.bio }, { onConflict: "id" });
   rethrow(profileError);
 
   const { error: addError } = await supabase.from("specialist_areas").upsert(
@@ -173,7 +179,13 @@ export async function upsertOwnCard(
 export async function addService(
   supabase: Client,
   userId: string,
-  input: { category_id: number; subtype_id: number | null; price_cents: number },
+  input: {
+    category_id: number;
+    subtype_id: number | null;
+    price_cents: number;
+    name: string | null;
+    duration_minutes: number | null;
+  },
 ): Promise<void> {
   const { error } = await supabase.from("services").insert({ specialist_id: userId, ...input });
   rethrow(error);
@@ -200,21 +212,40 @@ export async function deleteService(supabase: Client, userId: string, serviceId:
 // --- The completeness rule ----------------------------------------------------------------
 
 /**
- * The single definition of "discoverable". Derived, never stored — a column would be a second
- * source of truth that drifts on every area or service delete.
+ * Is this specialist's own card discoverable?
  *
- * S-03's discovery query must apply this same predicate. If it diverges, a specialist will see
- * "your card is live" while clients cannot find them.
+ * Answered by `public.discoverable_specialists` — the SAME view the client-facing search reads.
+ * That is the whole point (S-02 impl-review F4): the specialist's "your card is live" banner and
+ * the results a client actually sees are now one definition, so they cannot drift apart. The old
+ * `isCardComplete()` was a second, independent implementation of the rule in TypeScript.
+ *
+ * Costs one extra query per page load compared with the pure function it replaces. That is the
+ * price of the guarantee, and it is a primary-key lookup on a view over three small tables.
  */
-export function isCardComplete(card: SpecialistCard): boolean {
-  return missingPieces(card).length === 0;
+export async function isDiscoverable(supabase: Client, userId: string): Promise<boolean> {
+  const { data, error } = await supabase.from("discoverable_specialists").select("id").eq("id", userId).maybeSingle();
+  rethrow(error);
+  return data !== null;
 }
 
-/** What the card still needs, phrased for display. Empty means discoverable. */
-export function missingPieces(card: SpecialistCard): string[] {
-  const missing: string[] = [];
-  if (!card.profile?.display_name) missing.push("a name");
-  if (card.area_ids.length === 0) missing.push("at least one district");
-  if (card.services.length === 0) missing.push("at least one service");
+/**
+ * WHAT the card still needs, phrased as catalog keys for display.
+ *
+ * Deliberately still in TypeScript, and deliberately NOT the source of truth for visibility: the
+ * view answers yes/no and cannot say which piece is missing, but a specialist told only "not
+ * visible" has no way to act. `isDiscoverable()` decides; this supplies the wording.
+ *
+ * If the two ever disagree the banner reads "live" next to a list of missing pieces — visibly
+ * incoherent, which is the intended failure mode. A silent disagreement is the one that costs a
+ * specialist their bookings.
+ */
+export function missingPieces(card: SpecialistCard): MissingPieceKey[] {
+  const missing: MissingPieceKey[] = [];
+  if (!card.profile?.display_name) missing.push("specialist.card.missingName");
+  if (card.area_ids.length === 0) missing.push("specialist.card.missingArea");
+  if (card.services.length === 0) missing.push("specialist.card.missingService");
   return missing;
 }
+
+export type MissingPieceKey =
+  "specialist.card.missingName" | "specialist.card.missingArea" | "specialist.card.missingService";

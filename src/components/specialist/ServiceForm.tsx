@@ -4,23 +4,41 @@ import { SubmitButton } from "@/components/auth/SubmitButton";
 import { ServerError } from "@/components/auth/ServerError";
 import { cn } from "@/lib/utils";
 // From ./limits, never ./specialist — that module pulls zod into the client bundle.
-import { PRICE_MAX_CENTS, PRICE_MIN_CENTS } from "@/lib/schemas/limits";
+import {
+  DURATION_MAX_MINUTES,
+  DURATION_MIN_MINUTES,
+  PRICE_MAX_CENTS,
+  PRICE_MIN_CENTS,
+  SERVICE_NAME_MAX,
+  SERVICE_NAME_MIN,
+} from "@/lib/schemas/limits";
+import { localizedName } from "@/lib/i18n/dictionary";
+import type { Locale } from "@/lib/i18n";
 import type { ServiceCategory, ServiceSubtype } from "@/types";
+import type { ServiceFormStrings } from "@/components/specialist/strings";
 
 interface Props {
   categories: ServiceCategory[];
   subtypes: ServiceSubtype[];
+  /** Already translated by the page — this island never sees a catalog key. */
   serverError?: string | null;
+  locale: Locale;
+  strings: ServiceFormStrings;
 }
 
 const selectBase =
-  "w-full rounded-lg border bg-white/10 px-3 py-2 text-white transition-colors focus:ring-2 focus:outline-none [&>option]:bg-slate-800";
+  "w-full rounded-sm border bg-card px-3.5 py-2.5 text-sm text-foreground transition-colors focus:ring-[3px] focus:outline-none";
 
-export default function ServiceForm({ categories, subtypes, serverError }: Props) {
+const inputBase =
+  "w-full rounded-sm border bg-card px-3.5 py-2.5 text-sm text-foreground placeholder:text-muted-foreground transition-colors focus:ring-[3px] focus:outline-none";
+
+export default function ServiceForm({ categories, subtypes, serverError, locale, strings }: Props) {
   const [categoryId, setCategoryId] = useState("");
   const [subtypeId, setSubtypeId] = useState("");
+  const [name, setName] = useState("");
   const [price, setPrice] = useState("");
-  const [errors, setErrors] = useState<{ category?: string; price?: string }>({});
+  const [duration, setDuration] = useState("");
+  const [errors, setErrors] = useState<{ category?: string; name?: string; price?: string; duration?: string }>({});
 
   // The subtype list narrows to the chosen category. Filtering client-side keeps this a single
   // page load — the whole taxonomy is a few dozen rows.
@@ -28,17 +46,30 @@ export default function ServiceForm({ categories, subtypes, serverError }: Props
 
   function validate() {
     const next: typeof errors = {};
-    if (!categoryId) next.category = "Choose a service type";
+    if (!categoryId) next.category = strings.errorTypeRequired;
+
+    const trimmedName = name.trim();
+    if (trimmedName && (trimmedName.length < SERVICE_NAME_MIN || trimmedName.length > SERVICE_NAME_MAX)) {
+      next.name = strings.errorNameLength;
+    }
 
     const normalized = price.trim().replace(",", ".");
     if (!normalized) {
-      next.price = "Enter a price";
+      next.price = strings.errorPriceRequired;
     } else if (!/^\d{1,6}(\.\d{1,2})?$/.test(normalized)) {
-      next.price = "Enter a price in złoty, e.g. 120 or 120.50";
+      next.price = strings.errorPriceFormat;
     } else {
       const cents = Math.round(Number(normalized) * 100);
       if (cents < PRICE_MIN_CENTS || cents > PRICE_MAX_CENTS) {
-        next.price = `Price must be between ${PRICE_MIN_CENTS / 100} zł and ${PRICE_MAX_CENTS / 100} zł`;
+        next.price = strings.errorPriceRange;
+      }
+    }
+
+    const trimmedDuration = duration.trim();
+    if (trimmedDuration) {
+      const minutes = Number(trimmedDuration);
+      if (!Number.isInteger(minutes) || minutes < DURATION_MIN_MINUTES || minutes > DURATION_MAX_MINUTES) {
+        next.duration = strings.errorDurationRange;
       }
     }
 
@@ -52,11 +83,19 @@ export default function ServiceForm({ categories, subtypes, serverError }: Props
     }
   }
 
+  const fieldError = (message?: string) =>
+    message ? (
+      <p className="text-danger mt-1.5 flex items-center gap-1 text-xs">
+        <CircleAlert className="size-3" />
+        {message}
+      </p>
+    ) : null;
+
   return (
     <form method="POST" action="/api/specialist/services" className="space-y-4" onSubmit={handleSubmit} noValidate>
       <div>
-        <label htmlFor="category_id" className="mb-1 block text-sm text-blue-100/80">
-          Service type
+        <label htmlFor="category_id" className="text-foreground mb-1.5 block text-sm font-semibold">
+          {strings.type}
         </label>
         <select
           id="category_id"
@@ -71,27 +110,22 @@ export default function ServiceForm({ categories, subtypes, serverError }: Props
           }}
           className={cn(
             selectBase,
-            errors.category ? "border-red-400/60 focus:ring-red-400" : "border-white/20 focus:ring-purple-400",
+            errors.category ? "border-danger focus:ring-danger/30" : "border-border-strong focus:ring-ring/40",
           )}
         >
-          <option value="">Choose…</option>
+          <option value="">{strings.choose}</option>
           {categories.map((c) => (
             <option key={c.id} value={c.id}>
-              {c.name}
+              {localizedName(c, locale)}
             </option>
           ))}
         </select>
-        {errors.category ? (
-          <p className="mt-1 flex items-center gap-1 text-xs text-red-300">
-            <CircleAlert className="size-3" />
-            {errors.category}
-          </p>
-        ) : null}
+        {fieldError(errors.category)}
       </div>
 
       <div>
-        <label htmlFor="subtype_id" className="mb-1 block text-sm text-blue-100/80">
-          Detail <span className="text-xs text-blue-100/50">(optional)</span>
+        <label htmlFor="subtype_id" className="text-foreground mb-1.5 block text-sm font-semibold">
+          {strings.detail} <span className="text-muted-foreground text-xs font-normal">{strings.detailOptional}</span>
         </label>
         <select
           id="subtype_id"
@@ -101,48 +135,90 @@ export default function ServiceForm({ categories, subtypes, serverError }: Props
             setSubtypeId(e.target.value);
           }}
           disabled={!categoryId}
-          className={cn(selectBase, "border-white/20 focus:ring-purple-400 disabled:opacity-40")}
+          className={cn(selectBase, "border-border-strong focus:ring-ring/40 disabled:opacity-50")}
         >
-          <option value="">{categoryId ? "No detail" : "Choose a service type first"}</option>
+          <option value="">{categoryId ? strings.noDetail : strings.chooseTypeFirst}</option>
           {available.map((s) => (
             <option key={s.id} value={s.id}>
-              {s.name}
+              {localizedName(s, locale)}
             </option>
           ))}
         </select>
       </div>
 
       <div>
-        <label htmlFor="price" className="mb-1 block text-sm text-blue-100/80">
-          Price (zł)
+        <label htmlFor="name" className="text-foreground mb-1.5 block text-sm font-semibold">
+          {strings.name} <span className="text-muted-foreground text-xs font-normal">{strings.nameOptional}</span>
         </label>
         <input
-          id="price"
-          name="price"
-          inputMode="decimal"
-          value={price}
+          id="name"
+          name="name"
+          value={name}
+          maxLength={SERVICE_NAME_MAX}
           onChange={(e) => {
-            setPrice(e.target.value);
-            if (errors.price) setErrors((prev) => ({ ...prev, price: undefined }));
+            setName(e.target.value);
+            if (errors.name) setErrors((prev) => ({ ...prev, name: undefined }));
           }}
-          placeholder="120 or 120.50"
+          placeholder={strings.namePlaceholder}
           className={cn(
-            "w-full rounded-lg border bg-white/10 px-3 py-2 text-white placeholder-white/40 transition-colors focus:ring-2 focus:outline-none",
-            errors.price ? "border-red-400/60 focus:ring-red-400" : "border-white/20 focus:ring-purple-400",
+            inputBase,
+            errors.name ? "border-danger focus:ring-danger/30" : "border-border-strong focus:ring-ring/40",
           )}
         />
-        {errors.price ? (
-          <p className="mt-1 flex items-center gap-1 text-xs text-red-300">
-            <CircleAlert className="size-3" />
-            {errors.price}
-          </p>
-        ) : null}
+        {fieldError(errors.name)}
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div>
+          <label htmlFor="price" className="text-foreground mb-1.5 block text-sm font-semibold">
+            {strings.price}
+          </label>
+          <input
+            id="price"
+            name="price"
+            inputMode="decimal"
+            value={price}
+            onChange={(e) => {
+              setPrice(e.target.value);
+              if (errors.price) setErrors((prev) => ({ ...prev, price: undefined }));
+            }}
+            placeholder={strings.pricePlaceholder}
+            className={cn(
+              inputBase,
+              errors.price ? "border-danger focus:ring-danger/30" : "border-border-strong focus:ring-ring/40",
+            )}
+          />
+          {fieldError(errors.price)}
+        </div>
+
+        <div>
+          <label htmlFor="duration_minutes" className="text-foreground mb-1.5 block text-sm font-semibold">
+            {strings.duration}{" "}
+            <span className="text-muted-foreground text-xs font-normal">{strings.durationOptional}</span>
+          </label>
+          <input
+            id="duration_minutes"
+            name="duration_minutes"
+            inputMode="numeric"
+            value={duration}
+            onChange={(e) => {
+              setDuration(e.target.value);
+              if (errors.duration) setErrors((prev) => ({ ...prev, duration: undefined }));
+            }}
+            placeholder={strings.durationPlaceholder}
+            className={cn(
+              inputBase,
+              errors.duration ? "border-danger focus:ring-danger/30" : "border-border-strong focus:ring-ring/40",
+            )}
+          />
+          {fieldError(errors.duration)}
+        </div>
       </div>
 
       <ServerError message={serverError} />
 
-      <SubmitButton pendingText="Adding..." icon={<Plus className="size-4" />}>
-        Add service
+      <SubmitButton pendingText={strings.pending} icon={<Plus className="size-4" />}>
+        {strings.submit}
       </SubmitButton>
     </form>
   );

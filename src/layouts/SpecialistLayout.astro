@@ -1,0 +1,112 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import LanguageSwitcher from "@/components/LanguageSwitcher.astro";
+import Wordmark from "@/components/Wordmark.astro";
+import Avatar from "@/components/ui/Avatar.astro";
+import Badge from "@/components/ui/Badge.astro";
+import { useTranslations } from "@/lib/i18n/t";
+
+/**
+ * The mockups' `.page-shell` + `.sidebar` (context/foundation/design/web/dashboard-specialist.html).
+ *
+ * Entries for Bookings and Team are NOT rendered: one is S-05, the other is out of PRD v1 scope
+ * entirely (Arrivo is independent specialists, not salons with employees). A nav link to a route
+ * that does not exist is worse than a shorter nav.
+ *
+ * The sidebar collapses below 720px, matching the mockup stylesheet's own media query; the same
+ * links stay reachable from the dashboard.
+ */
+interface Props {
+  title: string;
+  subtitle?: string;
+  current: "profile" | "services";
+}
+
+const { title, subtitle, current } = Astro.props;
+const { user, locale } = Astro.locals;
+const t = useTranslations(locale);
+
+const links = [
+  { key: "profile", href: "/specialist/profile", label: t("nav.profile") },
+  { key: "services", href: "/specialist/services", label: t("nav.services") },
+] as const;
+---
+
+<Layout title={title}>
+  <div class="flex min-h-screen">
+    <aside class="border-border bg-card hidden w-60 shrink-0 flex-col gap-1 border-r p-4 md:flex">
+      <a href="/dashboard" class="px-3 pt-1 pb-5"><Wordmark size="sm" /></a>
+
+      {
+        links.map((link) => (
+          <a
+            href={link.href}
+            aria-current={current === link.key ? "page" : undefined}
+            class:list={[
+              "rounded-sm px-3 py-2.5 text-sm transition-colors",
+              current === link.key
+                ? "bg-primary-soft text-primary-soft-text font-semibold"
+                : "text-ink-soft hover:bg-surface-alt font-medium",
+            ]}
+          >
+            {link.label}
+          </a>
+        ))
+      }
+
+      <div class="border-border mt-auto flex items-center gap-3 border-t px-1 pt-3">
+        <Avatar name={user?.email ?? null} size="sm" />
+        <div class="min-w-0">
+          <p class="text-foreground truncate text-[13px] font-semibold">{user?.email}</p>
+          <Badge variant="specialist">{t("role.specialist")}</Badge>
+        </div>
+      </div>
+    </aside>
+
+    <div class="min-w-0 flex-1">
+      <div class="border-border bg-card flex items-center justify-between border-b px-6 py-3.5">
+        {/* The wordmark and nav move into the header once the sidebar is hidden. */}
+        <div class="flex items-center gap-5 md:hidden">
+          <a href="/dashboard"><Wordmark size="sm" /></a>
+          <nav class="flex items-center gap-4 text-sm">
+            {
+              links.map((link) => (
+                <a
+                  href={link.href}
+                  aria-current={current === link.key ? "page" : undefined}
+                  class:list={[current === link.key ? "text-foreground font-semibold" : "text-ink-soft"]}
+                >
+                  {link.label}
+                </a>
+              ))
+            }
+          </nav>
+        </div>
+        <a href="/dashboard" class="text-ink-soft hover:text-foreground hidden text-sm font-medium md:block">
+          ← {t("nav.dashboard")}
+        </a>
+
+        <div class="flex items-center gap-3">
+          <LanguageSwitcher />
+          <form method="POST" action="/api/auth/signout">
+            <button
+              type="submit"
+              class="text-ink-soft hover:text-foreground cursor-pointer text-sm font-medium transition-colors"
+            >
+              {t("nav.signOut")}
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <main class="mx-auto w-full max-w-3xl px-6 py-9">
+        <div class="mb-6">
+          <h1 class="text-foreground font-display text-[26px]">{title}</h1>
+          {subtitle && <p class="text-ink-soft mt-1 text-sm">{subtitle}</p>}
+        </div>
+
+        <slot />
+      </main>
+    </div>
+  </div>
+</Layout>

@@ -1,4 +1,7 @@
 ---
+import EmptyState from "@/components/ui/EmptyState.astro";
+import { localizedName } from "@/lib/i18n/dictionary";
+import { useTranslations } from "@/lib/i18n/t";
 import type { Service, ServiceCategory, ServiceSubtype } from "@/types";
 
 // No interactivity here — each row's remove button is a native form post, so this stays an
@@ -10,9 +13,26 @@ interface Props {
 }
 
 const { services, categories, subtypes } = Astro.props;
+const { locale } = Astro.locals;
+const t = useTranslations(locale);
 
-const categoryName = new Map(categories.map((c) => [c.id, c.name]));
-const subtypeName = new Map(subtypes.map((s) => [s.id, s.name]));
+const category = new Map(categories.map((c) => [c.id, c]));
+const subtype = new Map(subtypes.map((s) => [s.id, s]));
+
+// The specialist's own wording leads when they gave one; the taxonomy name is the fallback and
+// stays visible underneath either way, because that is what the client's type filter matches on.
+function headline(service: Service): string {
+  if (service.name) return service.name;
+  const c = category.get(service.category_id);
+  return c ? localizedName(c, locale) : "—";
+}
+
+function taxonomyLine(service: Service): string {
+  const c = category.get(service.category_id);
+  const s = service.subtype_id === null ? null : subtype.get(service.subtype_id);
+  const parts = [c ? localizedName(c, locale) : null, s ? localizedName(s, locale) : null].filter(Boolean);
+  return parts.join(" · ");
+}
 
 // Prices are integer grosze; render with a comma, which is how Polish prices are written.
 const formatPrice = (cents: number) =>
@@ -21,27 +41,29 @@ const formatPrice = (cents: number) =>
 
 {
   services.length === 0 ? (
-    <p class="rounded-xl border border-white/10 bg-white/5 px-4 py-6 text-center text-sm text-blue-100/50">
-      No services yet. Add your first one to make your card visible.
-    </p>
+    <EmptyState title={t("specialist.services.empty")} />
   ) : (
-    <ul class="divide-y divide-white/10 overflow-hidden rounded-xl border border-white/10 bg-white/5">
+    <ul class="space-y-3">
       {services.map((service) => (
-        <li class="flex items-center gap-3 px-4 py-3">
+        <li class="border-border bg-card flex items-center gap-4 rounded-md border px-4 py-3.5">
           <div class="min-w-0 flex-1">
-            <p class="truncate font-medium text-white">{categoryName.get(service.category_id) ?? "Unknown type"}</p>
-            {service.subtype_id !== null && (
-              <p class="truncate text-xs text-blue-100/50">{subtypeName.get(service.subtype_id)}</p>
-            )}
+            <p class="text-foreground truncate text-[14.5px] font-semibold">{headline(service)}</p>
+            <p class="text-muted-foreground truncate text-[12.5px]">
+              {taxonomyLine(service)}
+              {service.duration_minutes !== null &&
+                ` · ${t("specialist.services.duration", { minutes: service.duration_minutes })}`}
+            </p>
           </div>
-          <span class="shrink-0 font-medium text-purple-200">{formatPrice(service.price_cents)}</span>
+
+          <span class="text-foreground shrink-0 font-bold">{formatPrice(service.price_cents)}</span>
+
           <form method="POST" action={`/api/specialist/services/${service.id}/delete`}>
             <button
               type="submit"
-              class="rounded-lg border border-white/20 px-2.5 py-1 text-xs text-blue-100/70 transition-colors hover:border-red-400/50 hover:text-red-300"
-              aria-label={`Remove ${categoryName.get(service.category_id) ?? "service"}`}
+              class="border-border-strong text-ink-soft hover:border-danger hover:text-danger cursor-pointer rounded-sm border px-3 py-1.5 text-[13px] font-semibold transition-colors"
+              aria-label={t("specialist.services.removeLabel", { name: headline(service) })}
             >
-              Remove
+              {t("specialist.services.remove")}
             </button>
           </form>
         </li>

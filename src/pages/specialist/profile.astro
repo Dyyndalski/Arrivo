@@ -1,36 +1,48 @@
 ---
-import Layout from "@/layouts/Layout.astro";
-import ProfileForm from "@/components/specialist/ProfileForm";
+import SpecialistLayout from "@/layouts/SpecialistLayout.astro";
+import Card from "@/components/ui/Card.astro";
 import CardStatus from "@/components/specialist/CardStatus.astro";
-import SpecialistNav from "@/components/specialist/SpecialistNav.astro";
+import ProfileForm from "@/components/specialist/ProfileForm";
+import { profileFormStrings } from "@/components/specialist/strings";
 import { createClient } from "@/lib/supabase";
-import { getAreaDictionary, getOwnCard, missingPieces } from "@/lib/services/specialists";
+import { getAreaDictionary, getOwnCard, isDiscoverable, missingPieces } from "@/lib/services/specialists";
+import { useTranslations, tUnknown } from "@/lib/i18n/t";
+import type { MissingPieceKey } from "@/lib/services/specialists";
 import type { City, ServiceArea, SpecialistCard } from "@/types";
 
 // Access is gated in src/middleware.ts (SPECIALIST_ROUTES) — per CLAUDE.md, routes are not
 // re-guarded here. The null check below is type narrowing, not an auth check.
-const { user } = Astro.locals;
+const { user, locale } = Astro.locals;
+const t = useTranslations(locale);
 const supabase = createClient(Astro.request.headers, Astro.cookies);
 
 let card: SpecialistCard = { profile: null, area_ids: [], services: [] };
 let cities: City[] = [];
 let areas: ServiceArea[] = [];
+let discoverable = false;
+let missing: MissingPieceKey[] = [];
 let loadError: string | null = null;
 
 // Three distinct causes, three distinct messages (impl-review F2). Collapsing them told a
 // specialist with a saved profile that Supabase was misconfigured.
 if (!supabase) {
-  loadError = "Supabase is not configured";
+  loadError = t("specialist.error.notConfigured");
 } else if (!user) {
-  loadError = "Your session has expired — sign in again";
+  loadError = t("auth.error.sessionExpired");
 } else {
   try {
-    const [ownCard, dictionary] = await Promise.all([getOwnCard(supabase, user.id), getAreaDictionary(supabase)]);
+    const [ownCard, dictionary, live] = await Promise.all([
+      getOwnCard(supabase, user.id),
+      getAreaDictionary(supabase),
+      isDiscoverable(supabase, user.id),
+    ]);
     card = ownCard;
     cities = dictionary.cities;
     areas = dictionary.areas;
+    discoverable = live;
+    missing = missingPieces(ownCard);
   } catch {
-    loadError = "Could not load your profile — refresh to try again";
+    loadError = t("specialist.error.loadProfile");
   }
 }
 
@@ -41,43 +53,36 @@ const formError = Astro.url.searchParams.get("error");
 const message = Astro.url.searchParams.get("message");
 ---
 
-<Layout title="Your profile">
-  <div class="bg-cosmic min-h-screen p-4 py-10">
-    <div class="mx-auto w-full max-w-2xl space-y-6">
-      <SpecialistNav current="profile" />
+<SpecialistLayout title={t("specialist.profile.title")} subtitle={t("specialist.profile.subtitle")} current="profile">
+  <div class="space-y-5">
+    {!loadError && <CardStatus discoverable={discoverable} missing={missing} />}
 
-      <h1 class="bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-2xl font-bold text-transparent">
-        Your profile
-      </h1>
+    {
+      message && (
+        <p class="bg-success-soft text-success-soft-text rounded-sm px-3.5 py-2.5 text-sm">
+          {tUnknown(locale, message, "specialist.message.profileSaved")}
+        </p>
+      )
+    }
 
-      {!loadError && <CardStatus missing={missingPieces(card)} />}
-
-      {
-        message && (
-          <p class="rounded-lg border border-emerald-500/30 bg-emerald-900/20 px-3 py-2 text-sm text-emerald-300">
-            {message}
-          </p>
-        )
-      }
-
-      {
-        loadError ? (
-          <p class="rounded-2xl border border-red-500/30 bg-red-900/20 px-4 py-6 text-center text-sm text-red-300">
-            {loadError}
-          </p>
-        ) : (
-          <div class="rounded-2xl border border-white/10 bg-white/10 p-6 backdrop-blur-xl">
-            <ProfileForm
-              cities={cities}
-              areas={areas}
-              initialName={card.profile?.display_name ?? ""}
-              initialAreaIds={card.area_ids}
-              serverError={formError}
-              client:load
-            />
-          </div>
-        )
-      }
-    </div>
+    {
+      loadError ? (
+        <p class="bg-danger-soft text-danger rounded-md px-4 py-6 text-center text-sm">{loadError}</p>
+      ) : (
+        <Card>
+          <ProfileForm
+            cities={cities}
+            areas={areas}
+            initialName={card.profile?.display_name ?? ""}
+            initialBio={card.profile?.bio ?? ""}
+            initialAreaIds={card.area_ids}
+            serverError={formError ? tUnknown(locale, formError, "specialist.error.saveFailed") : null}
+            locale={locale}
+            strings={profileFormStrings(locale)}
+            client:load
+          />
+        </Card>
+      )
+    }
   </div>
-</Layout>
+</SpecialistLayout>

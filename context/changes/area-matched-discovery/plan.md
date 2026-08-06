@@ -789,35 +789,35 @@ they are amended by new files rather than edited.
 
 #### Automated
 
-- [x] 3.1 `npm run build` passes
-- [x] 3.2 `npm run lint` passes, CRLF-aware check empty
-- [x] 3.3 `npm run check` passes — no untranslated catalog key, no type error
-- [x] 3.4 Auth endpoints redirect with error keys only, no English sentences
+- [x] 3.1 `npm run build` passes — a9d9dbc
+- [x] 3.2 `npm run lint` passes, CRLF-aware check empty — a9d9dbc
+- [x] 3.3 `npm run check` passes — no untranslated catalog key, no type error — a9d9dbc
+- [x] 3.4 Auth endpoints redirect with error keys only, no English sentences — a9d9dbc
 
 #### Manual
 
-- [x] 3.5 Full auth regression in both locales: sign up (both roles), sign in, sign out, forgot → reset → sign in
-- [x] 3.6 A wrong password shows a translated message, not a raw key
-- [x] 3.7 Every auth screen matches its mockup in layout and hierarchy
-- [x] 3.8 The language switcher works from an auth screen while signed out
+- [x] 3.5 Full auth regression in both locales: sign up (both roles), sign in, sign out, forgot → reset → sign in — a9d9dbc
+- [x] 3.6 A wrong password shows a translated message, not a raw key — a9d9dbc
+- [x] 3.7 Every auth screen matches its mockup in layout and hierarchy — a9d9dbc
+- [x] 3.8 The language switcher works from an auth screen while signed out — a9d9dbc
 
 ### Phase 4: Retrofit — specialist panel, new fields, two-step area picker
 
 #### Automated
 
-- [ ] 4.1 `npm run build` passes
-- [ ] 4.2 `npm run lint` passes, CRLF-aware check empty
-- [ ] 4.3 `npm run check` passes — no untranslated catalog key, no type error
-- [ ] 4.4 No caller of `isCardComplete` remains in `src/`
+- [x] 4.1 `npm run build` passes
+- [x] 4.2 `npm run lint` passes, CRLF-aware check empty
+- [x] 4.3 `npm run check` passes — no untranslated catalog key, no type error
+- [x] 4.4 No caller of `isCardComplete` remains in `src/`
 
 #### Manual
 
-- [ ] 4.5 Selections in two cities both persist across a city switch and a save
-- [ ] 4.6 "Select all in this city" saves every area of that city
-- [ ] 4.7 Bio, duration and custom service name save and re-display; a service without them still saves
-- [ ] 4.8 Card-status banner flips when the last service is deleted, and back
-- [ ] 4.9 Role gating on `/specialist/*` still holds for a client and for a signed-out visitor
-- [ ] 4.10 Specialist panel has no untranslated strings in either locale
+- [x] 4.5 Selections in two cities both persist across a city switch and a save
+- [x] 4.6 "Select all in this city" saves every area of that city
+- [x] 4.7 Bio, duration and custom service name save and re-display; a service without them still saves
+- [x] 4.8 Card-status banner flips when the last service is deleted, and back
+- [x] 4.9 Role gating on `/specialist/*` still holds for a client and for a signed-out visitor
+- [x] 4.10 Specialist panel has no untranslated strings in either locale
 
 ### Phase 5: Discovery
 

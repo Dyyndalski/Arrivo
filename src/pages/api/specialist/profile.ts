@@ -20,28 +20,30 @@ export const POST: APIRoute = async (context) => {
 
   const supabase = createClient(context.request.headers, context.cookies);
   if (!supabase) {
-    return context.redirect(`${PAGE}?error=${encodeURIComponent("Supabase is not configured")}`);
+    return context.redirect(`${PAGE}?error=specialist.error.notConfigured`);
   }
 
   const form = await context.request.formData();
   const parsed = parseOrError(specialistProfileSchema, {
     display_name: form.get("display_name"),
+    bio: form.get("bio"),
     area_ids: form.getAll("area_ids"),
   });
   if (!parsed.ok) {
-    return context.redirect(`${PAGE}?error=${encodeURIComponent(parsed.error)}`);
+    return context.redirect(`${PAGE}?error=${parsed.error}`);
   }
 
   try {
     await upsertOwnCard(supabase, user.id, parsed.data);
   } catch (err) {
+    // Both carry a catalog key; two different remedies, so two different messages.
     if (err instanceof NotAllowedError || err instanceof NoCardError) {
-      return context.redirect(`${PAGE}?error=${encodeURIComponent(err.message)}`);
+      return context.redirect(`${PAGE}?error=${err.key}`);
     }
     // eslint-disable-next-line no-console -- server-side diagnostics (Workers observability)
     console.error("specialist/profile: upsertOwnCard failed", err);
-    return context.redirect(`${PAGE}?error=${encodeURIComponent("Could not save your profile — try again")}`);
+    return context.redirect(`${PAGE}?error=specialist.error.saveFailed`);
   }
 
-  return context.redirect(`${PAGE}?message=${encodeURIComponent("Profile saved")}`);
+  return context.redirect(`${PAGE}?message=specialist.message.profileSaved`);
 };

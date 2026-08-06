@@ -1,38 +1,45 @@
 ---
-// Renders the completeness rule from src/lib/services/specialists.ts. Deliberately shows what
-// is MISSING rather than a bare "incomplete": a specialist who cannot tell why their card is
-// invisible has no way to fix it, and an invisible card is the failure mode this whole slice
-// exists to avoid.
+import { useTranslations } from "@/lib/i18n/t";
+import type { MissingPieceKey } from "@/lib/services/specialists";
+
+/**
+ * Two sources, on purpose (S-02 impl-review F4, closed in phase 4).
+ *
+ * `discoverable` comes from `public.discoverable_specialists` — the SAME view the client-facing
+ * search reads, so "your card is live" and "a client can find you" are one statement rather than
+ * two implementations that can drift.
+ *
+ * `missing` comes from `missingPieces()`, which the view cannot express: it answers yes/no, and a
+ * specialist told only "not visible" has no way to act.
+ *
+ * If they ever disagree this renders "live" above a list of missing pieces — visibly incoherent,
+ * which is deliberate. The failure that costs a specialist their bookings is the silent one.
+ */
 interface Props {
-  missing: string[];
+  discoverable: boolean;
+  missing: MissingPieceKey[];
 }
 
-const { missing } = Astro.props;
-const complete = missing.length === 0;
+const { discoverable, missing } = Astro.props;
+const { locale } = Astro.locals;
+const t = useTranslations(locale);
+
+const missingText = missing.map((key) => t(key)).join(", ");
 ---
 
 <div
   class:list={[
-    "flex items-start gap-3 rounded-xl border px-4 py-3 text-sm",
-    complete ? "border-emerald-400/30 bg-emerald-500/10" : "border-amber-400/30 bg-amber-500/10",
+    "flex items-start gap-3 rounded-md px-4 py-3 text-sm",
+    discoverable ? "bg-success-soft text-success-soft-text" : "bg-warning-soft text-warning",
   ]}
 >
-  <span class:list={["mt-0.5 shrink-0", complete ? "text-emerald-300" : "text-amber-300"]}>
-    {complete ? "●" : "○"}
-  </span>
+  <span class="mt-0.5 shrink-0" aria-hidden="true">{discoverable ? "●" : "○"}</span>
   <div>
-    {
-      complete ? (
-        <>
-          <p class="font-medium text-emerald-200">Your card is live</p>
-          <p class="text-emerald-100/60">Clients in your districts can find you.</p>
-        </>
-      ) : (
-        <>
-          <p class="font-medium text-amber-200">Not visible to clients yet</p>
-          <p class="text-amber-100/70">Still needed: {missing.join(", ")}.</p>
-        </>
-      )
-    }
+    <p class="font-semibold">
+      {discoverable ? t("specialist.card.liveTitle") : t("specialist.card.incompleteTitle")}
+    </p>
+    <p class="opacity-80">
+      {discoverable ? t("specialist.card.liveBody") : t("specialist.card.incompleteBody", { missing: missingText })}
+    </p>
   </div>
 </div>

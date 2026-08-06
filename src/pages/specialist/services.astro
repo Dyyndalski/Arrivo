@@ -1,80 +1,89 @@
 ---
-import Layout from "@/layouts/Layout.astro";
+import SpecialistLayout from "@/layouts/SpecialistLayout.astro";
+import Card from "@/components/ui/Card.astro";
+import CardStatus from "@/components/specialist/CardStatus.astro";
 import ServiceForm from "@/components/specialist/ServiceForm";
 import ServiceList from "@/components/specialist/ServiceList.astro";
-import CardStatus from "@/components/specialist/CardStatus.astro";
-import SpecialistNav from "@/components/specialist/SpecialistNav.astro";
+import { serviceFormStrings } from "@/components/specialist/strings";
 import { createClient } from "@/lib/supabase";
-import { getOwnCard, getTaxonomy, missingPieces } from "@/lib/services/specialists";
+import { getOwnCard, getTaxonomy, isDiscoverable, missingPieces } from "@/lib/services/specialists";
+import { useTranslations, tUnknown } from "@/lib/i18n/t";
+import type { MissingPieceKey } from "@/lib/services/specialists";
 import type { ServiceCategory, ServiceSubtype, SpecialistCard } from "@/types";
 
-// Access is gated in src/middleware.ts (SPECIALIST_ROUTES) — per CLAUDE.md, routes are not
-// re-guarded here. The null check below is type narrowing, not an auth check.
-const { user } = Astro.locals;
+// Access is gated in src/middleware.ts (SPECIALIST_ROUTES).
+const { user, locale } = Astro.locals;
+const t = useTranslations(locale);
 const supabase = createClient(Astro.request.headers, Astro.cookies);
 
 let card: SpecialistCard = { profile: null, area_ids: [], services: [] };
 let categories: ServiceCategory[] = [];
 let subtypes: ServiceSubtype[] = [];
+let discoverable = false;
+let missing: MissingPieceKey[] = [];
 let loadError: string | null = null;
 
-// Three distinct causes, three distinct messages (impl-review F2).
 if (!supabase) {
-  loadError = "Supabase is not configured";
+  loadError = t("specialist.error.notConfigured");
 } else if (!user) {
-  loadError = "Your session has expired — sign in again";
+  loadError = t("auth.error.sessionExpired");
 } else {
   try {
-    const [loadedCard, taxonomy] = await Promise.all([getOwnCard(supabase, user.id), getTaxonomy(supabase)]);
+    const [loadedCard, taxonomy, live] = await Promise.all([
+      getOwnCard(supabase, user.id),
+      getTaxonomy(supabase),
+      isDiscoverable(supabase, user.id),
+    ]);
     card = loadedCard;
     categories = taxonomy.categories;
     subtypes = taxonomy.subtypes;
+    discoverable = live;
+    missing = missingPieces(loadedCard);
   } catch {
-    loadError = "Could not load your services — refresh to try again";
+    loadError = t("specialist.error.loadServices");
   }
 }
 
-// A failed POST comes back as ?error= and belongs inside the form. A failed load replaces the
-// form and the list entirely rather than rendering them empty.
 const formError = Astro.url.searchParams.get("error");
 const message = Astro.url.searchParams.get("message");
 ---
 
-<Layout title="Your services">
-  <div class="bg-cosmic min-h-screen p-4 py-10">
-    <div class="mx-auto w-full max-w-2xl space-y-6">
-      <SpecialistNav current="services" />
+<SpecialistLayout
+  title={t("specialist.services.title")}
+  subtitle={t("specialist.services.subtitle")}
+  current="services"
+>
+  <div class="space-y-5">
+    {!loadError && <CardStatus discoverable={discoverable} missing={missing} />}
 
-      <h1 class="bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-2xl font-bold text-transparent">
-        Your services
-      </h1>
+    {
+      message && (
+        <p class="bg-success-soft text-success-soft-text rounded-sm px-3.5 py-2.5 text-sm">
+          {tUnknown(locale, message, "specialist.message.serviceAdded")}
+        </p>
+      )
+    }
 
-      {!loadError && <CardStatus missing={missingPieces(card)} />}
+    {
+      loadError ? (
+        <p class="bg-danger-soft text-danger rounded-md px-4 py-6 text-center text-sm">{loadError}</p>
+      ) : (
+        <>
+          <ServiceList services={card.services} categories={categories} subtypes={subtypes} />
 
-      {
-        message && (
-          <p class="rounded-lg border border-emerald-500/30 bg-emerald-900/20 px-3 py-2 text-sm text-emerald-300">
-            {message}
-          </p>
-        )
-      }
-
-      {
-        loadError ? (
-          <p class="rounded-2xl border border-red-500/30 bg-red-900/20 px-4 py-6 text-center text-sm text-red-300">
-            {loadError}
-          </p>
-        ) : (
-          <>
-            <ServiceList services={card.services} categories={categories} subtypes={subtypes} />
-
-            <div class="rounded-2xl border border-white/10 bg-white/10 p-6 backdrop-blur-xl">
-              <h2 class="mb-4 text-sm font-medium text-blue-100/80">Add a service</h2>
-              <ServiceForm categories={categories} subtypes={subtypes} serverError={formError} client:load />
-            </div>
-          </>
-        )
-      }
-    </div>
+          <Card>
+            <p class="text-foreground mb-4 text-[15px] font-bold">{t("specialist.services.add")}</p>
+            <ServiceForm
+              categories={categories}
+              subtypes={subtypes}
+              serverError={formError ? tUnknown(locale, formError, "specialist.error.addFailed") : null}
+              locale={locale}
+              strings={serviceFormStrings(locale)}
+              client:load
+            />
+          </Card>
+        </>
+      )
+    }
   </div>
-</Layout>
+</SpecialistLayout>
