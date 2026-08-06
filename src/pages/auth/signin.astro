@@ -1,36 +1,48 @@
 ---
 import Layout from "@/layouts/Layout.astro";
+import AuthCard from "@/components/auth/AuthCard.astro";
 import SignInForm from "@/components/auth/SignInForm";
+import { authStrings } from "@/components/auth/strings";
+import { useTranslations, tUnknown } from "@/lib/i18n/t";
+import { MIN_PASSWORD_LENGTH } from "@/lib/schemas/limits";
 
+const { locale } = Astro.locals;
+const t = useTranslations(locale);
+
+// `?error=` and `?message=` carry catalog keys, not sentences. `tUnknown` resolves them and falls
+// back to a generic message for anything it does not recognise — a stale bookmark or a
+// hand-edited URL must not put attacker-chosen text where our own errors appear.
 const error = Astro.url.searchParams.get("error");
 const message = Astro.url.searchParams.get("message");
 const email = Astro.url.searchParams.get("email");
+
+const strings = authStrings(locale, t("auth.signIn.submit"), t("auth.signIn.pending"));
 ---
 
-<Layout title="Sign in">
-  <div class="bg-cosmic flex min-h-screen items-center justify-center p-4">
-    <div class="w-full max-w-sm rounded-2xl border border-white/10 bg-white/10 p-8 text-white backdrop-blur-xl">
-      <h1
-        class="mb-6 bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-center text-2xl font-bold text-transparent"
-      >
-        Sign in
-      </h1>
-      {
-        message && (
-          <p class="mb-4 rounded-lg border border-green-400/30 bg-green-400/10 px-3 py-2 text-center text-sm text-green-200">
-            {message}
-          </p>
-        )
-      }
-      <SignInForm serverError={error} initialEmail={email ?? undefined} client:load />
-      <p class="mt-3 text-center text-sm">
-        <a href="/auth/forgot-password" class="text-blue-100/60 hover:text-purple-300 hover:underline"
-          >Forgot password?</a
-        >
-      </p>
-      <p class="mt-2 text-center text-sm text-blue-100/60">
-        Don't have an account? <a href="/auth/signup" class="text-purple-300 hover:underline">Sign up</a>
-      </p>
-    </div>
-  </div>
+<Layout title={t("auth.signIn.submit")}>
+  <AuthCard title={t("auth.signIn.title")} subtitle={t("auth.signIn.subtitle")}>
+    {
+      message && (
+        <p class="bg-success-soft text-success-soft-text mb-4 rounded-sm px-3.5 py-2.5 text-center text-sm">
+          {tUnknown(locale, message, "auth.message.passwordUpdated")}
+        </p>
+      )
+    }
+
+    <SignInForm
+      serverError={error ? tUnknown(locale, error, "auth.error.generic", { min: MIN_PASSWORD_LENGTH }) : null}
+      initialEmail={email ?? undefined}
+      strings={strings}
+      client:load
+    />
+
+    <p class="mt-3 text-center text-[13px]">
+      <a href="/auth/forgot-password" class="text-primary font-semibold hover:underline">{t("auth.link.forgot")}</a>
+    </p>
+
+    <p class="text-ink-soft mt-4 text-center text-[13px]">
+      {t("auth.link.noAccount")}{" "}
+      <a href="/auth/signup" class="text-primary font-semibold hover:underline">{t("nav.signUp")}</a>
+    </p>
+  </AuthCard>
 </Layout>

@@ -1,0 +1,34 @@
+---
+import { cn } from "@/lib/utils";
+
+/**
+ * The mockups' logo lockup: a terracotta rounded square with an "A", then the name in Fraunces.
+ * Shared by the auth card, the topbar and (in phase 4) the specialist sidebar.
+ */
+interface Props {
+  size?: "sm" | "md";
+  class?: string;
+}
+
+const { size = "md", class: className } = Astro.props;
+
+const MARK = {
+  sm: "size-6.5 text-[13px] rounded-[7px]",
+  md: "size-7 text-sm rounded-lg",
+} as const;
+
+const TEXT = {
+  sm: "text-[19px]",
+  md: "text-xl",
+} as const;
+---
+
+<span
+  class:list={[cn("text-foreground font-display inline-flex items-center gap-2 font-semibold", TEXT[size], className)]}
+>
+  <span
+    class:list={[cn("bg-primary flex items-center justify-center font-bold text-white", MARK[size])]}
+    aria-hidden="true">A</span
+  >
+  Arrivo
+</span>

@@ -73,9 +73,8 @@ export const onRequest = defineMiddleware(async (context, next) => {
   // visit or an expired link), bounce to request a fresh link rather than the generic
   // sign-in redirect.
   if (context.url.pathname === "/auth/reset-password" && !context.locals.user) {
-    return context.redirect(
-      `/auth/forgot-password?error=${encodeURIComponent("Link expired or invalid — request a new one")}`,
-    );
+    // A catalog key, like every other `?error=` in the app — the page translates it.
+    return context.redirect("/auth/forgot-password?error=auth.error.linkExpired");
   }
 
   return next();

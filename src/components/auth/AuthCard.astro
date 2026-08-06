@@ -1,0 +1,37 @@
+---
+import LanguageSwitcher from "@/components/LanguageSwitcher.astro";
+import Wordmark from "@/components/Wordmark.astro";
+
+/**
+ * The mockups' `.auth-shell` + `.auth-card` (context/foundation/design/web/sign-in.html).
+ * All six auth screens share it, so the wordmark, spacing and the language switcher are defined
+ * once rather than six times.
+ */
+interface Props {
+  title: string;
+  subtitle?: string;
+  /** Sign-up is wider — it carries the two-card role picker. */
+  wide?: boolean;
+}
+
+const { title, subtitle, wide = false } = Astro.props;
+---
+
+<div class="flex min-h-screen flex-col items-center justify-center px-5 py-10">
+  <div class:list={["w-full", wide ? "max-w-[440px]" : "max-w-[400px]"]}>
+    <div class="border-border bg-card rounded-lg border px-8 py-9 shadow-md">
+      <div class="mb-6 flex justify-center">
+        <Wordmark />
+      </div>
+
+      <h1 class="text-foreground mb-1 text-center text-xl font-bold">{title}</h1>
+      {subtitle && <p class="text-muted-foreground mb-6 text-center text-[13px]">{subtitle}</p>}
+
+      <slot />
+    </div>
+
+    <div class="mt-4 flex items-center justify-center">
+      <LanguageSwitcher />
+    </div>
+  </div>
+</div>

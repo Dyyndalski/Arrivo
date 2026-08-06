@@ -177,13 +177,15 @@
 /*
  * TRANSITIONAL — remove when the last caller is gone.
  *
- * The starter's dark gradient. Ten screens wrap themselves in it and put white text on top:
- * Welcome, the six auth pages, dashboard, and both /specialist/* pages. Deleting it with the rest
- * of the old theme would leave white-on-cream — unreadable, not merely unstyled — on every screen
- * in the app until phases 3 and 4 retrofit them.
+ * The starter's dark gradient. It wrapped ten screens before phase 3; the six auth pages and the
+ * dashboard have since moved onto the design system, leaving:
  *
- * Each screen drops its `bg-cosmic` wrapper as it is retrofitted. The phase that retires the last
- * caller deletes this block too; `grep -rn "bg-cosmic" src/` is the check.
+ *   - src/pages/specialist/{profile,services}.astro — phase 4 retires these
+ *   - src/components/Welcome.astro — the starter landing page, which this change deliberately
+ *     does NOT redesign (it is the one screen with no mockup)
+ *
+ * So this block outlives the change: after phase 4 the landing page is its only caller, and it
+ * goes when that page is eventually replaced. `grep -rln "bg-cosmic" src/` is the check.
  */
 @utility bg-cosmic {
   background-image: linear-gradient(to bottom, #0a0e1a, #0f1529, #0a0e1a);

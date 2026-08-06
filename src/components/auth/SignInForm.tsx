@@ -4,13 +4,16 @@ import { FormField } from "@/components/auth/FormField";
 import { PasswordToggle } from "@/components/auth/PasswordToggle";
 import { SubmitButton } from "@/components/auth/SubmitButton";
 import { ServerError } from "@/components/auth/ServerError";
+import type { AuthStrings } from "@/components/auth/strings";
 
 interface Props {
+  /** Already translated by the page — this island never sees a catalog key. */
   serverError?: string | null;
   initialEmail?: string;
+  strings: AuthStrings;
 }
 
-export default function SignInForm({ serverError, initialEmail }: Props) {
+export default function SignInForm({ serverError, initialEmail, strings }: Props) {
   const [email, setEmail] = useState(initialEmail ?? "");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -18,13 +21,14 @@ export default function SignInForm({ serverError, initialEmail }: Props) {
 
   function validate() {
     const next: typeof errors = {};
-    if (!email.trim()) {
-      next.email = "Email is required";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      next.email = "Enter a valid email address";
+    // One message for empty and for malformed: the endpoint's schema makes the same call
+    // (`auth.error.emailInvalid` covers both), and telling someone their empty field is empty
+    // adds nothing the asterisk did not.
+    if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      next.email = strings.errorEmailInvalid;
     }
     if (!password) {
-      next.password = "Password is required";
+      next.password = strings.errorPasswordRequired;
     }
     setErrors(next);
     return Object.keys(next).length === 0;
@@ -45,32 +49,34 @@ export default function SignInForm({ serverError, initialEmail }: Props) {
       <FormField
         id="email"
         type="email"
-        label="Email"
+        label={strings.email}
         value={email}
         onChange={(v) => {
           setEmail(v);
           clearError("email");
         }}
-        placeholder="you@example.com"
+        placeholder={strings.emailPlaceholder}
         error={errors.email}
         icon={<Mail className="size-4" />}
       />
 
       <FormField
         id="password"
-        label="Password"
+        label={strings.password}
         type={showPassword ? "text" : "password"}
         value={password}
         onChange={(v) => {
           setPassword(v);
           clearError("password");
         }}
-        placeholder="Your password"
+        placeholder={strings.passwordPlaceholder}
         error={errors.password}
         icon={<Lock className="size-4" />}
         endContent={
           <PasswordToggle
             visible={showPassword}
+            showLabel={strings.showPassword}
+            hideLabel={strings.hidePassword}
             onToggle={() => {
               setShowPassword(!showPassword);
             }}
@@ -80,8 +86,8 @@ export default function SignInForm({ serverError, initialEmail }: Props) {
 
       <ServerError message={serverError} />
 
-      <SubmitButton pendingText="Signing in..." icon={<LogIn className="size-4" />}>
-        Sign in
+      <SubmitButton pendingText={strings.pending} icon={<LogIn className="size-4" />}>
+        {strings.submit}
       </SubmitButton>
     </form>
   );

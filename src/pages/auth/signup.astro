@@ -1,22 +1,30 @@
 ---
 import Layout from "@/layouts/Layout.astro";
+import AuthCard from "@/components/auth/AuthCard.astro";
 import SignUpForm from "@/components/auth/SignUpForm";
+import { authStrings } from "@/components/auth/strings";
+import { useTranslations, tUnknown } from "@/lib/i18n/t";
+import { MIN_PASSWORD_LENGTH } from "@/lib/schemas/limits";
+
+const { locale } = Astro.locals;
+const t = useTranslations(locale);
 
 const error = Astro.url.searchParams.get("error");
+
+const strings = authStrings(locale, t("auth.signUp.submit"), t("auth.signUp.pending"));
 ---
 
-<Layout title="Sign up">
-  <div class="bg-cosmic flex min-h-screen items-center justify-center p-4">
-    <div class="w-full max-w-sm rounded-2xl border border-white/10 bg-white/10 p-8 text-white backdrop-blur-xl">
-      <h1
-        class="mb-6 bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-center text-2xl font-bold text-transparent"
-      >
-        Sign up
-      </h1>
-      <SignUpForm serverError={error} client:load />
-      <p class="mt-4 text-center text-sm text-blue-100/60">
-        Already have an account? <a href="/auth/signin" class="text-purple-300 hover:underline">Sign in</a>
-      </p>
-    </div>
-  </div>
+<Layout title={t("auth.signUp.submit")}>
+  <AuthCard title={t("auth.signUp.title")} subtitle={t("auth.signUp.subtitle")} wide>
+    <SignUpForm
+      serverError={error ? tUnknown(locale, error, "auth.error.generic", { min: MIN_PASSWORD_LENGTH }) : null}
+      strings={strings}
+      client:load
+    />
+
+    <p class="text-ink-soft mt-4 text-center text-[13px]">
+      {t("auth.link.haveAccount")}{" "}
+      <a href="/auth/signin" class="text-primary font-semibold hover:underline">{t("nav.signIn")}</a>
+    </p>
+  </AuthCard>
 </Layout>

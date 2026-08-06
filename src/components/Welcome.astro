@@ -1,5 +1,10 @@
 ---
-import Topbar from "@/components/Topbar.astro";
+// The starter's landing page, deliberately left on the old dark theme: it is the one screen with
+// no mockup, so redesigning it here would be guesswork (see the plan's "What We're NOT Doing").
+//
+// Topbar was removed in phase 3 rather than left in place. It now renders in the Arrivo design
+// system — cream, terracotta wordmark — which floated as a white bar on this dark starfield. The
+// hero below carries its own sign-in and sign-up links, so nothing was lost by dropping it.
 ---
 
 <div class="bg-cosmic relative min-h-screen w-full overflow-hidden">
@@ -25,8 +30,6 @@ import Topbar from "@/components/Topbar.astro";
   </div>
 
   <div class="relative z-10 p-4 sm:p-8">
-    <Topbar />
-
     <!-- Hero section -->
     <div class="mx-auto flex max-w-4xl flex-col items-center justify-center px-4 py-24 text-center sm:py-32 lg:py-40">
       <h1

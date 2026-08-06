@@ -4,14 +4,17 @@ import { FormField } from "@/components/auth/FormField";
 import { PasswordToggle } from "@/components/auth/PasswordToggle";
 import { SubmitButton } from "@/components/auth/SubmitButton";
 import { ServerError } from "@/components/auth/ServerError";
-
-const MIN_PASSWORD_LENGTH = 6;
+// From ./limits, never ./auth — that module pulls zod into the client bundle.
+import { MIN_PASSWORD_LENGTH } from "@/lib/schemas/limits";
+import type { AuthStrings } from "@/components/auth/strings";
 
 interface Props {
+  /** Already translated by the page — this island never sees a catalog key. */
   serverError?: string | null;
+  strings: AuthStrings;
 }
 
-export default function ResetPasswordForm({ serverError }: Props) {
+export default function ResetPasswordForm({ serverError, strings }: Props) {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -22,15 +25,15 @@ export default function ResetPasswordForm({ serverError }: Props) {
     const next: typeof errors = {};
 
     if (!password) {
-      next.password = "Password is required";
+      next.password = strings.errorPasswordRequired;
     } else if (password.length < MIN_PASSWORD_LENGTH) {
-      next.password = `Password must be at least ${MIN_PASSWORD_LENGTH} characters`;
+      next.password = strings.errorPasswordTooShort;
     }
 
     if (!confirmPassword) {
-      next.confirmPassword = "Please confirm your password";
+      next.confirmPassword = strings.errorConfirmRequired;
     } else if (password !== confirmPassword) {
-      next.confirmPassword = "Passwords do not match";
+      next.confirmPassword = strings.errorPasswordsMismatch;
     }
 
     setErrors(next);
@@ -47,32 +50,32 @@ export default function ResetPasswordForm({ serverError }: Props) {
     }
   }
 
+  // Static, for the same plural-forms reason as SignUpForm.
   const passwordHint =
     !errors.password && password.length > 0 && password.length < MIN_PASSWORD_LENGTH ? (
-      <p className="mt-1 text-xs text-blue-100/50">
-        {MIN_PASSWORD_LENGTH - password.length} more character
-        {MIN_PASSWORD_LENGTH - password.length !== 1 ? "s" : ""} needed
-      </p>
+      <p className="text-muted-foreground mt-1 text-xs">{strings.passwordHint}</p>
     ) : undefined;
 
   return (
     <form method="POST" action="/api/auth/reset-password" className="space-y-4" onSubmit={handleSubmit} noValidate>
       <FormField
         id="password"
-        label="New password"
+        label={strings.newPassword}
         type={showPassword ? "text" : "password"}
         value={password}
         onChange={(v) => {
           setPassword(v);
           clearError("password");
         }}
-        placeholder="Min. 6 characters"
+        placeholder={strings.newPasswordPlaceholder}
         error={errors.password}
         hint={passwordHint}
         icon={<Lock className="size-4" />}
         endContent={
           <PasswordToggle
             visible={showPassword}
+            showLabel={strings.showPassword}
+            hideLabel={strings.hidePassword}
             onToggle={() => {
               setShowPassword(!showPassword);
             }}
@@ -82,19 +85,21 @@ export default function ResetPasswordForm({ serverError }: Props) {
 
       <FormField
         id="confirmPassword"
-        label="Confirm new password"
+        label={strings.confirmPassword}
         type={showConfirmPassword ? "text" : "password"}
         value={confirmPassword}
         onChange={(v) => {
           setConfirmPassword(v);
           clearError("confirmPassword");
         }}
-        placeholder="Re-enter your password"
+        placeholder={strings.confirmPasswordPlaceholder}
         error={errors.confirmPassword}
         icon={<Lock className="size-4" />}
         endContent={
           <PasswordToggle
             visible={showConfirmPassword}
+            showLabel={strings.showPassword}
+            hideLabel={strings.hidePassword}
             onToggle={() => {
               setShowConfirmPassword(!showConfirmPassword);
             }}
@@ -104,8 +109,8 @@ export default function ResetPasswordForm({ serverError }: Props) {
 
       <ServerError message={serverError} />
 
-      <SubmitButton pendingText="Updating..." icon={<KeyRound className="size-4" />}>
-        Update password
+      <SubmitButton pendingText={strings.pending} icon={<KeyRound className="size-4" />}>
+        {strings.submit}
       </SubmitButton>
     </form>
   );

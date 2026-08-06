@@ -5,15 +5,18 @@ import { PasswordToggle } from "@/components/auth/PasswordToggle";
 import { SubmitButton } from "@/components/auth/SubmitButton";
 import { ServerError } from "@/components/auth/ServerError";
 import { RoleToggle } from "@/components/auth/RoleToggle";
+// From ./limits, never ./auth — that module pulls zod into the client bundle.
+import { MIN_PASSWORD_LENGTH } from "@/lib/schemas/limits";
 import type { UserRole } from "@/types";
-
-const MIN_PASSWORD_LENGTH = 6;
+import type { AuthStrings } from "@/components/auth/strings";
 
 interface Props {
+  /** Already translated by the page — this island never sees a catalog key. */
   serverError?: string | null;
+  strings: AuthStrings;
 }
 
-export default function SignUpForm({ serverError }: Props) {
+export default function SignUpForm({ serverError, strings }: Props) {
   const [role, setRole] = useState<UserRole | "">("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -27,26 +30,22 @@ export default function SignUpForm({ serverError }: Props) {
   function validate() {
     const next: typeof errors = {};
 
-    if (!role) {
-      next.role = "Please choose whether you're a client or a specialist";
-    }
+    if (!role) next.role = strings.errorRoleRequired;
 
-    if (!email.trim()) {
-      next.email = "Email is required";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      next.email = "Enter a valid email address";
+    if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      next.email = strings.errorEmailInvalid;
     }
 
     if (!password) {
-      next.password = "Password is required";
+      next.password = strings.errorPasswordRequired;
     } else if (password.length < MIN_PASSWORD_LENGTH) {
-      next.password = `Password must be at least ${MIN_PASSWORD_LENGTH} characters`;
+      next.password = strings.errorPasswordTooShort;
     }
 
     if (!confirmPassword) {
-      next.confirmPassword = "Please confirm your password";
+      next.confirmPassword = strings.errorConfirmRequired;
     } else if (password !== confirmPassword) {
-      next.confirmPassword = "Passwords do not match";
+      next.confirmPassword = strings.errorPasswordsMismatch;
     }
 
     setErrors(next);
@@ -63,12 +62,12 @@ export default function SignUpForm({ serverError }: Props) {
     }
   }
 
+  // A static hint rather than the previous live "N more characters needed" countdown: Polish
+  // needs three plural forms for that sentence (1 znak / 2 znaki / 5 znaków), and Intl.PluralRules
+  // machinery is a poor trade for a hint the placeholder already carries.
   const passwordHint =
     !errors.password && password.length > 0 && password.length < MIN_PASSWORD_LENGTH ? (
-      <p className="mt-1 text-xs text-blue-100/50">
-        {MIN_PASSWORD_LENGTH - password.length} more character
-        {MIN_PASSWORD_LENGTH - password.length !== 1 ? "s" : ""} needed
-      </p>
+      <p className="text-muted-foreground mt-1 text-xs">{strings.passwordHint}</p>
     ) : undefined;
 
   return (
@@ -80,38 +79,41 @@ export default function SignUpForm({ serverError }: Props) {
           clearError("role");
         }}
         error={errors.role}
+        strings={strings}
       />
 
       <FormField
         id="email"
         type="email"
-        label="Email"
+        label={strings.email}
         value={email}
         onChange={(v) => {
           setEmail(v);
           clearError("email");
         }}
-        placeholder="you@example.com"
+        placeholder={strings.emailPlaceholder}
         error={errors.email}
         icon={<Mail className="size-4" />}
       />
 
       <FormField
         id="password"
-        label="Password"
+        label={strings.password}
         type={showPassword ? "text" : "password"}
         value={password}
         onChange={(v) => {
           setPassword(v);
           clearError("password");
         }}
-        placeholder="Min. 6 characters"
+        placeholder={strings.newPasswordPlaceholder}
         error={errors.password}
         hint={passwordHint}
         icon={<Lock className="size-4" />}
         endContent={
           <PasswordToggle
             visible={showPassword}
+            showLabel={strings.showPassword}
+            hideLabel={strings.hidePassword}
             onToggle={() => {
               setShowPassword(!showPassword);
             }}
@@ -122,19 +124,21 @@ export default function SignUpForm({ serverError }: Props) {
       <FormField
         id="confirmPassword"
         name="confirmPassword"
-        label="Confirm password"
+        label={strings.confirmPassword}
         type={showConfirmPassword ? "text" : "password"}
         value={confirmPassword}
         onChange={(v) => {
           setConfirmPassword(v);
           clearError("confirmPassword");
         }}
-        placeholder="Re-enter your password"
+        placeholder={strings.confirmPasswordPlaceholder}
         error={errors.confirmPassword}
         icon={<Lock className="size-4" />}
         endContent={
           <PasswordToggle
             visible={showConfirmPassword}
+            showLabel={strings.showPassword}
+            hideLabel={strings.hidePassword}
             onToggle={() => {
               setShowConfirmPassword(!showConfirmPassword);
             }}
@@ -144,8 +148,8 @@ export default function SignUpForm({ serverError }: Props) {
 
       <ServerError message={serverError} />
 
-      <SubmitButton pendingText="Creating account..." icon={<UserPlus className="size-4" />}>
-        Create account
+      <SubmitButton pendingText={strings.pending} icon={<UserPlus className="size-4" />}>
+        {strings.submit}
       </SubmitButton>
     </form>
   );

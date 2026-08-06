@@ -789,17 +789,17 @@ they are amended by new files rather than edited.
 
 #### Automated
 
-- [ ] 3.1 `npm run build` passes
-- [ ] 3.2 `npm run lint` passes, CRLF-aware check empty
-- [ ] 3.3 `npm run check` passes — no untranslated catalog key, no type error
-- [ ] 3.4 Auth endpoints redirect with error keys only, no English sentences
+- [x] 3.1 `npm run build` passes
+- [x] 3.2 `npm run lint` passes, CRLF-aware check empty
+- [x] 3.3 `npm run check` passes — no untranslated catalog key, no type error
+- [x] 3.4 Auth endpoints redirect with error keys only, no English sentences
 
 #### Manual
 
-- [ ] 3.5 Full auth regression in both locales: sign up (both roles), sign in, sign out, forgot → reset → sign in
-- [ ] 3.6 A wrong password shows a translated message, not a raw key
-- [ ] 3.7 Every auth screen matches its mockup in layout and hierarchy
-- [ ] 3.8 The language switcher works from an auth screen while signed out
+- [x] 3.5 Full auth regression in both locales: sign up (both roles), sign in, sign out, forgot → reset → sign in
+- [x] 3.6 A wrong password shows a translated message, not a raw key
+- [x] 3.7 Every auth screen matches its mockup in layout and hierarchy
+- [x] 3.8 The language switcher works from an auth screen while signed out
 
 ### Phase 4: Retrofit — specialist panel, new fields, two-step area picker
 

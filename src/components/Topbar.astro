@@ -1,51 +1,83 @@
 ---
 import LanguageSwitcher from "@/components/LanguageSwitcher.astro";
+import Wordmark from "@/components/Wordmark.astro";
+import Avatar from "@/components/ui/Avatar.astro";
 import { useTranslations } from "@/lib/i18n/t";
+import { cn } from "@/lib/utils";
 
 /**
- * Still on the starter's dark palette: this renders inside Welcome's `bg-cosmic` wrapper, which
- * phase 3 retires. Only the strings and the language switcher change here — the mockups' navbar
- * (context/foundation/design/web/discover.html) arrives with that retrofit.
+ * The mockups' `.navbar` (context/foundation/design/web/discover.html).
+ *
+ * Links are role-aware, and destinations that do not exist yet are OMITTED rather than disabled:
+ * an empty nav slot is invisible, a dead nav link is not. Client bookings arrive with S-04;
+ * /specialists and /account with phase 5.
  */
+interface Props {
+  current?: "discover" | "profile" | "dashboard";
+  class?: string;
+}
+
+const { current, class: className } = Astro.props;
 const { user, locale } = Astro.locals;
 const t = useTranslations(locale);
+
+const links: { href: string; label: string; key: NonNullable<Props["current"]> }[] = [];
+
+if (user) {
+  links.push({ href: "/dashboard", label: t("nav.dashboard"), key: "dashboard" });
+}
 ---
 
-<div
-  class="mb-4 flex items-center justify-between rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/80"
->
+<header class:list={[cn("border-border bg-card flex items-center justify-between border-b px-6 py-3.5", className)]}>
+  <a href={user ? "/dashboard" : "/"} class="shrink-0"><Wordmark /></a>
+
   {
-    user ? (
-      <>
-        <span class="text-blue-100/70">{user.email}</span>
-        <div class="flex items-center gap-3">
-          <LanguageSwitcher tone="inverse" />
-          <a href="/dashboard" class="text-purple-300 transition-colors hover:text-purple-100 hover:underline">
-            {t("nav.dashboard")}
+    links.length > 0 && (
+      <nav class="hidden items-center gap-7 text-sm font-medium sm:flex" aria-label={t("nav.dashboard")}>
+        {links.map((link) => (
+          <a
+            href={link.href}
+            aria-current={current === link.key ? "page" : undefined}
+            class:list={[
+              "transition-colors",
+              current === link.key ? "text-foreground font-semibold" : "text-ink-soft hover:text-foreground",
+            ]}
+          >
+            {link.label}
           </a>
+        ))}
+      </nav>
+    )
+  }
+
+  <div class="flex items-center gap-3">
+    <LanguageSwitcher />
+    {
+      user ? (
+        <>
           <form method="POST" action="/api/auth/signout">
             <button
               type="submit"
-              class="cursor-pointer text-purple-300 transition-colors hover:text-purple-100 hover:underline"
+              class="text-ink-soft hover:text-foreground cursor-pointer text-sm font-medium transition-colors"
             >
               {t("nav.signOut")}
             </button>
           </form>
-        </div>
-      </>
-    ) : (
-      <>
-        <span class="text-blue-100/70">{t("nav.signedOut")}</span>
-        <div class="flex items-center gap-3">
-          <LanguageSwitcher tone="inverse" />
-          <a href="/auth/signin" class="text-purple-300 transition-colors hover:text-purple-100 hover:underline">
+          <Avatar name={user.email ?? null} size="sm" />
+        </>
+      ) : (
+        <>
+          <a href="/auth/signin" class="text-ink-soft hover:text-foreground text-sm font-medium transition-colors">
             {t("nav.signIn")}
           </a>
-          <a href="/auth/signup" class="text-purple-300 transition-colors hover:text-purple-100 hover:underline">
+          <a
+            href="/auth/signup"
+            class="bg-primary hover:bg-primary-dark rounded-sm px-3.5 py-2 text-sm font-semibold text-white transition-colors"
+          >
             {t("nav.signUp")}
           </a>
-        </div>
-      </>
-    )
-  }
-</div>
+        </>
+      )
+    }
+  </div>
+</header>

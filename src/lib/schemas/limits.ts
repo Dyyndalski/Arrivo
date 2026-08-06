@@ -15,6 +15,13 @@
 export const DISPLAY_NAME_MIN = 2;
 export const DISPLAY_NAME_MAX = 60;
 
+/**
+ * Lives here, not in `./auth.ts`, for the reason this whole module exists: `SignUpForm` needs it
+ * in the browser, and importing it from the schema module would drag zod into the island.
+ * It was duplicated as a bare `const` in that component before phase 3.
+ */
+export const MIN_PASSWORD_LENGTH = 6;
+
 /** 1 zł .. 100 000 zł, stored as integer grosze. Never floating point for money. */
 export const PRICE_MIN_CENTS = 100;
 export const PRICE_MAX_CENTS = 10_000_000;

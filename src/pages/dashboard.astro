@@ -1,61 +1,73 @@
 ---
-import LanguageSwitcher from "@/components/LanguageSwitcher.astro";
 import Layout from "@/layouts/Layout.astro";
+import Topbar from "@/components/Topbar.astro";
+import Badge from "@/components/ui/Badge.astro";
+import Card from "@/components/ui/Card.astro";
 import { useTranslations } from "@/lib/i18n/t";
 
-// Still on the starter's dark palette — phase 3 rebuilds this screen against the mockups. Only
-// the language switcher and the strings that already have catalog keys land here, so the i18n
-// mechanism is reachable from behind the sign-in and not only from the landing page.
+// Access is gated in src/middleware.ts (PROTECTED_ROUTES).
+//
+// No statistics tiles, unlike context/foundation/design/web/dashboard-specialist.html: "3 wizyty
+// dziś" and "+22% vs poprzedni" need booking data, which arrives with S-04/S-05. A tile showing
+// a hardcoded zero would be worse than no tile.
 const { user, role, locale } = Astro.locals;
 const t = useTranslations(locale);
+
+const cards =
+  role === "specialist"
+    ? [
+        {
+          href: "/specialist/profile",
+          title: t("dashboard.specialist.profile.title"),
+          description: t("dashboard.specialist.profile.description"),
+        },
+        {
+          href: "/specialist/services",
+          title: t("dashboard.specialist.services.title"),
+          description: t("dashboard.specialist.services.description"),
+        },
+      ]
+    : [];
 ---
 
-<Layout title={t("nav.dashboard")}>
-  <div class="bg-cosmic flex min-h-screen items-center justify-center p-4">
-    <div
-      class="w-full max-w-md rounded-2xl border border-white/10 bg-white/10 p-8 text-center text-white backdrop-blur-xl"
-    >
-      <div class="mb-4 flex justify-end">
-        <LanguageSwitcher tone="inverse" />
+<Layout title={t("dashboard.title")}>
+  <Topbar current="dashboard" />
+
+  <main class="mx-auto w-full max-w-3xl px-6 py-10">
+    <div class="mb-7 flex flex-wrap items-start justify-between gap-4">
+      <div>
+        <h1 class="text-foreground font-display text-[26px]">{t("dashboard.title")}</h1>
+        <p class="text-ink-soft mt-1 text-sm">
+          {t("dashboard.greeting")}{user?.email ? `, ${user.email}` : ""}
+        </p>
       </div>
-      <h1 class="mb-4 bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-3xl font-bold text-transparent">
-        {t("nav.dashboard")}
-      </h1>
-      <p class="text-blue-100/80">
-        Welcome, <span class="font-semibold text-white">{user?.email}</span>
-      </p>
-
-      {
-        role === "specialist" ? (
-          <div class="mt-6 space-y-2 text-left">
-            <a
-              href="/specialist/profile"
-              class="block rounded-xl border border-white/15 bg-white/5 px-4 py-3 transition-colors hover:border-purple-400/50 hover:bg-white/10"
-            >
-              <span class="font-medium">Your profile</span>
-              <span class="block text-sm text-blue-100/50">Business name and the districts you travel to</span>
-            </a>
-            <a
-              href="/specialist/services"
-              class="block rounded-xl border border-white/15 bg-white/5 px-4 py-3 transition-colors hover:border-purple-400/50 hover:bg-white/10"
-            >
-              <span class="font-medium">Your services</span>
-              <span class="block text-sm text-blue-100/50">What you offer and what it costs</span>
-            </a>
-          </div>
-        ) : (
-          <p class="mt-2 text-sm text-blue-100/50">This page is only for authenticated users.</p>
-        )
-      }
-
-      <form method="POST" action="/api/auth/signout" class="mt-6">
-        <button
-          type="submit"
-          class="cursor-pointer rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm transition-colors hover:bg-white/20"
-        >
-          {t("nav.signOut")}
-        </button>
-      </form>
+      {role && <Badge variant={role}>{t(role === "client" ? "role.client" : "role.specialist")}</Badge>}
     </div>
-  </div>
+
+    {
+      cards.length > 0 ? (
+        <div class="grid gap-3 sm:grid-cols-2">
+          {cards.map((card) => (
+            <a
+              href={card.href}
+              class="focus-visible:ring-ring/50 rounded-lg focus-visible:ring-[3px] focus-visible:outline-none"
+            >
+              <Card class="hover:border-border-strong h-full transition-colors">
+                <p class="text-foreground text-[15px] font-bold">{card.title}</p>
+                <p class="text-muted-foreground mt-1 text-[13px]">{card.description}</p>
+              </Card>
+            </a>
+          ))}
+        </div>
+      ) : (
+        // A client has nowhere to go until phase 5 ships /specialists and /account. Saying so
+        // beats linking to a 404.
+        <Card>
+          <p class="text-foreground text-[15px] font-bold">{t("dashboard.client.discover.title")}</p>
+          <p class="text-muted-foreground mt-1 text-[13px]">{t("dashboard.client.discover.description")}</p>
+          <p class="text-muted-foreground mt-3 text-[13px] font-semibold">{t("common.soon")}</p>
+        </Card>
+      )
+    }
+  </main>
 </Layout>
