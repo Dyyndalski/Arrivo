@@ -1,5 +1,13 @@
 import type { createClient } from "@/lib/supabase";
-import type { Service, ServiceArea, ServiceCategory, ServiceSubtype, SpecialistCard, SpecialistProfile } from "@/types";
+import type {
+  City,
+  Service,
+  ServiceArea,
+  ServiceCategory,
+  ServiceSubtype,
+  SpecialistCard,
+  SpecialistProfile,
+} from "@/types";
 
 /**
  * Always the request-scoped client from `@/lib/supabase` — never a service-role key. Every
@@ -58,10 +66,36 @@ function rethrow(error: { code?: string; message: string } | null): void {
 
 // --- Dictionaries (public read) -----------------------------------------------------------
 
-export async function getServiceAreas(supabase: Client): Promise<ServiceArea[]> {
-  const { data, error } = await supabase.from("service_areas").select("*").order("sort_order");
-  rethrow(error);
-  return (data ?? []) as ServiceArea[];
+/**
+ * The area dictionary, ordered the way a picker must present it: by city, then by the city's own
+ * district order.
+ *
+ * Returns the cities as well because an area list alone is unusable across ten of them — four
+ * districts are literally named "Całe miasto" and three cities have a "Stare Miasto". The caller
+ * needs the city to label the group (phase-2 impl-review F1).
+ *
+ * The sort happens here rather than in the query: `sort_order` restarts at 10 in every city, so
+ * ordering by it alone interleaves them, and ordering by `city_id` would silently depend on the
+ * identity sequence matching the intended city order.
+ */
+export async function getAreaDictionary(supabase: Client): Promise<{ cities: City[]; areas: ServiceArea[] }> {
+  const [cities, areas] = await Promise.all([
+    supabase.from("cities").select("*").order("sort_order"),
+    supabase.from("service_areas").select("*"),
+  ]);
+  rethrow(cities.error);
+  rethrow(areas.error);
+
+  const cityRows = (cities.data ?? []) as City[];
+  const cityOrder = new Map(cityRows.map((city) => [city.id, city.sort_order]));
+
+  const areaRows = ((areas.data ?? []) as ServiceArea[]).sort(
+    (a, b) =>
+      (cityOrder.get(a.city_id) ?? Number.MAX_SAFE_INTEGER) - (cityOrder.get(b.city_id) ?? Number.MAX_SAFE_INTEGER) ||
+      a.sort_order - b.sort_order,
+  );
+
+  return { cities: cityRows, areas: areaRows };
 }
 
 export async function getTaxonomy(

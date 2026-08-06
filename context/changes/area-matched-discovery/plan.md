@@ -615,6 +615,18 @@ areas served, the matching services, and the rating summary.
 `ratingLabel(count, avg)` applies `RATING_THRESHOLD`: below it, the "New specialist" label;
 at or above, the average. This is the only place the threshold is read.
 
+**Do not display the view's `min_price_cents` when a filter is active** (phase-2 impl-review F2).
+The view computes it over ALL of a specialist's services, so a card shown under a "Paznokcie"
+filter would advertise "od 70 zł" from a men's haircut — true about the specialist, false about
+the search, and the client only finds out on the profile. `displayPriceFrom(specialist, filters)`
+takes the minimum of the **embedded, already-filtered** services and falls back to the view's
+value only when neither a category nor a price bound is set. The view keeps reporting the
+unfiltered truth; the card stops mislabelling it.
+
+Verified during phase 2 against hosted data: PostgREST resolves embeddings through the view,
+including `!inner` and a combined area × category × price filter, so the filtered service rows
+this needs are already in the response.
+
 #### 3. Results page
 
 **File**: `src/pages/specialists/index.astro` (new), `src/components/discovery/{FilterBar,SpecialistCard}.astro` (new)
@@ -663,6 +675,7 @@ when `client_profiles` has no `area_id` — without it the wedge filter cannot d
 - `npm run check` passes — no untranslated catalog key, no type error
 - `grep -rn "RATING_THRESHOLD" src/` shows exactly one read, in `discovery.ts`
 - No client-side JS is emitted for `/specialists`: no island script in the built page
+- The view's `min_price_cents` is never rendered for a filtered result — `grep -rn "min_price_cents" src/` shows it only inside `displayPriceFrom`'s no-filter fallback
 
 #### Manual Verification:
 
@@ -760,17 +773,17 @@ they are amended by new files rather than edited.
 
 #### Automated
 
-- [x] 2.1 `npx supabase db reset` applies every migration cleanly from scratch
-- [x] 2.2 `npx supabase test db` is green, including the two pre-existing suites
-- [x] 2.3 Seed counts correct: 10 cities, ~60 areas, every area has `city_id` and `name_en`
-- [x] 2.4 `npm run build` and the CRLF-aware lint check pass after the type changes
-- [x] 2.5 `npm run check` passes
+- [x] 2.1 `npx supabase db reset` applies every migration cleanly from scratch — 7968171
+- [x] 2.2 `npx supabase test db` is green, including the two pre-existing suites — 7968171
+- [x] 2.3 Seed counts correct: 10 cities, ~60 areas, every area has `city_id` and `name_en` — 7968171
+- [x] 2.4 `npm run build` and the CRLF-aware lint check pass after the type changes — 7968171
+- [x] 2.5 `npm run check` passes — 7968171
 
 #### Manual
 
-- [x] 2.6 `npx supabase db push` lands on hosted without drift and the production specialist's Warsaw areas still resolve
-- [x] 2.7 `discoverable_specialists` returns the production specialist when queried as `anon`
-- [x] 2.8 Another user's `client_profiles` row is unreadable through PostgREST
+- [x] 2.6 `npx supabase db push` lands on hosted without drift and the production specialist's Warsaw areas still resolve — 7968171
+- [x] 2.7 `discoverable_specialists` returns the production specialist when queried as `anon` — 7968171
+- [x] 2.8 Another user's `client_profiles` row is unreadable through PostgREST — 7968171
 
 ### Phase 3: Retrofit — shell, auth and dashboard
 
@@ -815,14 +828,15 @@ they are amended by new files rather than edited.
 - [ ] 5.3 `npm run check` passes — no untranslated catalog key, no type error
 - [ ] 5.4 `RATING_THRESHOLD` is read in exactly one place
 - [ ] 5.5 `/specialists` emits no client-side island script
+- [ ] 5.6 `min_price_cents` is never rendered for a filtered result
 
 #### Manual
 
-- [ ] 5.6 Area matching includes the covering specialist and excludes the non-covering one; the toggle reveals the second
-- [ ] 5.7 Category, price range and price sort each work and combine
-- [ ] 5.8 A signed-out visitor can browse and open a profile
-- [ ] 5.9 A specialist with no services is absent from results and their own banner agrees
-- [ ] 5.10 A non-discoverable specialist's profile URL returns 404
-- [ ] 5.11 Discovery has no untranslated strings; dictionary names follow the active locale
-- [ ] 5.12 Results render in under a second on a throttled connection
-- [ ] 5.13 The whole flow works on production after deploy
+- [ ] 5.7 Area matching includes the covering specialist and excludes the non-covering one; the toggle reveals the second
+- [ ] 5.8 Category, price range and price sort each work and combine
+- [ ] 5.9 A signed-out visitor can browse and open a profile
+- [ ] 5.10 A specialist with no services is absent from results and their own banner agrees
+- [ ] 5.11 A non-discoverable specialist's profile URL returns 404
+- [ ] 5.12 Discovery has no untranslated strings; dictionary names follow the active locale
+- [ ] 5.13 Results render in under a second on a throttled connection
+- [ ] 5.14 The whole flow works on production after deploy

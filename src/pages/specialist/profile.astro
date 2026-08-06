@@ -4,8 +4,8 @@ import ProfileForm from "@/components/specialist/ProfileForm";
 import CardStatus from "@/components/specialist/CardStatus.astro";
 import SpecialistNav from "@/components/specialist/SpecialistNav.astro";
 import { createClient } from "@/lib/supabase";
-import { getOwnCard, getServiceAreas, missingPieces } from "@/lib/services/specialists";
-import type { ServiceArea, SpecialistCard } from "@/types";
+import { getAreaDictionary, getOwnCard, missingPieces } from "@/lib/services/specialists";
+import type { City, ServiceArea, SpecialistCard } from "@/types";
 
 // Access is gated in src/middleware.ts (SPECIALIST_ROUTES) — per CLAUDE.md, routes are not
 // re-guarded here. The null check below is type narrowing, not an auth check.
@@ -13,6 +13,7 @@ const { user } = Astro.locals;
 const supabase = createClient(Astro.request.headers, Astro.cookies);
 
 let card: SpecialistCard = { profile: null, area_ids: [], services: [] };
+let cities: City[] = [];
 let areas: ServiceArea[] = [];
 let loadError: string | null = null;
 
@@ -24,7 +25,10 @@ if (!supabase) {
   loadError = "Your session has expired — sign in again";
 } else {
   try {
-    [card, areas] = await Promise.all([getOwnCard(supabase, user.id), getServiceAreas(supabase)]);
+    const [ownCard, dictionary] = await Promise.all([getOwnCard(supabase, user.id), getAreaDictionary(supabase)]);
+    card = ownCard;
+    cities = dictionary.cities;
+    areas = dictionary.areas;
   } catch {
     loadError = "Could not load your profile — refresh to try again";
   }
@@ -64,6 +68,7 @@ const message = Astro.url.searchParams.get("message");
         ) : (
           <div class="rounded-2xl border border-white/10 bg-white/10 p-6 backdrop-blur-xl">
             <ProfileForm
+              cities={cities}
               areas={areas}
               initialName={card.profile?.display_name ?? ""}
               initialAreaIds={card.area_ids}

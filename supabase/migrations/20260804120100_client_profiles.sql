@@ -57,6 +57,13 @@ create index client_profiles_area_id_idx on public.client_profiles (area_id);
 --
 -- No DELETE grant: account deletion cascades from public.profiles, and v1 has no in-app
 -- "delete my data" path. Same decision as specialist_profiles.
+--
+-- service_role: deliberately NOT granted (context/foundation/lessons.md — "do not assume
+-- Supabase's defaults left service_role with access"). Every path that touches this table in
+-- S-03 and S-04 runs under a user session, and S-05's auto-expire cron works on bookings, not
+-- on addresses. Revisit if a server-side job ever needs to read a client address without a user
+-- to act as — and prefer a SECURITY DEFINER function scoped to that job over a blanket grant,
+-- because a blanket grant on this table hands away exactly what the privacy guardrail protects.
 -- ---------------------------------------------------------------------------
 alter table public.client_profiles enable row level security;
 

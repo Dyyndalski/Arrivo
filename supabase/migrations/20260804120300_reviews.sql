@@ -38,6 +38,13 @@ create index reviews_specialist_id_idx on public.reviews (specialist_id);
 --
 -- The absence of an insert grant is the enforcement, not an oversight. Do not add one without
 -- the booking-completed check from FR-013.
+--
+-- service_role: deliberately NOT granted (context/foundation/lessons.md). Nothing writes ratings
+-- without a user session — a rating is an act by a specific client — and the aggregate is read
+-- through discoverable_specialists under the caller's own rights. S-06 must decide again when it
+-- opens the write path, and its insert policy needs BOTH the completed-booking check from FR-013
+-- and a role check: client_id references public.profiles, which holds specialists too, so
+-- nothing in this schema currently stops a specialist id from landing in that column.
 -- ---------------------------------------------------------------------------
 alter table public.reviews enable row level security;
 

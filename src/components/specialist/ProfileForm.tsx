@@ -6,16 +6,17 @@ import { ServerError } from "@/components/auth/ServerError";
 import { AreaPicker } from "@/components/specialist/AreaPicker";
 // From ./limits, never ./specialist — that module pulls zod into the client bundle.
 import { DISPLAY_NAME_MAX, DISPLAY_NAME_MIN } from "@/lib/schemas/limits";
-import type { ServiceArea } from "@/types";
+import type { City, ServiceArea } from "@/types";
 
 interface Props {
+  cities: City[];
   areas: ServiceArea[];
   initialName: string;
   initialAreaIds: number[];
   serverError?: string | null;
 }
 
-export default function ProfileForm({ areas, initialName, initialAreaIds, serverError }: Props) {
+export default function ProfileForm({ cities, areas, initialName, initialAreaIds, serverError }: Props) {
   const [name, setName] = useState(initialName);
   const [selected, setSelected] = useState<number[]>(initialAreaIds);
   const [errors, setErrors] = useState<{ name?: string; areas?: string }>({});
@@ -64,6 +65,7 @@ export default function ProfileForm({ areas, initialName, initialAreaIds, server
       />
 
       <AreaPicker
+        cities={cities}
         areas={areas}
         selected={selected}
         onToggle={(id) => {
