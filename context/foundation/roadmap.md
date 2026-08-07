@@ -31,7 +31,7 @@ Arrivo is a home-visit-first marketplace for beauty/hair services: it connects c
 | S-01 | role-aware-accounts           | sign up as a client or specialist, sign in/out, recover a password          | F-01          | FR-001, FR-002                    | done     |
 | S-02 | specialist-service-listing    | (specialist) create a profile with declared areas and list a service        | S-01          | US-02, FR-004, FR-005             | done     |
 | S-03 | area-matched-discovery        | (client) set your area and find specialists who serve it, filtered by type/price, with a rating summary | S-01, S-02    | FR-003, FR-006, FR-007, FR-008, FR-009 | done     |
-| S-04 | client-booking-request        | (client) request a booking from a matched specialist, proposing a date/time | S-03          | US-01, FR-010                     | proposed |
+| S-04 | client-booking-request        | (client) request a booking from a matched specialist, proposing a date/time | S-03          | US-01, FR-010                     | done     |
 | S-05 | specialist-booking-management | (specialist) accept/decline a request, auto-expire stale ones, mark completed | S-04          | FR-011, FR-012                    | proposed |
 | S-06 | reviews-and-trust-rating      | (client) rate a completed visit; profiles show an average once enough ratings exist | S-05, S-03    | US-03, FR-013, FR-014             | proposed |
 
@@ -112,7 +112,7 @@ What's already in place in the codebase as of 2026-07-28 (auto-researched + user
 - **Unknowns:**
   - Blind proposals (no visible availability) may cause back-and-forth. Owner: user. Block: no (PRD accepts request/accept for v1; calendar availability is deferred).
 - **Risk:** The validation milestone. Everything before it exists to make this possible; everything after it only matters if clients actually reach this step. Applies F-01's privacy contract to the address captured on the request.
-- **Status:** proposed
+- **Status:** done
 
 ### S-05: Specialist booking management
 
@@ -181,3 +181,4 @@ What's already in place in the codebase as of 2026-07-28 (auto-researched + user
 - **S-01: a visitor can sign up as either a client or a specialist, sign in and out, and recover a forgotten password** — Archived 2026-07-29 → `context/archive/2026-07-28-role-aware-accounts/`. Lesson: —.
 - **S-02: a signed-in specialist can create/edit a provider profile (name + declared service areas) and list a service by choosing a type from a fixed taxonomy and setting a price** — Archived 2026-08-04 → `context/archive/2026-08-03-specialist-service-listing/`. Lesson: —.
 - **S-03: a signed-in client can set/edit their saved home address, browse a filterable list of specialists, filter by service type and price, restrict results to specialists whose declared areas cover them, and open a profile showing services plus a star-rating summary** — Archived 2026-08-07 → `context/archive/2026-08-04-area-matched-discovery/`. Lesson: —.
+- **S-04 (north star): a client can request a booking from a discovered specialist by proposing a date/time; the request records the chosen service, the proposed date/time, and the client's address, revealed to the specialist only after acceptance** — Archived 2026-08-07 → `context/archive/2026-08-07-client-booking-request/`. Lesson: two — `service_role` grants differ between local and hosted and it bypasses RLS; a grep over lint output cannot tell "clean" from "crashed".
