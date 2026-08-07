@@ -152,6 +152,13 @@ export interface DiscoverableSpecialist {
 export type BookingStatus = "pending" | "accepted" | "declined" | "expired" | "completed";
 
 /**
+ * Who moved a booking to its terminal state. `declined` has two authors — a specialist saying no
+ * and a client withdrawing — and this is what tells them apart, instead of a `cancelled` status
+ * that would have meant `alter type` against a live database.
+ */
+export type BookingActor = "client" | "specialist" | "system";
+
+/**
  * What the addressed specialist may see while deciding. Nothing here identifies the client: the
  * area is the coarse matching unit discovery already publishes, and the service snapshot is the
  * specialist's own data reflected back.
@@ -176,8 +183,21 @@ export interface Booking {
   /** The earlier of `created_at + 48h` and `proposed_at`. S-05 acts on it. */
   expires_at: string;
   status: BookingStatus;
+  /** Null while the booking is still open. */
+  resolved_by: BookingActor | null;
   created_at: string;
   updated_at: string;
+}
+
+/**
+ * `public.bookings_view` — the base row plus the lazily-computed status.
+ *
+ * Read this, not `bookings`, on every screen. A pending row past its window reads `expired` here
+ * the moment it lapses, rather than whenever the 15-minute job next runs. The stored `status` is
+ * still what `bookings_one_pending_per_pair` enforces, which is why the job exists as well.
+ */
+export interface BookingView extends Booking {
+  effective_status: BookingStatus;
 }
 
 /**
