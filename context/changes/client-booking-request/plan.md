@@ -425,29 +425,29 @@ this slice — that is the point.
 
 #### Automated
 
-- [x] 2.1 `npm run build`, `npm run check`, CRLF-aware lint all pass
-- [x] 2.2 No disabled booking CTA remains
+- [x] 2.1 `npm run build`, `npm run check`, CRLF-aware lint all pass — 9543e80
+- [x] 2.2 No disabled booking CTA remains — 9543e80
 
 #### Manual
 
-- [x] 2.3 A client submits a request; both rows exist and the redirect lands on the booking list
-- [x] 2.4 A second request to the same specialist is refused with the "already pending" message
-- [x] 2.5 A time under 3 hours away and one over 90 days out are both rejected
-- [x] 2.6 A booking proposed for 18:00 Warsaw time reads back as 18:00
-- [x] 2.7 A client with no saved district is routed through the profile and returns to the form
-- [x] 2.8 Both locales render the form with no untranslated strings
+- [x] 2.3 A client submits a request; both rows exist and the redirect lands on the booking list — 9543e80
+- [x] 2.4 A second request to the same specialist is refused with the "already pending" message — 9543e80
+- [x] 2.5 A time under 3 hours away and one over 90 days out are both rejected — 9543e80
+- [x] 2.6 A booking proposed for 18:00 Warsaw time reads back as 18:00 — 9543e80
+- [x] 2.7 A client with no saved district is routed through the profile and returns to the form — 9543e80
+- [x] 2.8 Both locales render the form with no untranslated strings — 9543e80
 
 ### Phase 3: My bookings
 
 #### Automated
 
-- [ ] 3.1 `npm run build`, `npm run check`, CRLF-aware lint all pass
-- [ ] 3.2 `/account/bookings` emits no client-side island script
+- [x] 3.1 `npm run build`, `npm run check`, CRLF-aware lint all pass
+- [x] 3.2 `/account/bookings` emits no client-side island script
 
 #### Manual
 
-- [ ] 3.3 A submitted request appears with a `pending` badge and the correct proposed time
-- [ ] 3.4 The status filters narrow the list and survive the back button
-- [ ] 3.5 A client sees only their own bookings
-- [ ] 3.6 Both locales render with no untranslated strings
+- [x] 3.3 A submitted request appears with a `pending` badge and the correct proposed time
+- [x] 3.4 The status filters narrow the list and survive the back button
+- [x] 3.5 A client sees only their own bookings
+- [x] 3.6 Both locales render with no untranslated strings
 - [ ] 3.7 The whole flow works on production after deploy

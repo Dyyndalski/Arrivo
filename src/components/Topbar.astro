@@ -13,7 +13,7 @@ import { cn } from "@/lib/utils";
  * /specialists and /account with phase 5.
  */
 interface Props {
-  current?: "discover" | "profile" | "dashboard";
+  current?: "discover" | "bookings" | "profile" | "dashboard";
   class?: string;
 }
 
@@ -29,9 +29,9 @@ links.push({ href: "/specialists", label: t("nav.discover"), key: "discover" });
 
 if (user) {
   links.push({ href: "/dashboard", label: t("nav.dashboard"), key: "dashboard" });
-  // "My bookings" belongs here and arrives with S-04. Omitted rather than disabled: an empty nav
-  // slot is invisible, a dead nav link is not.
   if (role === "client") {
+    // The slot S-03 deliberately left empty rather than filling with a dead link.
+    links.push({ href: "/account/bookings", label: t("bookings.title"), key: "bookings" });
     links.push({ href: "/account/profile", label: t("nav.profile"), key: "profile" });
   }
 }

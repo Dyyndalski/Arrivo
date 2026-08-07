@@ -1,0 +1,126 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import Topbar from "@/components/Topbar.astro";
+import Chip from "@/components/ui/Chip.astro";
+import EmptyState from "@/components/ui/EmptyState.astro";
+import BookingRow from "@/components/booking/BookingRow.astro";
+import { createClient } from "@/lib/supabase";
+import { listOwnBookings } from "@/lib/services/bookings";
+import { getTaxonomy } from "@/lib/services/specialists";
+import { useTranslations, isMessageKey } from "@/lib/i18n/t";
+import type { Booking, BookingStatus, ServiceCategory, ServiceSubtype, SpecialistProfile } from "@/types";
+
+// Signed-in gate lives in src/middleware.ts (`/account` is in PROTECTED_ROUTES).
+//
+// Read-only: every transition belongs to S-05. Until then everything here is `pending`, which is
+// the honest state of the world rather than a placeholder.
+const { user, locale } = Astro.locals;
+const t = useTranslations(locale);
+const supabase = createClient(Astro.request.headers, Astro.cookies);
+
+const STATUSES = ["pending", "accepted", "completed", "declined", "expired"] as const;
+
+const requested = Astro.url.searchParams.get("status");
+const activeStatus = (STATUSES as readonly string[]).includes(requested ?? "") ? (requested as BookingStatus) : null;
+
+let bookings: Booking[] = [];
+let specialistsById = new Map<string, SpecialistProfile>();
+let categoriesById = new Map<number, ServiceCategory>();
+let subtypesById = new Map<number, ServiceSubtype>();
+let loadError: string | null = null;
+
+if (!supabase) {
+  loadError = t("booking.error.notConfigured");
+} else if (!user) {
+  loadError = t("auth.error.sessionExpired");
+} else {
+  try {
+    const [own, taxonomy] = await Promise.all([listOwnBookings(supabase, user.id), getTaxonomy(supabase)]);
+    bookings = own;
+    categoriesById = new Map(taxonomy.categories.map((c) => [c.id, c]));
+    subtypesById = new Map(taxonomy.subtypes.map((s) => [s.id, s]));
+
+    // Specialist names come from the public table, not the booking: a display name is public and
+    // changing it should update the client's history, unlike the price they actually agreed.
+    const ids = [...new Set(own.map((b) => b.specialist_id))];
+    if (ids.length > 0) {
+      const { data } = await supabase.from("specialist_profiles").select("*").in("id", ids);
+      specialistsById = new Map(((data ?? []) as SpecialistProfile[]).map((s) => [s.id, s]));
+    }
+  } catch {
+    loadError = t("booking.error.saveFailed");
+  }
+}
+
+const visible = activeStatus === null ? bookings : bookings.filter((b) => b.status === activeStatus);
+
+// Filters are links, like the discovery chips — they apply on click and need no JavaScript.
+function statusHref(status: BookingStatus | null): string {
+  const params = new URLSearchParams(Astro.url.search);
+  if (status === null) params.delete("status");
+  else params.set("status", status);
+  const query = params.toString();
+  return query ? `${Astro.url.pathname}?${query}` : Astro.url.pathname;
+}
+
+const message = Astro.url.searchParams.get("message");
+---
+
+<Layout title={t("bookings.title")}>
+  <Topbar current="bookings" />
+
+  <main class="mx-auto w-full max-w-3xl px-6 py-9">
+    <div class="mb-6">
+      <h1 class="text-foreground font-display text-[26px]">{t("bookings.title")}</h1>
+      <p class="text-ink-soft mt-1 text-sm">{t("bookings.subtitle")}</p>
+    </div>
+
+    {
+      /* Only a recognised key renders — a success fallback would claim a booking was sent when
+         nothing happened. Same rule as the specialist screens. */
+      message && isMessageKey(message) && (
+        <p class="bg-success-soft text-success-soft-text mb-5 rounded-sm px-3.5 py-2.5 text-sm">{t(message)}</p>
+      )
+    }
+
+    {
+      loadError ? (
+        <p class="bg-danger-soft text-danger rounded-md px-4 py-6 text-center text-sm">{loadError}</p>
+      ) : bookings.length === 0 ? (
+        <EmptyState title={t("bookings.empty")} />
+      ) : (
+        <>
+          <div class="mb-5 flex flex-wrap gap-2">
+            <Chip href={statusHref(null)} active={activeStatus === null}>
+              {t("bookings.filter.all")}
+            </Chip>
+            {
+              /* Only statuses that actually occur in this client's history get a chip. A filter
+                 that can only ever return nothing is worse than no filter. */
+              STATUSES.filter((s) => bookings.some((b) => b.status === s)).map((status) => (
+                <Chip href={statusHref(status)} active={activeStatus === status}>
+                  {t(`bookings.status.${status}`)}
+                </Chip>
+              ))
+            }
+          </div>
+
+          {visible.length === 0 ? (
+            <EmptyState title={t("bookings.empty")} />
+          ) : (
+            <ul class="space-y-3">
+              {visible.map((booking) => (
+                <BookingRow
+                  booking={booking}
+                  specialist={specialistsById.get(booking.specialist_id)}
+                  categoriesById={categoriesById}
+                  subtypesById={subtypesById}
+                />
+              ))}
+            </ul>
+          )}
+        </>
+      )
+    }
+  </main>
+</Layout>

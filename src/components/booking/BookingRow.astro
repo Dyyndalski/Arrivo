@@ -1,0 +1,74 @@
+---
+import Avatar from "@/components/ui/Avatar.astro";
+import Badge from "@/components/ui/Badge.astro";
+import { localizedName } from "@/lib/i18n/dictionary";
+import { useTranslations } from "@/lib/i18n/t";
+import { formatInZone } from "@/lib/time";
+import { formatPrice } from "@/lib/format";
+import { BOOKING_TIMEZONE } from "@/lib/schemas/limits";
+import type { Booking, BookingStatus, ServiceCategory, ServiceSubtype, SpecialistProfile } from "@/types";
+
+/**
+ * One row of the client's own bookings. Everything shown comes from the SNAPSHOT on the booking —
+ * a service the specialist has since deleted or repriced still renders as what was actually
+ * requested.
+ */
+interface Props {
+  booking: Booking;
+  specialist: SpecialistProfile | undefined;
+  categoriesById: Map<number, ServiceCategory>;
+  subtypesById: Map<number, ServiceSubtype>;
+}
+
+const { booking, specialist, categoriesById, subtypesById } = Astro.props;
+const { locale } = Astro.locals;
+const t = useTranslations(locale);
+
+// `Badge` already carries every one of these variants — they were ported wholesale in S-03
+// phase 1 rather than one at a time, so this slice adds no styling.
+const BADGE: Record<BookingStatus, "pending" | "accepted" | "declined" | "completed"> = {
+  pending: "pending",
+  accepted: "accepted",
+  declined: "declined",
+  expired: "declined",
+  completed: "completed",
+};
+
+const STATUS_KEY = {
+  pending: "bookings.status.pending",
+  accepted: "bookings.status.accepted",
+  declined: "bookings.status.declined",
+  expired: "bookings.status.expired",
+  completed: "bookings.status.completed",
+} as const;
+
+const category = categoriesById.get(booking.category_id);
+const subtype = booking.subtype_id === null ? undefined : subtypesById.get(booking.subtype_id);
+
+const headline = booking.service_name ?? (category ? localizedName(category, locale) : "—");
+const taxonomy = [category ? localizedName(category, locale) : null, subtype ? localizedName(subtype, locale) : null]
+  .filter(Boolean)
+  .join(" · ");
+---
+
+<li class="border-border bg-card flex flex-wrap items-center gap-4 rounded-md border px-4 py-3.5">
+  <Avatar name={specialist?.display_name ?? null} size="md" />
+
+  <div class="min-w-0 flex-1">
+    <p class="text-foreground truncate text-[14.5px] font-semibold">
+      {headline}{specialist && ` — ${specialist.display_name}`}
+    </p>
+    <p class="text-muted-foreground truncate text-[12.5px]">
+      {formatInZone(booking.proposed_at, locale, BOOKING_TIMEZONE)}
+      {taxonomy && ` · ${taxonomy}`}
+      {
+        booking.duration_minutes !== null &&
+          ` · ${t("specialist.services.duration", { minutes: booking.duration_minutes })}`
+      }
+    </p>
+  </div>
+
+  <span class="text-foreground shrink-0 font-bold">{formatPrice(booking.price_cents)}</span>
+
+  <Badge variant={BADGE[booking.status]}>{t(STATUS_KEY[booking.status])}</Badge>
+</li>
