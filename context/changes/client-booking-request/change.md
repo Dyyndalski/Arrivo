@@ -1,7 +1,7 @@
 ---
 change_id: client-booking-request
 title: Client booking request
-status: implementing
+status: implemented
 created: 2026-08-07
 updated: 2026-08-07
 archived_at: null

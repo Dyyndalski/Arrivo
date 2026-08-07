@@ -441,13 +441,13 @@ this slice — that is the point.
 
 #### Automated
 
-- [x] 3.1 `npm run build`, `npm run check`, CRLF-aware lint all pass
-- [x] 3.2 `/account/bookings` emits no client-side island script
+- [x] 3.1 `npm run build`, `npm run check`, CRLF-aware lint all pass — 0118962
+- [x] 3.2 `/account/bookings` emits no client-side island script — 0118962
 
 #### Manual
 
-- [x] 3.3 A submitted request appears with a `pending` badge and the correct proposed time
-- [x] 3.4 The status filters narrow the list and survive the back button
-- [x] 3.5 A client sees only their own bookings
-- [x] 3.6 Both locales render with no untranslated strings
-- [ ] 3.7 The whole flow works on production after deploy
+- [x] 3.3 A submitted request appears with a `pending` badge and the correct proposed time — 0118962
+- [x] 3.4 The status filters narrow the list and survive the back button — 0118962
+- [x] 3.5 A client sees only their own bookings — 0118962
+- [x] 3.6 Both locales render with no untranslated strings — 0118962
+- [x] 3.7 The whole flow works on production after deploy — 0118962
