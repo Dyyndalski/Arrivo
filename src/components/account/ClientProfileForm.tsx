@@ -14,13 +14,19 @@ interface Props {
   cities: City[];
   areas: ServiceArea[];
   profile: ClientProfile | null;
+  /**
+   * Where to go after saving. Set when a booking form sent the client here for a missing
+   * district, so they land back on the booking rather than on this screen. Validated
+   * server-side — see `safeRedirect` in the endpoint.
+   */
+  redirectTo?: string | null;
   /** Already translated by the page — this island never sees a catalog key. */
   serverError?: string | null;
   locale: Locale;
   strings: ClientProfileStrings;
 }
 
-export default function ClientProfileForm({ cities, areas, profile, serverError, locale, strings }: Props) {
+export default function ClientProfileForm({ cities, areas, profile, redirectTo, serverError, locale, strings }: Props) {
   const [areaIds, setAreaIds] = useState<number[]>(profile?.area_id ? [profile.area_id] : []);
   const [firstName, setFirstName] = useState(profile?.first_name ?? "");
   const [lastName, setLastName] = useState(profile?.last_name ?? "");
@@ -65,6 +71,8 @@ export default function ClientProfileForm({ cities, areas, profile, serverError,
 
   return (
     <form method="POST" action="/api/account/profile" className="space-y-5" onSubmit={handleSubmit} noValidate>
+      {redirectTo ? <input type="hidden" name="redirectTo" value={redirectTo} /> : null}
+
       <div className="grid gap-4 sm:grid-cols-2">
         <FormField
           id="first_name"

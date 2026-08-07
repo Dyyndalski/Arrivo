@@ -276,6 +276,59 @@ export const pl = {
   "discovery.profile.book": "Zarezerwuj wizytę",
   "discovery.profile.bookService": "Zarezerwuj",
   "discovery.profile.backToList": "Odkrywaj",
+
+  // --- Booking request ------------------------------------------------------------------
+
+  "booking.title": "Zaproponuj termin",
+  "booking.subtitle": "Specjalista potwierdzi lub odrzuci w ciągu {hours} godzin",
+  "booking.submit": "Wyślij zapytanie o rezerwację",
+  "booking.pending": "Wysyłanie…",
+
+  "booking.field.date": "Data",
+  "booking.field.time": "Godzina",
+  "booking.field.street": "Adres wizyty",
+  "booking.field.streetPlaceholder": "ul. Kwiatowa 12/3",
+  "booking.field.postalCode": "Kod pocztowy",
+  "booking.field.postalCodePlaceholder": "00-001",
+  "booking.field.firstName": "Imię",
+  "booking.field.lastName": "Nazwisko",
+  "booking.field.phone": "Telefon",
+  "booking.field.phonePlaceholder": "+48 600 000 000",
+  "booking.field.note": "Wiadomość dla specjalisty",
+  "booking.field.noteOptional": "(opcjonalnie)",
+  "booking.field.notePlaceholder": "np. proszę o dzwonek do domofonu 12",
+  "booking.privacyNote":
+    "Twój dokładny adres zobaczy specjalista dopiero po zaakceptowaniu rezerwacji. Do tego czasu widzi jedynie dzielnicę „{area}”.",
+
+  "booking.error.serviceInvalid": "Nie rozpoznajemy tej usługi",
+  "booking.error.timeRequired": "Podaj datę i godzinę wizyty",
+  "booking.error.tooSoon": "Zaproponuj termin co najmniej {hours} godziny od teraz",
+  "booking.error.tooFar": "Termin nie może być dalej niż {days} dni od dziś",
+  "booking.error.noteTooLong": "Wiadomość może mieć najwyżej {max} znaków",
+  "booking.error.nameLength": "To pole może mieć najwyżej {max} znaków",
+  "booking.error.phoneLength": "Numer telefonu musi mieć od {min} do {max} znaków",
+  "booking.error.streetRequired": "Podaj adres wizyty",
+  "booking.error.streetLength": "Adres musi mieć od {min} do {max} znaków",
+  "booking.error.postalCodeFormat": "Kod pocztowy w formacie 00-001",
+  "booking.error.alreadyPending": "Masz już oczekujące zapytanie u tego specjalisty",
+  "booking.error.notAllowed": "Do rezerwacji potrzebne jest konto klienta",
+  "booking.error.unavailable": "Ta usługa nie jest już dostępna",
+  "booking.error.saveFailed": "Nie udało się wysłać zapytania — spróbuj ponownie",
+  "booking.error.notConfigured": "Rezerwacje są chwilowo niedostępne — spróbuj później",
+
+  "booking.message.sent": "Zapytanie wysłane",
+
+  // --- My bookings ----------------------------------------------------------------------
+
+  "bookings.title": "Moje rezerwacje",
+  "bookings.subtitle": "Historia i status Twoich wizyt",
+  "bookings.empty": "Nie masz jeszcze żadnych rezerwacji.",
+  "bookings.filter.all": "Wszystkie",
+  "bookings.status.pending": "Oczekuje",
+  "bookings.status.accepted": "Potwierdzona",
+  "bookings.status.declined": "Odrzucona",
+  "bookings.status.expired": "Wygasła",
+  "bookings.status.completed": "Zakończona",
 } as const;
 
 export type MessageKey = keyof typeof pl;

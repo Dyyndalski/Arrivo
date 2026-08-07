@@ -409,33 +409,33 @@ this slice — that is the point.
 
 #### Automated
 
-- [x] 1.1 `npx supabase db reset` applies every migration cleanly from scratch
-- [x] 1.2 `npx supabase test db` is green, including all three pre-existing suites
-- [x] 1.3 `npm run build`, `npm run check` and the CRLF-aware lint check pass
-- [x] 1.7 `service_role` holds no DML on `booking_contact_details` or `client_profiles`
+- [x] 1.1 `npx supabase db reset` applies every migration cleanly from scratch — 73a8a50
+- [x] 1.2 `npx supabase test db` is green, including all three pre-existing suites — 73a8a50
+- [x] 1.3 `npm run build`, `npm run check` and the CRLF-aware lint check pass — 73a8a50
+- [x] 1.7 `service_role` holds no DML on `booking_contact_details` or `client_profiles` — 73a8a50
 
 #### Manual
 
-- [x] 1.4 `npx supabase db push` lands on hosted without drift
-- [x] 1.5 The addressed specialist is refused the contact row while pending, and allowed once accepted (behaviour proven locally by 20 pgTAP assertions; policy AND grant identity on hosted confirmed by zero drift from `supabase db diff --linked` — a live re-test would have needed two production accounts that cannot be deleted without the service_role key)
-- [x] 1.6 `client_profiles` remains unreadable by anyone but its owner
-- [x] 1.8 `supabase db diff --linked` shows no `service_role` grant on either private table on hosted
+- [x] 1.4 `npx supabase db push` lands on hosted without drift — 73a8a50
+- [x] 1.5 The addressed specialist is refused the contact row while pending, and allowed once accepted (behaviour proven locally by 20 pgTAP assertions; policy AND grant identity on hosted confirmed by zero drift from `supabase db diff --linked` — a live re-test would have needed two production accounts that cannot be deleted without the service_role key) — 73a8a50
+- [x] 1.6 `client_profiles` remains unreadable by anyone but its owner — 73a8a50
+- [x] 1.8 `supabase db diff --linked` shows no `service_role` grant on either private table on hosted — 73a8a50
 
 ### Phase 2: Submitting a request
 
 #### Automated
 
-- [ ] 2.1 `npm run build`, `npm run check`, CRLF-aware lint all pass
-- [ ] 2.2 No disabled booking CTA remains
+- [x] 2.1 `npm run build`, `npm run check`, CRLF-aware lint all pass
+- [x] 2.2 No disabled booking CTA remains
 
 #### Manual
 
-- [ ] 2.3 A client submits a request; both rows exist and the redirect lands on the booking list
-- [ ] 2.4 A second request to the same specialist is refused with the "already pending" message
-- [ ] 2.5 A time under 3 hours away and one over 90 days out are both rejected
-- [ ] 2.6 A booking proposed for 18:00 Warsaw time reads back as 18:00
-- [ ] 2.7 A client with no saved district is routed through the profile and returns to the form
-- [ ] 2.8 Both locales render the form with no untranslated strings
+- [x] 2.3 A client submits a request; both rows exist and the redirect lands on the booking list
+- [x] 2.4 A second request to the same specialist is refused with the "already pending" message
+- [x] 2.5 A time under 3 hours away and one over 90 days out are both rejected
+- [x] 2.6 A booking proposed for 18:00 Warsaw time reads back as 18:00
+- [x] 2.7 A client with no saved district is routed through the profile and returns to the form
+- [x] 2.8 Both locales render the form with no untranslated strings
 
 ### Phase 3: My bookings
 

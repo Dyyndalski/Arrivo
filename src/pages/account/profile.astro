@@ -70,6 +70,7 @@ const message = Astro.url.searchParams.get("message");
             cities={cities}
             areas={areas}
             profile={profile}
+            redirectTo={Astro.url.searchParams.get("redirectTo")}
             serverError={formError ? tUnknown(locale, formError, "account.error.saveFailed") : null}
             locale={locale}
             strings={clientProfileStrings(locale)}

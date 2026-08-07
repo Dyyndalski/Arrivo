@@ -1,0 +1,109 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import Topbar from "@/components/Topbar.astro";
+import Avatar from "@/components/ui/Avatar.astro";
+import Card from "@/components/ui/Card.astro";
+import BookingForm from "@/components/booking/BookingForm";
+import { bookingFormStrings } from "@/components/booking/strings";
+import { createClient } from "@/lib/supabase";
+import { getAreaDictionary, getTaxonomy } from "@/lib/services/specialists";
+import { getOwnProfile } from "@/lib/services/clients";
+import { getPublicSpecialist } from "@/lib/services/discovery";
+import { localizedName } from "@/lib/i18n/dictionary";
+import { useTranslations, tUnknown } from "@/lib/i18n/t";
+import { formatPrice } from "@/lib/format";
+import { BOOKING_WINDOW_HOURS } from "@/lib/schemas/limits";
+
+const { user, role, locale } = Astro.locals;
+const t = useTranslations(locale);
+const supabase = createClient(Astro.request.headers, Astro.cookies);
+
+const specialistId = Astro.params.id;
+const serviceId = Astro.params.serviceId;
+const here = `/specialists/${specialistId}/book/${serviceId}`;
+
+// Not in PROTECTED_ROUTES — /specialists is public by design — so the gate lives here.
+if (!user) {
+  return Astro.redirect(`/auth/signin?redirectTo=${encodeURIComponent(here)}`);
+}
+if (role !== "client") {
+  return Astro.redirect("/dashboard");
+}
+if (!supabase || !specialistId || !serviceId) {
+  return Astro.redirect("/specialists");
+}
+
+// Reads through discoverable_specialists, so a card that clients cannot find is not bookable by
+// URL either — the same rule the public profile enforces.
+const result = await getPublicSpecialist(supabase, specialistId);
+const service = result?.services.find((s) => s.id === serviceId);
+if (!result || !service) {
+  return new Response(null, { status: 404 });
+}
+
+const profile = await getOwnProfile(supabase, user.id);
+
+// The district is what the area match was made on and what the specialist sees before accepting.
+// Without one there is nothing to book against, so route through the profile and come back.
+if (!profile?.area_id) {
+  return Astro.redirect(`/account/profile?redirectTo=${encodeURIComponent(here)}`);
+}
+
+const [dictionary, taxonomy] = await Promise.all([getAreaDictionary(supabase), getTaxonomy(supabase)]);
+const area = dictionary.areas.find((a) => a.id === profile.area_id);
+const category = taxonomy.categories.find((c) => c.id === service.category_id);
+
+const headline = service.name ?? (category ? localizedName(category, locale) : "—");
+const error = Astro.url.searchParams.get("error");
+---
+
+<Layout title={t("booking.title")}>
+  <Topbar current="discover" />
+
+  <main class="mx-auto w-full max-w-2xl px-6 py-9">
+    <p class="text-muted-foreground mb-3 text-[13px]">
+      <a href={`/specialists/${specialistId}`} class="hover:text-foreground">{result.specialist.display_name}</a>
+      <span class="mx-1.5">/</span>
+      <span class="text-foreground font-semibold">{t("booking.title")}</span>
+    </p>
+
+    <div class="mb-6">
+      <h1 class="text-foreground font-display text-[26px]">{t("booking.title")}</h1>
+      <p class="text-ink-soft mt-1 text-sm">{t("booking.subtitle", { hours: BOOKING_WINDOW_HOURS })}</p>
+    </div>
+
+    <Card class="mb-4">
+      <div class="flex items-center gap-3">
+        <Avatar name={result.specialist.display_name} size="md" />
+        <div class="min-w-0 flex-1">
+          <p class="text-foreground truncate font-bold">{headline}</p>
+          <p class="text-muted-foreground truncate text-[13px]">
+            {result.specialist.display_name}
+            {
+              service.duration_minutes !== null &&
+                ` · ${t("specialist.services.duration", { minutes: service.duration_minutes })}`
+            }
+          </p>
+        </div>
+        <span class="text-foreground shrink-0 font-bold">{formatPrice(service.price_cents)}</span>
+      </div>
+    </Card>
+
+    <Card>
+      <BookingForm
+        specialistId={specialistId}
+        serviceId={serviceId}
+        initial={{
+          firstName: profile.first_name ?? "",
+          lastName: profile.last_name ?? "",
+          phone: profile.phone ?? "",
+          street: profile.street ?? "",
+          postalCode: profile.postal_code ?? "",
+        }}
+        serverError={error ? tUnknown(locale, error, "booking.error.saveFailed") : null}
+        strings={bookingFormStrings(locale, area ? localizedName(area, locale) : "—")}
+        client:load
+      />
+    </Card>
+  </main>
+</Layout>

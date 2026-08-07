@@ -257,4 +257,57 @@ export const en: Record<MessageKey, string> = {
   "discovery.profile.book": "Book a visit",
   "discovery.profile.bookService": "Book",
   "discovery.profile.backToList": "Discover",
+
+  // --- Booking request ------------------------------------------------------------------
+
+  "booking.title": "Propose a time",
+  "booking.subtitle": "The specialist will accept or decline within {hours} hours",
+  "booking.submit": "Send booking request",
+  "booking.pending": "Sending…",
+
+  "booking.field.date": "Date",
+  "booking.field.time": "Time",
+  "booking.field.street": "Visit address",
+  "booking.field.streetPlaceholder": "ul. Kwiatowa 12/3",
+  "booking.field.postalCode": "Postal code",
+  "booking.field.postalCodePlaceholder": "00-001",
+  "booking.field.firstName": "First name",
+  "booking.field.lastName": "Last name",
+  "booking.field.phone": "Phone",
+  "booking.field.phonePlaceholder": "+48 600 000 000",
+  "booking.field.note": "Message for the specialist",
+  "booking.field.noteOptional": "(optional)",
+  "booking.field.notePlaceholder": "e.g. please ring doorbell 12",
+  "booking.privacyNote":
+    "The specialist sees your exact address only after accepting the booking. Until then they see the district “{area}” alone.",
+
+  "booking.error.serviceInvalid": "We don't recognise that service",
+  "booking.error.timeRequired": "Enter a date and time for the visit",
+  "booking.error.tooSoon": "Propose a time at least {hours} hours from now",
+  "booking.error.tooFar": "The time cannot be more than {days} days from today",
+  "booking.error.noteTooLong": "The message must be at most {max} characters",
+  "booking.error.nameLength": "This field must be at most {max} characters",
+  "booking.error.phoneLength": "The phone number must be between {min} and {max} characters",
+  "booking.error.streetRequired": "Enter the visit address",
+  "booking.error.streetLength": "The address must be between {min} and {max} characters",
+  "booking.error.postalCodeFormat": "Postal code in the format 00-001",
+  "booking.error.alreadyPending": "You already have a pending request with this specialist",
+  "booking.error.notAllowed": "You need a client account to book",
+  "booking.error.unavailable": "That service is no longer available",
+  "booking.error.saveFailed": "Could not send the request — please try again",
+  "booking.error.notConfigured": "Bookings are temporarily unavailable — try again later",
+
+  "booking.message.sent": "Request sent",
+
+  // --- My bookings ----------------------------------------------------------------------
+
+  "bookings.title": "My bookings",
+  "bookings.subtitle": "History and status of your visits",
+  "bookings.empty": "You have no bookings yet.",
+  "bookings.filter.all": "All",
+  "bookings.status.pending": "Pending",
+  "bookings.status.accepted": "Confirmed",
+  "bookings.status.declined": "Declined",
+  "bookings.status.expired": "Expired",
+  "bookings.status.completed": "Completed",
 };

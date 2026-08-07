@@ -6,6 +6,19 @@ import { NotAllowedError, upsertOwnProfile } from "@/lib/services/clients";
 
 const PAGE = "/account/profile";
 
+/**
+ * Reject anything that is not a path on this origin — the same guard as
+ * src/pages/api/locale.ts. `redirectTo` reaches here from a form field, so a crafted link could
+ * otherwise bounce the visitor off-site with our domain in the referrer, and a protocol-relative
+ * URL slips past a naive `startsWith("/")`.
+ */
+function safeRedirect(target: FormDataEntryValue | null, fallback: string): string {
+  if (typeof target !== "string" || target === "") return fallback;
+  if (!target.startsWith("/")) return fallback;
+  if (target.startsWith("//") || target.startsWith("/\\")) return fallback;
+  return target;
+}
+
 // `?error=` and `?message=` carry message-catalog keys, never sentences — the page translates.
 export const POST: APIRoute = async (context) => {
   const { user, role } = context.locals;
@@ -48,5 +61,8 @@ export const POST: APIRoute = async (context) => {
     return context.redirect(`${PAGE}?error=account.error.saveFailed`);
   }
 
-  return context.redirect(`${PAGE}?message=account.message.saved`);
+  // A client sent here from a booking form returns to it with the address they just saved,
+  // rather than being left on the profile screen wondering what happened to their booking.
+  const back = safeRedirect(form.get("redirectTo"), `${PAGE}?message=account.message.saved`);
+  return context.redirect(back);
 };

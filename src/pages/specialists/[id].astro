@@ -101,19 +101,18 @@ function taxonomyLine(categoryId: number, subtypeId: number | null): string {
         </div>
 
         {
-          /*
-          Rendered but inert until S-04 builds the booking request. Keeping it in the layout means
-          that slice swaps an attribute rather than rebuilding this header and every service row.
-        */
+          /* Staged as a disabled button in S-03 so this slice could swap it rather than rebuild
+             the header. It opens the first service — the per-service buttons below are the
+             precise choice; this one is the "just book something" path. */
+          services.length > 0 && (
+            <a
+              href={`/specialists/${specialist.id}/book/${services[0].id}`}
+              class="bg-primary hover:bg-primary-dark rounded-sm px-5 py-2.5 text-sm font-semibold text-white transition-colors"
+            >
+              {t("discovery.profile.book")}
+            </a>
+          )
         }
-        <button
-          type="button"
-          disabled
-          class="bg-primary rounded-sm px-5 py-2.5 text-sm font-semibold text-white opacity-50"
-          title={t("common.soon")}
-        >
-          {t("discovery.profile.book")}
-        </button>
       </div>
 
       {specialist.bio && <p class="text-ink-soft mt-4 text-sm leading-relaxed">{specialist.bio}</p>}
@@ -138,14 +137,12 @@ function taxonomyLine(categoryId: number, subtypeId: number | null): string {
 
             <span class="text-foreground shrink-0 font-bold">{formatPrice(service.price_cents)}</span>
 
-            <button
-              type="button"
-              disabled
-              class="border-border-strong text-ink-soft rounded-sm border px-3 py-1.5 text-[13px] font-semibold opacity-50"
-              title={t("common.soon")}
+            <a
+              href={`/specialists/${specialist.id}/book/${service.id}`}
+              class="border-border-strong text-ink-soft hover:border-primary hover:text-primary rounded-sm border px-3 py-1.5 text-[13px] font-semibold transition-colors"
             >
               {t("discovery.profile.bookService")}
-            </button>
+            </a>
           </li>
         ))
       }
