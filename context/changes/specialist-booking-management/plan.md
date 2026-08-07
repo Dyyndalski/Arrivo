@@ -525,26 +525,26 @@ alters an existing column or policy.
 
 #### Automated
 
-- [x] 2.1 Reset applies both migrations twice without a duplicate-job error
-- [x] 2.2 Exactly one `expire-stale-bookings` row in `cron.job`
-- [x] 2.3 Lint passes by exit code: `npx eslint . ; echo $?` prints `0`
+- [x] 2.1 Reset applies both migrations twice without a duplicate-job error — 010de4a
+- [x] 2.2 Exactly one `expire-stale-bookings` row in `cron.job` — 010de4a
+- [x] 2.3 Lint passes by exit code: `npx eslint . ; echo $?` prints `0` — 010de4a
 
 #### Manual
 
-- [x] 2.4 Function expires a past-window pending row, returns 1, then returns 0 on re-run
-- [x] 2.5 An accepted booking with a past `proposed_at` is untouched
+- [x] 2.4 Function expires a past-window pending row, returns 1, then returns 0 on re-run — 010de4a
+- [x] 2.5 An accepted booking with a past `proposed_at` is untouched — 010de4a
 - [ ] 2.6 `cron.job_run_details` shows successful runs on the hosted project
 
 ### Phase 3: pgTAP coverage
 
 #### Automated
 
-- [ ] 3.1 Full suite green by exit code: `npx supabase test db ; echo $?` prints `0`
-- [ ] 3.2 Assertion count has grown by at least 30
+- [x] 3.1 Full suite green by exit code: `npx supabase test db ; echo $?` prints `0`
+- [x] 3.2 Assertion count has grown by at least 30
 
 #### Manual
 
-- [ ] 3.3 Deliberately breaking a function turns a test red
+- [x] 3.3 Deliberately breaking a function turns a test red
 
 ### Phase 4: Specialist inbox
 
