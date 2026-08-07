@@ -9,6 +9,7 @@
 - **Rule**: Never filter the whole `prettier/prettier` rule to hide CRLF noise. Distinguish CRLF errors (message = "Delete `␍`" / "Insert `␍`") from real ones by message content. Clean pre-push check: `npx eslint . | grep 'prettier/prettier' | grep -v '␍'` must be empty. Durable fix: add `.gitattributes` (`* text=auto eol=lf`) so the working tree is LF and the noise disappears at the source.
 - **Applies to**: local lint verification / pre-push checks (Windows CRLF working tree).
 - **NOT SUFFICIENT ON ITS OWN (2026-08-07)** — the grep above says nothing about whether ESLint *ran*. See the next entry.
+- **DISCHARGED 2026-08-07 (S-05 phase 1)** — the durable fix landed: `.gitattributes` with `* text=auto eol=lf`. It cost one new file and produced **no** renormalization diff, because git already stored LF (`core.autocrlf=true` converted on commit); CRLF existed only on disk. `git checkout -- .` after adding the file rewrites the working tree to LF with identical content. `npx eslint .` now exits 0 locally, so the next entry's "check the exit code" rule is finally usable as written. Do NOT reach for `npm run format` to fix line endings — it is `prettier --write .` with no `.prettierignore` and it rewrote the content of 93 files including `context/archive/`, which CLAUDE.md declares immutable.
 
 ## A grep over lint output cannot tell "clean" from "crashed"
 

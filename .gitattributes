@@ -1,0 +1,22 @@
+# Normalise line endings so the working tree matches what git stores and what CI checks out.
+#
+# Why this file exists (context/foundation/lessons.md, two entries):
+#   * With core.autocrlf=true and no .gitattributes, every file in a Windows working tree is CRLF,
+#     so `npx eslint .` reports hundreds of `prettier/prettier` "Delete `␍`" errors and can never
+#     exit 0 locally — while CI, which checks out LF, sees none of them.
+#   * That gap is what makes people filter lint output instead of reading its exit code. It once
+#     hid an ESLint *crash* (exit 2) behind a grep for four commits, and nine real errors with it.
+#
+# With `eol=lf` the working tree is LF, local and CI agree, and the exit code means what it says.
+* text=auto eol=lf
+
+# Binary — never touch these.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.webp binary
+*.woff binary
+*.woff2 binary
+*.pdf binary
