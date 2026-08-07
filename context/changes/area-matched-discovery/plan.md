@@ -823,20 +823,20 @@ they are amended by new files rather than edited.
 
 #### Automated
 
-- [ ] 5.1 `npm run build` passes
-- [ ] 5.2 `npm run lint` passes, CRLF-aware check empty
-- [ ] 5.3 `npm run check` passes — no untranslated catalog key, no type error
-- [ ] 5.4 `RATING_THRESHOLD` is read in exactly one place
-- [ ] 5.5 `/specialists` emits no client-side island script
-- [ ] 5.6 `min_price_cents` is never rendered for a filtered result
+- [x] 5.1 `npm run build` passes
+- [x] 5.2 `npm run lint` passes, CRLF-aware check empty
+- [x] 5.3 `npm run check` passes — no untranslated catalog key, no type error
+- [x] 5.4 `RATING_THRESHOLD` is read in exactly one place
+- [x] 5.5 `/specialists` emits no client-side island script
+- [x] 5.6 `min_price_cents` is never rendered for a filtered result
 
 #### Manual
 
-- [ ] 5.7 Area matching includes the covering specialist and excludes the non-covering one; the toggle reveals the second
-- [ ] 5.8 Category, price range and price sort each work and combine
-- [ ] 5.9 A signed-out visitor can browse and open a profile
-- [ ] 5.10 A specialist with no services is absent from results and their own banner agrees
-- [ ] 5.11 A non-discoverable specialist's profile URL returns 404
-- [ ] 5.12 Discovery has no untranslated strings; dictionary names follow the active locale
-- [ ] 5.13 Results render in under a second on a throttled connection
+- [x] 5.7 Area matching includes the covering specialist and excludes the non-covering one; the toggle reveals the second
+- [x] 5.8 Category, price range and price sort each work and combine
+- [x] 5.9 A signed-out visitor can browse and open a profile
+- [x] 5.10 A specialist with no services is absent from results and their own banner agrees
+- [x] 5.11 A non-discoverable specialist's profile URL returns 404
+- [x] 5.12 Discovery has no untranslated strings; dictionary names follow the active locale
+- [x] 5.13 Results render in under a second on a throttled connection
 - [ ] 5.14 The whole flow works on production after deploy

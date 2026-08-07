@@ -1,0 +1,126 @@
+---
+import Chip from "@/components/ui/Chip.astro";
+import { localizedName } from "@/lib/i18n/dictionary";
+import { useTranslations } from "@/lib/i18n/t";
+import type { ServiceCategory } from "@/types";
+
+/**
+ * A GET form and a row of links. No island, on purpose (see the plan's "Filtering without
+ * JavaScript"): the primary persona includes elderly and limited-mobility clients who are not on
+ * fast devices, and the NFR is a sub-second p95. Server-rendered filters also give shareable,
+ * back-button-correct URLs for free.
+ */
+interface Props {
+  categories: ServiceCategory[];
+  categoryId?: number;
+  minPrice: string;
+  maxPrice: string;
+  sort: "price_asc" | "price_desc";
+  servesMyArea: boolean;
+  /** Absent when the visitor has no saved district — then there is nothing to restrict to. */
+  canFilterByArea: boolean;
+}
+
+const { categories, categoryId, minPrice, maxPrice, sort, servesMyArea, canFilterByArea } = Astro.props;
+const { locale } = Astro.locals;
+const t = useTranslations(locale);
+
+// Category chips and the area toggle are links, not form controls: one click, one navigation, and
+// the rest of the query survives because each href is rebuilt from the current URL. A checkbox
+// would have needed a "Show" click to take effect, or JavaScript to submit on change — and this
+// page ships none.
+function withParam(key: string, value: string | null): string {
+  const params = new URLSearchParams(Astro.url.search);
+  if (value === null) params.delete(key);
+  else params.set(key, value);
+  const query = params.toString();
+  return query ? `${Astro.url.pathname}?${query}` : Astro.url.pathname;
+}
+
+const anyFilterActive =
+  categoryId !== undefined || minPrice !== "" || maxPrice !== "" || sort !== "price_asc" || !servesMyArea;
+---
+
+<div class="mb-6 space-y-3">
+  <div class="flex flex-wrap gap-2">
+    <Chip href={withParam("category", null)} active={categoryId === undefined}>{t("discovery.allCategories")}</Chip>
+    {
+      categories.map((category) => (
+        <Chip href={withParam("category", String(category.id))} active={categoryId === category.id}>
+          {localizedName(category, locale)}
+        </Chip>
+      ))
+    }
+
+    {
+      /* The wedge filter sits with the chips, not in the form: it applies on click like they do.
+         It is a link, so its state is `aria-current` (which Chip sets from `active`) rather than
+         `aria-pressed` — that one belongs to buttons. The tick makes the state visible too. */
+      canFilterByArea && (
+        <Chip href={withParam("area", servesMyArea ? "off" : "on")} active={servesMyArea} class="ml-auto">
+          {servesMyArea ? "✓ " : ""}
+          {t("discovery.servesMyArea")}
+        </Chip>
+      )
+    }
+  </div>
+
+  <form method="GET" class="border-border bg-card flex flex-wrap items-end gap-3 rounded-md border p-3">
+    {/* Carried through so a price or sort change does not silently drop the category chip. */}
+    {categoryId !== undefined && <input type="hidden" name="category" value={categoryId} />}
+
+    <div>
+      <label for="min" class="text-muted-foreground mb-1 block text-xs font-semibold">{t("discovery.priceFrom")}</label>
+      <input
+        id="min"
+        name="min"
+        inputmode="numeric"
+        value={minPrice}
+        placeholder="0"
+        class="border-border-strong bg-card text-foreground focus:ring-ring/40 w-24 rounded-sm border px-3 py-2 text-sm focus:ring-[3px] focus:outline-none"
+      />
+    </div>
+
+    <div>
+      <label for="max" class="text-muted-foreground mb-1 block text-xs font-semibold">{t("discovery.priceTo")}</label>
+      <input
+        id="max"
+        name="max"
+        inputmode="numeric"
+        value={maxPrice}
+        placeholder="500"
+        class="border-border-strong bg-card text-foreground focus:ring-ring/40 w-24 rounded-sm border px-3 py-2 text-sm focus:ring-[3px] focus:outline-none"
+      />
+    </div>
+
+    <div>
+      <label for="sort" class="text-muted-foreground mb-1 block text-xs font-semibold">{t("discovery.apply")}</label>
+      <select
+        id="sort"
+        name="sort"
+        class="border-border-strong bg-card text-foreground focus:ring-ring/40 rounded-sm border px-3 py-2 text-sm focus:ring-[3px] focus:outline-none"
+      >
+        <option value="price_asc" selected={sort === "price_asc"}>{t("discovery.sortPriceAsc")}</option>
+        <option value="price_desc" selected={sort === "price_desc"}>{t("discovery.sortPriceDesc")}</option>
+      </select>
+    </div>
+
+    {/* Carried so submitting a price or sort change does not silently reset the area toggle. */}
+    {canFilterByArea && <input type="hidden" name="area" value={servesMyArea ? "on" : "off"} />}
+
+    <button
+      type="submit"
+      class="bg-primary hover:bg-primary-dark cursor-pointer rounded-sm px-4 py-2 text-sm font-semibold text-white transition-colors"
+    >
+      {t("discovery.apply")}
+    </button>
+
+    {
+      anyFilterActive && (
+        <a href={Astro.url.pathname} class="text-ink-soft hover:text-foreground py-2 text-sm font-medium">
+          {t("discovery.clear")}
+        </a>
+      )
+    }
+  </form>
+</div>

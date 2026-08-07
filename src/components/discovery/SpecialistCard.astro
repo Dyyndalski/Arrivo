@@ -1,0 +1,72 @@
+---
+import Avatar from "@/components/ui/Avatar.astro";
+import Stars from "@/components/ui/Stars.astro";
+import { ratingLabel } from "@/lib/services/discovery";
+import { localizedName } from "@/lib/i18n/dictionary";
+import { useTranslations } from "@/lib/i18n/t";
+import { formatPrice } from "@/lib/format";
+import type { DiscoveryResult } from "@/lib/services/discovery";
+import type { ServiceArea, ServiceCategory } from "@/types";
+
+interface Props {
+  result: DiscoveryResult;
+  areasById: Map<number, ServiceArea>;
+  categoriesById: Map<number, ServiceCategory>;
+}
+
+const { result, areasById, categoriesById } = Astro.props;
+const { locale } = Astro.locals;
+const t = useTranslations(locale);
+
+const { specialist, areaIds, services, displayFromCents } = result;
+
+// The categories this specialist actually offers among the matching services — deduplicated,
+// because three haircuts should not print "Fryzjerstwo damskie" three times.
+const categoryNames = [...new Set(services.map((s) => s.category_id))]
+  .map((id) => categoriesById.get(id))
+  .filter((c): c is ServiceCategory => c !== undefined)
+  .map((c) => localizedName(c, locale));
+
+const areaNames = areaIds
+  .map((id) => areasById.get(id))
+  .filter((a): a is ServiceArea => a !== undefined)
+  .map((a) => localizedName(a, locale));
+
+const rating = ratingLabel(specialist.rating_count, specialist.rating_avg);
+---
+
+<a
+  href={`/specialists/${specialist.id}`}
+  class="border-border bg-card hover:border-border-strong focus-visible:ring-ring/50 block rounded-lg border p-5 transition-colors focus-visible:ring-[3px] focus-visible:outline-none"
+>
+  <div class="mb-3.5 flex items-center gap-3">
+    <Avatar name={specialist.display_name} size="md" />
+    <div class="min-w-0">
+      <p class="text-foreground truncate font-bold">{specialist.display_name}</p>
+      <p class="text-muted-foreground truncate text-[13px]">{categoryNames.join(" · ")}</p>
+    </div>
+  </div>
+
+  <div class="mb-2.5">
+    {
+      rating.kind === "average" ? (
+        <Stars
+          value={rating.average}
+          label={t("discovery.ratingSummary", { average: rating.average.toFixed(1), count: rating.count })}
+        />
+      ) : (
+        <span class="bg-surface-alt text-ink-soft inline-flex rounded-full px-2.5 py-1 text-[11.5px] font-bold">
+          {t("discovery.newSpecialist")}
+        </span>
+      )
+    }
+  </div>
+
+  <p class="text-muted-foreground text-[13px]">{t("discovery.travelsTo", { areas: areaNames.join(", ") })}</p>
+
+  {
+    displayFromCents !== null && (
+      <p class="text-foreground mt-2.5 font-bold">{t("discovery.from", { price: formatPrice(displayFromCents) })}</p>
+    )
+  }
+</a>

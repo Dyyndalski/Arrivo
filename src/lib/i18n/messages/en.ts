@@ -195,4 +195,66 @@ export const en: Record<MessageKey, string> = {
   "specialist.message.serviceAdded": "Service added",
   "specialist.message.serviceRemoved": "Service removed",
   "specialist.message.serviceGone": "That service no longer exists",
+
+  // --- Client account -------------------------------------------------------------------
+
+  "account.title": "Your profile",
+  "account.subtitle": "A specialist sees these details only after accepting a booking",
+  "account.save": "Save changes",
+  "account.saving": "Saving…",
+  "account.privacyNote":
+    "Only a specialist who accepts your booking sees your exact address. Until then we use the district alone for matching.",
+
+  "account.field.firstName": "First name",
+  "account.field.lastName": "Last name",
+  "account.field.phone": "Phone",
+  "account.field.phonePlaceholder": "+48 600 000 000",
+  "account.field.street": "Street and number",
+  "account.field.streetPlaceholder": "ul. Kwiatowa 12/3",
+  "account.field.postalCode": "Postal code",
+  "account.field.postalCodePlaceholder": "00-001",
+  "account.field.area": "Your district",
+
+  "account.error.areaRequired": "Choose the district you live in",
+  "account.error.nameLength": "This field must be at most {max} characters",
+  "account.error.phoneLength": "The phone number must be between {min} and {max} characters",
+  "account.error.streetLength": "The address must be between {min} and {max} characters",
+  "account.error.postalCodeFormat": "Postal code in the format 00-001",
+  "account.error.notAllowed": "You need a client account to do that",
+  "account.error.saveFailed": "Could not save — please try again",
+  "account.error.loadFailed": "Could not load your profile — refresh to try again",
+  "account.error.notConfigured": "Saving is temporarily unavailable — try again later",
+  "account.message.saved": "Profile saved",
+
+  // --- Discovery ------------------------------------------------------------------------
+
+  "discovery.title": "Specialists near you",
+  "discovery.subtitleArea": "{area} · showing only those who travel to your area",
+  "discovery.subtitleAll": "All specialists",
+  "discovery.servesMyArea": "Travels to me",
+  "discovery.allCategories": "All categories",
+  "discovery.priceFrom": "Price from",
+  "discovery.priceTo": "Price to",
+  "discovery.sortPriceAsc": "Price, low to high",
+  "discovery.sortPriceDesc": "Price, high to low",
+  "discovery.apply": "Show",
+  "discovery.clear": "Clear filters",
+  "discovery.from": "from {price}",
+  "discovery.travelsTo": "Travels to: {areas}",
+  "discovery.newSpecialist": "New specialist",
+  "discovery.ratingSummary": "{average} of 5 ({count})",
+
+  "discovery.empty.title": "No results",
+  "discovery.empty.filters": "Try widening the price range or picking another category.",
+  "discovery.empty.area": "Nobody travels to your district yet. Uncheck “Travels to me” to see everyone.",
+  "discovery.empty.none": "There are no specialists yet.",
+
+  "discovery.noAddress.title": "Set your address",
+  "discovery.noAddress.body": "Tell us which district you live in and we'll show only specialists who travel to you.",
+  "discovery.noAddress.cta": "Set address",
+
+  "discovery.profile.services": "Services",
+  "discovery.profile.book": "Book a visit",
+  "discovery.profile.bookService": "Book",
+  "discovery.profile.backToList": "Discover",
 };

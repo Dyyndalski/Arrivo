@@ -1,0 +1,153 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import Topbar from "@/components/Topbar.astro";
+import Card from "@/components/ui/Card.astro";
+import EmptyState from "@/components/ui/EmptyState.astro";
+import FilterBar from "@/components/discovery/FilterBar.astro";
+import SpecialistCard from "@/components/discovery/SpecialistCard.astro";
+import { createClient } from "@/lib/supabase";
+import { getAreaDictionary, getTaxonomy } from "@/lib/services/specialists";
+import { getOwnProfile } from "@/lib/services/clients";
+import { searchSpecialists } from "@/lib/services/discovery";
+import { localizedName } from "@/lib/i18n/dictionary";
+import { useTranslations } from "@/lib/i18n/t";
+import type { DiscoveryResult } from "@/lib/services/discovery";
+import type { ServiceArea, ServiceCategory } from "@/types";
+
+/**
+ * PUBLIC. Not in `PROTECTED_ROUTES` — the PRD's Access Control lets unauthenticated visitors
+ * browse listings, and `matchesRoute()` in the middleware matches on a path boundary, so
+ * `/specialists` is not captured by the `/specialist` specialist-only gate (fixed in S-02 for
+ * exactly this page).
+ */
+const { user, role, locale } = Astro.locals;
+const t = useTranslations(locale);
+const supabase = createClient(Astro.request.headers, Astro.cookies);
+
+// Unparseable values are ignored rather than rejected: a hand-edited URL should degrade to the
+// unfiltered list, not to an error page.
+function positiveInt(raw: string | null): number | undefined {
+  if (raw === null || raw.trim() === "") return undefined;
+  const n = Number(raw);
+  return Number.isInteger(n) && n > 0 ? n : undefined;
+}
+
+const params = Astro.url.searchParams;
+const categoryId = positiveInt(params.get("category"));
+const minPriceZl = positiveInt(params.get("min"));
+const maxPriceZl = positiveInt(params.get("max"));
+const sort = params.get("sort") === "price_desc" ? "price_desc" : "price_asc";
+
+let results: DiscoveryResult[] = [];
+let categories: ServiceCategory[] = [];
+let areasById = new Map<number, ServiceArea>();
+let categoriesById = new Map<number, ServiceCategory>();
+let myArea: ServiceArea | null = null;
+let servesMyArea = false;
+let loadError: string | null = null;
+
+if (!supabase) {
+  loadError = t("account.error.notConfigured");
+} else {
+  try {
+    const [dictionary, taxonomy] = await Promise.all([getAreaDictionary(supabase), getTaxonomy(supabase)]);
+    categories = taxonomy.categories;
+    areasById = new Map(dictionary.areas.map((a) => [a.id, a]));
+    categoriesById = new Map(taxonomy.categories.map((c) => [c.id, c]));
+
+    // Only a signed-in client has a saved district. A specialist browsing, or a signed-out
+    // visitor, sees the unrestricted list — there is nothing to restrict it to.
+    if (user && role === "client") {
+      const profile = await getOwnProfile(supabase, user.id);
+      myArea = profile?.area_id ? (areasById.get(profile.area_id) ?? null) : null;
+    }
+
+    // Defaults ON when the client has an area: the wedge is the point of the page, and someone
+    // who told us where they live should not have to ask again on every visit.
+    //
+    // `area` is set by a link in FilterBar, so there is exactly one value and it is explicit —
+    // absent means "first visit", which is why the default is on rather than off.
+    servesMyArea = myArea !== null && params.get("area") !== "off";
+
+    results = await searchSpecialists(supabase, {
+      areaId: servesMyArea && myArea ? myArea.id : undefined,
+      categoryId,
+      minPriceCents: minPriceZl === undefined ? undefined : minPriceZl * 100,
+      maxPriceCents: maxPriceZl === undefined ? undefined : maxPriceZl * 100,
+      sort,
+    });
+  } catch {
+    loadError = t("account.error.loadFailed");
+  }
+}
+
+// Name the filter most likely responsible for an empty page, rather than shrugging.
+const emptyBody =
+  categoryId !== undefined || minPriceZl !== undefined || maxPriceZl !== undefined
+    ? t("discovery.empty.filters")
+    : servesMyArea
+      ? t("discovery.empty.area")
+      : t("discovery.empty.none");
+---
+
+<Layout title={t("discovery.title")}>
+  <Topbar current="discover" />
+
+  <main class="mx-auto w-full max-w-5xl px-6 py-9">
+    <div class="mb-6">
+      <h1 class="text-foreground font-display text-[26px]">{t("discovery.title")}</h1>
+      <p class="text-ink-soft mt-1 text-sm">
+        {
+          myArea && servesMyArea
+            ? t("discovery.subtitleArea", { area: localizedName(myArea, locale) })
+            : t("discovery.subtitleAll")
+        }
+      </p>
+    </div>
+
+    {
+      /* A signed-in client with no district cannot use the wedge at all — say so once, here,
+         rather than silently showing an unfiltered list they will assume is filtered. */
+      user && role === "client" && myArea === null && (
+        <Card class="mb-6">
+          <p class="text-foreground text-[15px] font-bold">{t("discovery.noAddress.title")}</p>
+          <p class="text-muted-foreground mt-1 text-[13px]">{t("discovery.noAddress.body")}</p>
+          <a
+            href="/account/profile"
+            class="bg-primary hover:bg-primary-dark mt-3 inline-flex rounded-sm px-4 py-2 text-sm font-semibold text-white transition-colors"
+          >
+            {t("discovery.noAddress.cta")}
+          </a>
+        </Card>
+      )
+    }
+
+    {
+      loadError ? (
+        <p class="bg-danger-soft text-danger rounded-md px-4 py-6 text-center text-sm">{loadError}</p>
+      ) : (
+        <>
+          <FilterBar
+            categories={categories}
+            categoryId={categoryId}
+            minPrice={params.get("min") ?? ""}
+            maxPrice={params.get("max") ?? ""}
+            sort={sort}
+            servesMyArea={servesMyArea}
+            canFilterByArea={myArea !== null}
+          />
+
+          {results.length === 0 ? (
+            <EmptyState title={t("discovery.empty.title")} description={emptyBody} />
+          ) : (
+            <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {results.map((result) => (
+                <SpecialistCard result={result} areasById={areasById} categoriesById={categoriesById} />
+              ))}
+            </div>
+          )}
+        </>
+      )
+    }
+  </main>
+</Layout>

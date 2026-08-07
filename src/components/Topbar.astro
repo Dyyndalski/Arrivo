@@ -18,13 +18,22 @@ interface Props {
 }
 
 const { current, class: className } = Astro.props;
-const { user, locale } = Astro.locals;
+const { user, role, locale } = Astro.locals;
 const t = useTranslations(locale);
 
 const links: { href: string; label: string; key: NonNullable<Props["current"]> }[] = [];
 
+// Discovery is public, so it is offered to signed-out visitors too — that is the page the PRD
+// wants a first-time visitor to land on.
+links.push({ href: "/specialists", label: t("nav.discover"), key: "discover" });
+
 if (user) {
   links.push({ href: "/dashboard", label: t("nav.dashboard"), key: "dashboard" });
+  // "My bookings" belongs here and arrives with S-04. Omitted rather than disabled: an empty nav
+  // slot is invisible, a dead nav link is not.
+  if (role === "client") {
+    links.push({ href: "/account/profile", label: t("nav.profile"), key: "profile" });
+  }
 }
 ---
 

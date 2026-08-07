@@ -1,0 +1,82 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import Topbar from "@/components/Topbar.astro";
+import Badge from "@/components/ui/Badge.astro";
+import Card from "@/components/ui/Card.astro";
+import ClientProfileForm from "@/components/account/ClientProfileForm";
+import { clientProfileStrings } from "@/components/account/strings";
+import { createClient } from "@/lib/supabase";
+import { getAreaDictionary } from "@/lib/services/specialists";
+import { getOwnProfile } from "@/lib/services/clients";
+import { useTranslations, tUnknown, isMessageKey } from "@/lib/i18n/t";
+import type { City, ClientProfile, ServiceArea } from "@/types";
+
+// Signed-in gate lives in src/middleware.ts (PROTECTED_ROUTES). Not a specialist-only route —
+// a specialist reaching it is redirected by the endpoint, not by the page.
+const { user, locale } = Astro.locals;
+const t = useTranslations(locale);
+const supabase = createClient(Astro.request.headers, Astro.cookies);
+
+let profile: ClientProfile | null = null;
+let cities: City[] = [];
+let areas: ServiceArea[] = [];
+let loadError: string | null = null;
+
+if (!supabase) {
+  loadError = t("account.error.notConfigured");
+} else if (!user) {
+  loadError = t("auth.error.sessionExpired");
+} else {
+  try {
+    const [own, dictionary] = await Promise.all([getOwnProfile(supabase, user.id), getAreaDictionary(supabase)]);
+    profile = own;
+    cities = dictionary.cities;
+    areas = dictionary.areas;
+  } catch {
+    loadError = t("account.error.loadFailed");
+  }
+}
+
+const formError = Astro.url.searchParams.get("error");
+const message = Astro.url.searchParams.get("message");
+---
+
+<Layout title={t("account.title")}>
+  <Topbar current="profile" />
+
+  <main class="mx-auto w-full max-w-2xl px-6 py-9">
+    <div class="mb-6 flex flex-wrap items-start justify-between gap-3">
+      <div>
+        <h1 class="text-foreground font-display text-[26px]">{t("account.title")}</h1>
+        <p class="text-ink-soft mt-1 text-sm">{t("account.subtitle")}</p>
+      </div>
+      <Badge variant="client">{t("role.client")}</Badge>
+    </div>
+
+    {
+      /* Only a recognised key renders — a success fallback would claim a save that never
+         happened (phase-4 impl-review F3). */
+      message && isMessageKey(message) && (
+        <p class="bg-success-soft text-success-soft-text mb-5 rounded-sm px-3.5 py-2.5 text-sm">{t(message)}</p>
+      )
+    }
+
+    {
+      loadError ? (
+        <p class="bg-danger-soft text-danger rounded-md px-4 py-6 text-center text-sm">{loadError}</p>
+      ) : (
+        <Card>
+          <ClientProfileForm
+            cities={cities}
+            areas={areas}
+            profile={profile}
+            serverError={formError ? tUnknown(locale, formError, "account.error.saveFailed") : null}
+            locale={locale}
+            strings={clientProfileStrings(locale)}
+            client:load
+          />
+        </Card>
+      )
+    }
+  </main>
+</Layout>

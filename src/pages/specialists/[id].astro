@@ -1,0 +1,154 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import Topbar from "@/components/Topbar.astro";
+import Avatar from "@/components/ui/Avatar.astro";
+import Badge from "@/components/ui/Badge.astro";
+import Card from "@/components/ui/Card.astro";
+import Stars from "@/components/ui/Stars.astro";
+import { createClient } from "@/lib/supabase";
+import { getAreaDictionary, getTaxonomy } from "@/lib/services/specialists";
+import { getPublicSpecialist, ratingLabel } from "@/lib/services/discovery";
+import { localizedName } from "@/lib/i18n/dictionary";
+import { useTranslations } from "@/lib/i18n/t";
+import { formatPrice } from "@/lib/format";
+
+// PUBLIC, like the list. FR-009: name, services and a star summary; no review bodies, because v1
+// has no review text and no moderation path for it.
+const { locale } = Astro.locals;
+const t = useTranslations(locale);
+const supabase = createClient(Astro.request.headers, Astro.cookies);
+
+const id = Astro.params.id;
+const result = supabase && id ? await getPublicSpecialist(supabase, id) : null;
+
+// An id that is not in `discoverable_specialists` returns 404 rather than an empty profile: a
+// card that is not discoverable must not be reachable by guessing a URL.
+if (!result) {
+  return new Response(null, { status: 404 });
+}
+
+const [dictionary, taxonomy] = await Promise.all([getAreaDictionary(supabase!), getTaxonomy(supabase!)]);
+const areasById = new Map(dictionary.areas.map((a) => [a.id, a]));
+const categoriesById = new Map(taxonomy.categories.map((c) => [c.id, c]));
+const subtypesById = new Map(taxonomy.subtypes.map((s) => [s.id, s]));
+
+const { specialist, areaIds, services } = result;
+const rating = ratingLabel(specialist.rating_count, specialist.rating_avg);
+
+const areaNames = areaIds
+  .map((areaId) => areasById.get(areaId))
+  .filter((a) => a !== undefined)
+  .map((a) => localizedName(a, locale));
+
+// The specialist's own wording leads when they gave one; the taxonomy line stays visible either
+// way, because that is what the client's type filter actually matched on.
+function headline(categoryId: number, name: string | null): string {
+  if (name) return name;
+  const category = categoriesById.get(categoryId);
+  return category ? localizedName(category, locale) : "—";
+}
+
+function taxonomyLine(categoryId: number, subtypeId: number | null): string {
+  const category = categoriesById.get(categoryId);
+  const subtype = subtypeId === null ? undefined : subtypesById.get(subtypeId);
+  return [category ? localizedName(category, locale) : null, subtype ? localizedName(subtype, locale) : null]
+    .filter(Boolean)
+    .join(" · ");
+}
+---
+
+<Layout title={specialist.display_name}>
+  <Topbar current="discover" />
+
+  <main class="mx-auto w-full max-w-3xl px-6 py-9">
+    <p class="text-muted-foreground mb-3 text-[13px]">
+      <a href="/specialists" class="hover:text-foreground">{t("discovery.profile.backToList")}</a>
+      <span class="mx-1.5">/</span>
+      <span class="text-foreground font-semibold">{specialist.display_name}</span>
+    </p>
+
+    <Card class="mb-5">
+      <div class="flex flex-wrap items-start gap-4">
+        <Avatar name={specialist.display_name} size="lg" />
+
+        <div class="min-w-0 flex-1">
+          <div class="flex flex-wrap items-center gap-2">
+            <h1 class="text-foreground font-display text-[22px]">{specialist.display_name}</h1>
+            <Badge variant="specialist">{t("role.specialist")}</Badge>
+          </div>
+
+          <p class="text-muted-foreground mt-1 text-[13px]">
+            {t("discovery.travelsTo", { areas: areaNames.join(", ") })}
+          </p>
+
+          <div class="mt-1.5">
+            {
+              rating.kind === "average" ? (
+                <Stars
+                  value={rating.average}
+                  label={t("discovery.ratingSummary", {
+                    average: rating.average.toFixed(1),
+                    count: rating.count,
+                  })}
+                />
+              ) : (
+                <span class="bg-surface-alt text-ink-soft inline-flex rounded-full px-2.5 py-1 text-[11.5px] font-bold">
+                  {t("discovery.newSpecialist")}
+                </span>
+              )
+            }
+          </div>
+        </div>
+
+        {
+          /*
+          Rendered but inert until S-04 builds the booking request. Keeping it in the layout means
+          that slice swaps an attribute rather than rebuilding this header and every service row.
+        */
+        }
+        <button
+          type="button"
+          disabled
+          class="bg-primary rounded-sm px-5 py-2.5 text-sm font-semibold text-white opacity-50"
+          title={t("common.soon")}
+        >
+          {t("discovery.profile.book")}
+        </button>
+      </div>
+
+      {specialist.bio && <p class="text-ink-soft mt-4 text-sm leading-relaxed">{specialist.bio}</p>}
+    </Card>
+
+    <p class="text-foreground mb-3 text-[15px] font-bold">{t("discovery.profile.services")}</p>
+
+    <ul class="space-y-3">
+      {
+        services.map((service) => (
+          <li class="border-border bg-card flex items-center gap-4 rounded-md border px-4 py-3.5">
+            <div class="min-w-0 flex-1">
+              <p class="text-foreground truncate text-[14.5px] font-semibold">
+                {headline(service.category_id, service.name)}
+              </p>
+              <p class="text-muted-foreground truncate text-[12.5px]">
+                {taxonomyLine(service.category_id, service.subtype_id)}
+                {service.duration_minutes !== null &&
+                  ` · ${t("specialist.services.duration", { minutes: service.duration_minutes })}`}
+              </p>
+            </div>
+
+            <span class="text-foreground shrink-0 font-bold">{formatPrice(service.price_cents)}</span>
+
+            <button
+              type="button"
+              disabled
+              class="border-border-strong text-ink-soft rounded-sm border px-3 py-1.5 text-[13px] font-semibold opacity-50"
+              title={t("common.soon")}
+            >
+              {t("discovery.profile.bookService")}
+            </button>
+          </li>
+        ))
+      }
+    </ul>
+  </main>
+</Layout>

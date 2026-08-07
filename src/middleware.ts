@@ -3,7 +3,10 @@ import { LOCALE_COOKIE, resolveLocale } from "@/lib/i18n";
 import { createClient } from "@/lib/supabase";
 import type { UserRole } from "@/types";
 
-const PROTECTED_ROUTES = ["/dashboard", "/specialist"];
+// `/specialists` (plural) is deliberately absent: the PRD's Access Control lets unauthenticated
+// visitors browse listings. `matchesRoute` below matches on a path boundary, so the singular
+// `/specialist` entry does not capture it.
+const PROTECTED_ROUTES = ["/dashboard", "/specialist", "/account"];
 
 // Routes only a specialist-role account may open. Checked after PROTECTED_ROUTES, so a signed
 // -out visitor still gets the sign-in redirect rather than being bounced to a dashboard they

@@ -212,6 +212,70 @@ export const pl = {
   "specialist.message.serviceAdded": "Usługa dodana",
   "specialist.message.serviceRemoved": "Usługa usunięta",
   "specialist.message.serviceGone": "Ta usługa już nie istnieje",
+
+  // --- Client account -------------------------------------------------------------------
+
+  "account.title": "Twój profil",
+  "account.subtitle": "Te dane widzi specjalista dopiero po zaakceptowaniu rezerwacji",
+  "account.save": "Zapisz zmiany",
+  "account.saving": "Zapisywanie…",
+  "account.privacyNote":
+    "Twój dokładny adres widzi tylko specjalista, który zaakceptuje rezerwację. Do tego czasu do dopasowania używamy wyłącznie dzielnicy.",
+
+  "account.field.firstName": "Imię",
+  "account.field.lastName": "Nazwisko",
+  "account.field.phone": "Telefon",
+  "account.field.phonePlaceholder": "+48 600 000 000",
+  "account.field.street": "Ulica i numer",
+  "account.field.streetPlaceholder": "ul. Kwiatowa 12/3",
+  "account.field.postalCode": "Kod pocztowy",
+  "account.field.postalCodePlaceholder": "00-001",
+  "account.field.area": "Twoja dzielnica",
+
+  "account.error.areaRequired": "Wybierz dzielnicę, w której mieszkasz",
+  "account.error.nameLength": "To pole może mieć najwyżej {max} znaków",
+  "account.error.phoneLength": "Numer telefonu musi mieć od {min} do {max} znaków",
+  "account.error.streetLength": "Adres musi mieć od {min} do {max} znaków",
+  "account.error.postalCodeFormat": "Kod pocztowy w formacie 00-001",
+  "account.error.notAllowed": "Do tego potrzebne jest konto klienta",
+  "account.error.saveFailed": "Nie udało się zapisać — spróbuj ponownie",
+  "account.error.loadFailed": "Nie udało się wczytać profilu — odśwież stronę",
+  "account.error.notConfigured": "Zapisywanie jest chwilowo niedostępne — spróbuj później",
+  "account.message.saved": "Profil zapisany",
+
+  // --- Discovery ------------------------------------------------------------------------
+
+  "discovery.title": "Specjaliści w Twojej okolicy",
+  "discovery.subtitleArea": "{area} · pokazujemy tylko tych, którzy dojeżdżają w Twój obszar",
+  "discovery.subtitleAll": "Wszyscy specjaliści",
+  "discovery.servesMyArea": "Dojeżdżają do mnie",
+  "discovery.allCategories": "Wszystkie kategorie",
+  "discovery.priceFrom": "Cena od",
+  "discovery.priceTo": "Cena do",
+  "discovery.sortPriceAsc": "Cena rosnąco",
+  "discovery.sortPriceDesc": "Cena malejąco",
+  "discovery.apply": "Pokaż",
+  "discovery.clear": "Wyczyść filtry",
+  "discovery.from": "od {price}",
+  "discovery.travelsTo": "Dojeżdża: {areas}",
+  "discovery.newSpecialist": "Nowy specjalista",
+  "discovery.ratingSummary": "{average} z 5 ({count})",
+
+  "discovery.empty.title": "Brak wyników",
+  "discovery.empty.filters": "Spróbuj poszerzyć zakres ceny albo wybrać inną kategorię.",
+  "discovery.empty.area":
+    'Nikt jeszcze nie dojeżdża do Twojej dzielnicy. Odznacz „Dojeżdżają do mnie", żeby zobaczyć wszystkich.',
+  "discovery.empty.none": "Nie ma jeszcze żadnych specjalistów.",
+
+  "discovery.noAddress.title": "Ustaw swój adres",
+  "discovery.noAddress.body":
+    "Podaj dzielnicę, w której mieszkasz, a pokażemy tylko specjalistów, którzy do Ciebie dojeżdżają.",
+  "discovery.noAddress.cta": "Ustaw adres",
+
+  "discovery.profile.services": "Usługi",
+  "discovery.profile.book": "Zarezerwuj wizytę",
+  "discovery.profile.bookService": "Zarezerwuj",
+  "discovery.profile.backToList": "Odkrywaj",
 } as const;
 
 export type MessageKey = keyof typeof pl;

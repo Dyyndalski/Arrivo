@@ -27,7 +27,18 @@ const cards =
           description: t("dashboard.specialist.services.description"),
         },
       ]
-    : [];
+    : [
+        {
+          href: "/specialists",
+          title: t("dashboard.client.discover.title"),
+          description: t("dashboard.client.discover.description"),
+        },
+        {
+          href: "/account/profile",
+          title: t("dashboard.client.profile.title"),
+          description: t("dashboard.client.profile.description"),
+        },
+      ];
 ---
 
 <Layout title={t("dashboard.title")}>
@@ -44,30 +55,20 @@ const cards =
       {role && <Badge variant={role}>{t(role === "client" ? "role.client" : "role.specialist")}</Badge>}
     </div>
 
-    {
-      cards.length > 0 ? (
-        <div class="grid gap-3 sm:grid-cols-2">
-          {cards.map((card) => (
-            <a
-              href={card.href}
-              class="focus-visible:ring-ring/50 rounded-lg focus-visible:ring-[3px] focus-visible:outline-none"
-            >
-              <Card class="hover:border-border-strong h-full transition-colors">
-                <p class="text-foreground text-[15px] font-bold">{card.title}</p>
-                <p class="text-muted-foreground mt-1 text-[13px]">{card.description}</p>
-              </Card>
-            </a>
-          ))}
-        </div>
-      ) : (
-        // A client has nowhere to go until phase 5 ships /specialists and /account. Saying so
-        // beats linking to a 404.
-        <Card>
-          <p class="text-foreground text-[15px] font-bold">{t("dashboard.client.discover.title")}</p>
-          <p class="text-muted-foreground mt-1 text-[13px]">{t("dashboard.client.discover.description")}</p>
-          <p class="text-muted-foreground mt-3 text-[13px] font-semibold">{t("common.soon")}</p>
-        </Card>
-      )
-    }
+    <div class="grid gap-3 sm:grid-cols-2">
+      {
+        cards.map((card) => (
+          <a
+            href={card.href}
+            class="focus-visible:ring-ring/50 rounded-lg focus-visible:ring-[3px] focus-visible:outline-none"
+          >
+            <Card class="hover:border-border-strong h-full transition-colors">
+              <p class="text-foreground text-[15px] font-bold">{card.title}</p>
+              <p class="text-muted-foreground mt-1 text-[13px]">{card.description}</p>
+            </Card>
+          </a>
+        ))
+      }
+    </div>
   </main>
 </Layout>
