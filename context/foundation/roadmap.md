@@ -3,7 +3,7 @@ project: Arrivo
 version: 1
 status: draft
 created: 2026-07-28
-updated: 2026-08-04
+updated: 2026-08-07
 prd_version: 1
 main_goal: market-feedback
 top_blocker: time
@@ -30,7 +30,7 @@ Arrivo is a home-visit-first marketplace for beauty/hair services: it connects c
 | F-01 | domain-data-rls-foundation    | (foundation) roles link accounts to client/specialist; address stays private until a booking is accepted | —             | Access Control, NFR (privacy)     | done     |
 | S-01 | role-aware-accounts           | sign up as a client or specialist, sign in/out, recover a password          | F-01          | FR-001, FR-002                    | done     |
 | S-02 | specialist-service-listing    | (specialist) create a profile with declared areas and list a service        | S-01          | US-02, FR-004, FR-005             | done     |
-| S-03 | area-matched-discovery        | (client) set your area and find specialists who serve it, filtered by type/price, with a rating summary | S-01, S-02    | FR-003, FR-006, FR-007, FR-008, FR-009 | proposed |
+| S-03 | area-matched-discovery        | (client) set your area and find specialists who serve it, filtered by type/price, with a rating summary | S-01, S-02    | FR-003, FR-006, FR-007, FR-008, FR-009 | done     |
 | S-04 | client-booking-request        | (client) request a booking from a matched specialist, proposing a date/time | S-03          | US-01, FR-010                     | proposed |
 | S-05 | specialist-booking-management | (specialist) accept/decline a request, auto-expire stale ones, mark completed | S-04          | FR-011, FR-012                    | proposed |
 | S-06 | reviews-and-trust-rating      | (client) rate a completed visit; profiles show an average once enough ratings exist | S-05, S-03    | US-03, FR-013, FR-014             | proposed |
@@ -99,7 +99,7 @@ What's already in place in the codebase as of 2026-07-28 (auto-researched + user
 - **Unknowns:**
   - Self-declared areas can be gamed ("serves everywhere"). Owner: user. Block: no (PRD accepts self-declared areas for v1 as a known limitation; verification is deferred).
 - **Risk:** This is the wedge — the area-match rule made real. Sequenced right before the north star because a client must be able to *find* a serving specialist before they can request one. Address handling here must honor F-01's privacy policy (coarse area for matching; exact address stays private).
-- **Status:** proposed
+- **Status:** done
 
 ### S-04: Client booking request  *(north star)*
 
@@ -180,3 +180,4 @@ What's already in place in the codebase as of 2026-07-28 (auto-researched + user
 - **F-01: (foundation) roles link accounts to client/specialist; address stays private until a booking is accepted** — Archived 2026-07-28 → `context/archive/2026-07-28-domain-data-rls-foundation/`. Lesson: —.
 - **S-01: a visitor can sign up as either a client or a specialist, sign in and out, and recover a forgotten password** — Archived 2026-07-29 → `context/archive/2026-07-28-role-aware-accounts/`. Lesson: —.
 - **S-02: a signed-in specialist can create/edit a provider profile (name + declared service areas) and list a service by choosing a type from a fixed taxonomy and setting a price** — Archived 2026-08-04 → `context/archive/2026-08-03-specialist-service-listing/`. Lesson: —.
+- **S-03: a signed-in client can set/edit their saved home address, browse a filterable list of specialists, filter by service type and price, restrict results to specialists whose declared areas cover them, and open a profile showing services plus a star-rating summary** — Archived 2026-08-07 → `context/archive/2026-08-04-area-matched-discovery/`. Lesson: —.

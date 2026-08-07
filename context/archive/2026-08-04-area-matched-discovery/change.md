@@ -1,10 +1,10 @@
 ---
 change_id: area-matched-discovery
 title: Area-matched specialist discovery, on a design system and i18n foundation
-status: implemented
+status: archived
 created: 2026-08-04
 updated: 2026-08-07
-archived_at: null
+archived_at: 2026-08-07T09:25:43Z
 ---
 
 ## Notes
