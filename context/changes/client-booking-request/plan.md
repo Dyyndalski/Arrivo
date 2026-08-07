@@ -409,15 +409,17 @@ this slice — that is the point.
 
 #### Automated
 
-- [ ] 1.1 `npx supabase db reset` applies every migration cleanly from scratch
-- [ ] 1.2 `npx supabase test db` is green, including all three pre-existing suites
-- [ ] 1.3 `npm run build`, `npm run check` and the CRLF-aware lint check pass
+- [x] 1.1 `npx supabase db reset` applies every migration cleanly from scratch
+- [x] 1.2 `npx supabase test db` is green, including all three pre-existing suites
+- [x] 1.3 `npm run build`, `npm run check` and the CRLF-aware lint check pass
+- [x] 1.7 `service_role` holds no DML on `booking_contact_details` or `client_profiles`
 
 #### Manual
 
-- [ ] 1.4 `npx supabase db push` lands on hosted without drift
-- [ ] 1.5 The addressed specialist is refused the contact row while pending, and allowed once accepted
-- [ ] 1.6 `client_profiles` remains unreadable by anyone but its owner
+- [x] 1.4 `npx supabase db push` lands on hosted without drift
+- [x] 1.5 The addressed specialist is refused the contact row while pending, and allowed once accepted (behaviour proven locally by 20 pgTAP assertions; policy AND grant identity on hosted confirmed by zero drift from `supabase db diff --linked` — a live re-test would have needed two production accounts that cannot be deleted without the service_role key)
+- [x] 1.6 `client_profiles` remains unreadable by anyone but its owner
+- [x] 1.8 `supabase db diff --linked` shows no `service_role` grant on either private table on hosted
 
 ### Phase 2: Submitting a request
 

@@ -68,3 +68,25 @@ export const POSTAL_CODE_PATTERN = /^\d{2}-\d{3}$/;
  * about them. Read in exactly one place — `ratingLabel()` in src/lib/services/discovery.ts.
  */
 export const RATING_THRESHOLD = 3;
+
+// --- S-04: booking requests -----------------------------------------------------------------
+// Mirror 20260807100000_bookings.sql.
+
+/** One logistical note per request, written once. Not a message thread — PRD Non-Goals. */
+export const NOTE_MAX = 500;
+
+/**
+ * How long a specialist has to answer. The actual expiry stored on a booking is the EARLIER of
+ * `created_at + this` and the proposed moment: same-day bookings are allowed, and a request
+ * cannot meaningfully outlive the slot it asks for.
+ */
+export const BOOKING_WINDOW_HOURS = 48;
+
+/** Earliest a visit may be proposed. Below this the request would expire after the slot passed. */
+export const BOOKING_MIN_LEAD_HOURS = 3;
+
+/** Latest a visit may be proposed. Exists to catch a mistyped year, not to express policy. */
+export const BOOKING_MAX_AHEAD_DAYS = 90;
+
+/** The market is single-timezone in v1; every proposed moment is composed in this zone. */
+export const BOOKING_TIMEZONE = "Europe/Warsaw";

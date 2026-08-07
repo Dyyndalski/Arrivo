@@ -133,6 +133,67 @@ export interface DiscoverableSpecialist {
   rating_count: number;
   /** Null until at least one rating exists — not 0, which would read as a one-star specialist. */
   rating_avg: number | null;
-  /** Cheapest listed service, in grosze. Powers the "od <price>" line on a card. */
+  /**
+   * Cheapest listed service, in grosze — over ALL services, ignoring any active filter.
+   * Deliberately unread by the app: a filtered card must show the minimum of the services that
+   * matched, which `displayPriceFrom` in src/lib/services/discovery.ts computes instead
+   * (S-03 phase-2 impl-review F2).
+   */
   min_price_cents: number | null;
+}
+
+// --- S-04: booking requests -----------------------------------------------------------------
+
+/**
+ * The full lifecycle. S-04 only ever produces `pending`; S-05 owns every transition and S-06
+ * reads `completed`. Defined whole because the contact-details policy has to reference
+ * `accepted` — the coupling that made that policy impossible to write in S-03.
+ */
+export type BookingStatus = "pending" | "accepted" | "declined" | "expired" | "completed";
+
+/**
+ * What the addressed specialist may see while deciding. Nothing here identifies the client: the
+ * area is the coarse matching unit discovery already publishes, and the service snapshot is the
+ * specialist's own data reflected back.
+ *
+ * The service is stored as its PIECES rather than a rendered string — the dictionaries carry
+ * `name_en`, so a frozen label would pin the booking to one language.
+ */
+export interface Booking {
+  id: string;
+  client_id: string;
+  specialist_id: string;
+  /** Null once the specialist deletes the service; the snapshot below is what the booking means. */
+  service_id: string | null;
+  category_id: number;
+  subtype_id: number | null;
+  /** The specialist's own wording, if they gave one. */
+  service_name: string | null;
+  price_cents: number;
+  duration_minutes: number | null;
+  area_id: number;
+  proposed_at: string;
+  /** The earlier of `created_at + 48h` and `proposed_at`. S-05 acts on it. */
+  expires_at: string;
+  note: string | null;
+  status: BookingStatus;
+  created_at: string;
+  updated_at: string;
+}
+
+/**
+ * The half a specialist may read only once they have accepted — the subject of F-01's privacy
+ * contract and the PRD's launch guardrail.
+ *
+ * A separate table rather than columns on `Booking` because Postgres RLS grants whole rows and
+ * column grants cannot depend on status. See `20260807100000_bookings.sql`.
+ */
+export interface BookingContactDetails {
+  booking_id: string;
+  first_name: string | null;
+  last_name: string | null;
+  phone: string | null;
+  street: string;
+  postal_code: string | null;
+  created_at: string;
 }
