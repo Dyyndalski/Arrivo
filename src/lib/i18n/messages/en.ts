@@ -261,7 +261,7 @@ export const en: Record<MessageKey, string> = {
   // --- Booking request ------------------------------------------------------------------
 
   "booking.title": "Propose a time",
-  "booking.subtitle": "The specialist will accept or decline within {hours} hours",
+  "booking.subtitle": "The specialist will answer before the time you propose, and within {hours} hours at the latest",
   "booking.submit": "Send booking request",
   "booking.pending": "Sending…",
 

@@ -7,7 +7,7 @@
 -- Counting convention as in the other suites: every assertion is scoped to its fixtures.
 
 begin;
-select plan(20);
+select plan(23);
 
 do $$
 declare pgtap_schema text;
@@ -42,6 +42,16 @@ insert into public.services (specialist_id, category_id, price_cents, duration_m
 select sp.id, (select id from public.service_categories where slug = 'fryzjerstwo-damskie'), 15000, 60, 'Koloryzacja'
 from public.specialist_profiles sp;
 
+-- The client lives in Mokotów. request_booking derives the district from this row; the calls
+-- below deliberately pass a DIFFERENT one to prove the argument is ignored (impl-review F2).
+insert into public.client_profiles (id, area_id, first_name, last_name, street, postal_code)
+values (
+  'bc000000-0000-0000-0000-00000000000c',
+  (select a.id from public.service_areas a join public.cities c on c.id = a.city_id
+    where c.slug = 'warszawa' and a.slug = 'mokotow'),
+  'Marta', 'Nowak', 'ul. Kwiatowa 12/3', '00-001'
+);
+
 -- ===========================================================================
 -- As the client: submit through the function, and read back both halves.
 -- ===========================================================================
@@ -56,7 +66,7 @@ select lives_ok(
       'Domofon 12',
       'Marta', 'Nowak', '+48 600 000 000', 'ul. Kwiatowa 12/3', '00-001',
       (select a.id from public.service_areas a join public.cities c on c.id = a.city_id
-        where c.slug = 'warszawa' and a.slug = 'mokotow')
+        where c.slug = 'warszawa' and a.slug = 'ursynow')
     )$$,
   'a client can submit a booking request'
 );
@@ -117,11 +127,24 @@ select throws_ok(
       (select id from public.services where specialist_id = 'bc000000-0000-0000-0000-000000000051'),
       now() + interval '3 days', null, 'Marta', 'Nowak', null, 'ul. Inna 1', '00-002',
       (select a.id from public.service_areas a join public.cities c on c.id = a.city_id
-        where c.slug = 'warszawa' and a.slug = 'mokotow')
+        where c.slug = 'warszawa' and a.slug = 'ursynow')
     )$$,
   '23505',
   NULL,
   'a second pending request to the same specialist is refused'
+);
+
+-- impl-review F2. `p_area_id` used to be inserted on trust; the function now derives the district
+-- from the caller's own profile and ignores the argument. A direct RPC could otherwise file a
+-- request claiming a district the client does not live in — the field the whole area match rests
+-- on. The literal below is Ursynów; the fixture client saved Mokotów.
+select is(
+  (select a.slug from public.bookings b
+     join public.service_areas a on a.id = b.area_id
+    where b.client_id = 'bc000000-0000-0000-0000-00000000000c'
+    limit 1),
+  'mokotow',
+  'the district comes from the client profile, not from the argument'
 );
 
 -- A different specialist is fine — the index is per pair, not per client.
@@ -131,7 +154,7 @@ select lives_ok(
       (select id from public.services where specialist_id = 'bc000000-0000-0000-0000-000000000052'),
       now() + interval '3 days', null, 'Marta', 'Nowak', null, 'ul. Kwiatowa 12/3', '00-001',
       (select a.id from public.service_areas a join public.cities c on c.id = a.city_id
-        where c.slug = 'warszawa' and a.slug = 'mokotow')
+        where c.slug = 'warszawa' and a.slug = 'ursynow')
     )$$,
   'a request to a different specialist is allowed'
 );
@@ -144,7 +167,7 @@ select throws_ok(
       (select id from public.services where specialist_id = 'bc000000-0000-0000-0000-000000000052'),
       now() + interval '4 days', null, null, null, null, 'ul. X 1', null,
       (select a.id from public.service_areas a join public.cities c on c.id = a.city_id
-        where c.slug = 'warszawa' and a.slug = 'mokotow')
+        where c.slug = 'warszawa' and a.slug = 'ursynow')
     )$$,
   '23503',
   NULL,
@@ -171,6 +194,24 @@ select is(
     where b.specialist_id = 'bc000000-0000-0000-0000-000000000051'),
   0,
   'the addressed specialist CANNOT read the address while the request is pending'
+);
+
+-- impl-review F1. The note is free text the CLIENT types, and the mockup's own placeholder
+-- ("ring doorbell 12") invites writing the address into it. It lived on public.bookings until
+-- 20260807120000, which meant the client could hand over their street through the one field the
+-- privacy split had left on the visible side.
+select is(
+  (select count(*)::int from information_schema.columns
+    where table_name = 'bookings' and column_name = 'note'),
+  0,
+  'the note is NOT on bookings — everything the client typed sits behind acceptance'
+);
+
+select is(
+  (select count(*)::int from information_schema.columns
+    where table_name = 'booking_contact_details' and column_name = 'note'),
+  1,
+  'the note lives with the address it may contain'
 );
 
 -- ===========================================================================

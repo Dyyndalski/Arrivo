@@ -175,7 +175,6 @@ export interface Booking {
   proposed_at: string;
   /** The earlier of `created_at + 48h` and `proposed_at`. S-05 acts on it. */
   expires_at: string;
-  note: string | null;
   status: BookingStatus;
   created_at: string;
   updated_at: string;
@@ -195,5 +194,11 @@ export interface BookingContactDetails {
   phone: string | null;
   street: string;
   postal_code: string | null;
+  /**
+   * The client's logistical note. Lives here rather than on `Booking` because it is free text the
+   * client types, and "ring doorbell 12" is one keystroke away from being the address — so it is
+   * revealed with the address it may contain (S-04 impl-review F1).
+   */
+  note: string | null;
   created_at: string;
 }

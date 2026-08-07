@@ -41,6 +41,7 @@ export interface BookingRequestInput {
   specialist_id: string;
   service_id: string;
   proposed_at: Date;
+  /** Stored on `booking_contact_details`, not on the booking — see the type's docstring. */
   note: string | null;
   first_name: string | null;
   last_name: string | null;

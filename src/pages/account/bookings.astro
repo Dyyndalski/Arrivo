@@ -14,9 +14,17 @@ import type { Booking, BookingStatus, ServiceCategory, ServiceSubtype, Specialis
 //
 // Read-only: every transition belongs to S-05. Until then everything here is `pending`, which is
 // the honest state of the world rather than a placeholder.
-const { user, locale } = Astro.locals;
+const { user, role, locale } = Astro.locals;
 const t = useTranslations(locale);
 const supabase = createClient(Astro.request.headers, Astro.cookies);
+
+// `/account` in PROTECTED_ROUTES gates signed-out visitors only. A specialist would otherwise get
+// this page — titled "Moje rezerwacje", listing nothing, since the query filters on client_id —
+// which is a dead end rather than a leak, but the booking form already guards its role and the
+// codebase should not disagree with itself (impl-review F4).
+if (user && role !== "client") {
+  return Astro.redirect("/dashboard");
+}
 
 const STATUSES = ["pending", "accepted", "completed", "declined", "expired"] as const;
 

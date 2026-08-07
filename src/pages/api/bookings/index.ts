@@ -46,9 +46,9 @@ export const POST: APIRoute = async (context) => {
     return context.redirect(`${back}?error=${parsed.error}`);
   }
 
-  // The district comes from the saved profile, never from the form. It is the field the area
-  // match was made on, so accepting it from the request would let a tampered POST claim a
-  // district the specialist does not serve.
+  // The district is read from the saved profile, never from the form. `request_booking` derives
+  // it again from the same row and ignores what it is passed (impl-review F2) — this check is
+  // here so a client with no district gets routed to set one, rather than a raised exception.
   const profile = await getOwnProfile(supabase, user.id);
   if (!profile?.area_id) {
     return context.redirect(`/account/profile?redirectTo=${encodeURIComponent(back)}`);

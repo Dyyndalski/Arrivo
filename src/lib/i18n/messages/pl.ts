@@ -280,7 +280,10 @@ export const pl = {
   // --- Booking request ------------------------------------------------------------------
 
   "booking.title": "Zaproponuj termin",
-  "booking.subtitle": "Specjalista potwierdzi lub odrzuci w ciągu {hours} godzin",
+  // Both bounds in one sentence, because `expires_at` is the EARLIER of them. Promising only
+  // "{hours} godzin" was false for a same-day booking, which expires at the proposed time
+  // (impl-review F3); stating both is true in every case and needs no client-side branch.
+  "booking.subtitle": "Specjalista odpowie przed proponowanym terminem, najpóźniej w ciągu {hours} godzin",
   "booking.submit": "Wyślij zapytanie o rezerwację",
   "booking.pending": "Wysyłanie…",
 

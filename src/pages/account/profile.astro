@@ -11,11 +11,16 @@ import { getOwnProfile } from "@/lib/services/clients";
 import { useTranslations, tUnknown, isMessageKey } from "@/lib/i18n/t";
 import type { City, ClientProfile, ServiceArea } from "@/types";
 
-// Signed-in gate lives in src/middleware.ts (PROTECTED_ROUTES). Not a specialist-only route —
-// a specialist reaching it is redirected by the endpoint, not by the page.
-const { user, locale } = Astro.locals;
+// Signed-in gate lives in src/middleware.ts (PROTECTED_ROUTES), which does not distinguish roles.
+// A specialist here would see a client address form that the endpoint would then refuse — so the
+// page turns them away instead, matching /account/bookings and the booking form (impl-review F4).
+const { user, role, locale } = Astro.locals;
 const t = useTranslations(locale);
 const supabase = createClient(Astro.request.headers, Astro.cookies);
+
+if (user && role !== "client") {
+  return Astro.redirect("/dashboard");
+}
 
 let profile: ClientProfile | null = null;
 let cities: City[] = [];
