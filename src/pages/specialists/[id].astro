@@ -19,15 +19,22 @@ const t = useTranslations(locale);
 const supabase = createClient(Astro.request.headers, Astro.cookies);
 
 const id = Astro.params.id;
-const result = supabase && id ? await getPublicSpecialist(supabase, id) : null;
+
+// Narrowed with an explicit guard rather than `supabase!` below: the non-null assertions this
+// replaces were only correct because of the `supabase &&` in the line that used to follow, which
+// is exactly the kind of reasoning that stops being true after an edit.
+if (!supabase || !id) {
+  return new Response(null, { status: 404 });
+}
 
 // An id that is not in `discoverable_specialists` returns 404 rather than an empty profile: a
 // card that is not discoverable must not be reachable by guessing a URL.
+const result = await getPublicSpecialist(supabase, id);
 if (!result) {
   return new Response(null, { status: 404 });
 }
 
-const [dictionary, taxonomy] = await Promise.all([getAreaDictionary(supabase!), getTaxonomy(supabase!)]);
+const [dictionary, taxonomy] = await Promise.all([getAreaDictionary(supabase), getTaxonomy(supabase)]);
 const areasById = new Map(dictionary.areas.map((a) => [a.id, a]));
 const categoriesById = new Map(taxonomy.categories.map((c) => [c.id, c]));
 const subtypesById = new Map(taxonomy.subtypes.map((s) => [s.id, s]));

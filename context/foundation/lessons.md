@@ -8,6 +8,15 @@
 - **Problem**: A real `prettier/prettier` error (Tailwind class ordering) was buried among 879 CRLF-only `prettier/prettier` errors. The shortcut used to ignore CRLF noise — `npm run lint | grep -v prettier/prettier` — also discarded the real error, so it slipped to CI, where lint failed and build was skipped (two red runs).
 - **Rule**: Never filter the whole `prettier/prettier` rule to hide CRLF noise. Distinguish CRLF errors (message = "Delete `␍`" / "Insert `␍`") from real ones by message content. Clean pre-push check: `npx eslint . | grep 'prettier/prettier' | grep -v '␍'` must be empty. Durable fix: add `.gitattributes` (`* text=auto eol=lf`) so the working tree is LF and the noise disappears at the source.
 - **Applies to**: local lint verification / pre-push checks (Windows CRLF working tree).
+- **NOT SUFFICIENT ON ITS OWN (2026-08-07)** — the grep above says nothing about whether ESLint *ran*. See the next entry.
+
+## A grep over lint output cannot tell "clean" from "crashed"
+
+- **Context**: CI went red on `7d60f43` while four consecutive local runs had been reported clean. Reproduced by cloning the repo into a scratch dir (git stores LF, so the clone matches CI's file state) and running the CI steps.
+- **Problem**: ESLint was not reporting a violation, it was **crashing** — `Error: Non-null Assertion Failed: Expected node to have a parent`, from `@typescript-eslint/no-misused-promises` on a top-level `return new Response(null, { status: 404 })` in Astro frontmatter. `astro-eslint-parser` gives that return `Program` as its parent; the rule's `checkReturnStatement` asserts a function parent. ESLint exits **2** having linted nothing after that file.
+  The verification method was `npx eslint . | grep -E "  (error|warning)  "` — and a crash produces no such lines, so the filter printed nothing and the run was reported as passing. Nine real errors accumulated behind it over four commits, including two `supabase!` non-null assertions that were only sound because of a `&&` on an adjacent line.
+- **Rule**: **Check the exit code, always** — `npx eslint . ; echo $?`. Exit 0 = clean, 1 = violations, 2 = ESLint itself failed. Grep the output only to triage violations, never to decide pass/fail. Same applies to any tool whose output is filtered: `supabase test db`, `astro check`, `prettier --check`. And when CI disagrees with local, reproduce CI's *file state* — a fresh clone into a scratch directory has LF line endings, which is the difference a Windows working tree hides.
+- **Applies to**: every "verification passed" claim in this project. The crashing rule is now disabled for `.astro` only, in `eslint.config.js`, with the stack trace quoted at the disable site.
 
 ## API endpoints ship without schema validation (zod not yet installed)
 

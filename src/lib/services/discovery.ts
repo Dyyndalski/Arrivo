@@ -73,13 +73,10 @@ export async function searchSpecialists(supabase: Client, filters: DiscoveryFilt
   let servingIds: string[] | null = null;
 
   if (filters.areaId !== undefined) {
-    const { data, error } = await supabase
-      .from("specialist_areas")
-      .select("specialist_id")
-      .eq("area_id", filters.areaId);
-    if (error) throw new Error(error.message);
+    const areaRows = await supabase.from("specialist_areas").select("specialist_id").eq("area_id", filters.areaId);
+    if (areaRows.error) throw new Error(areaRows.error.message);
 
-    servingIds = [...new Set((data ?? []).map((row) => (row as { specialist_id: string }).specialist_id))];
+    servingIds = [...new Set((areaRows.data as { specialist_id: string }[]).map((row) => row.specialist_id))];
     // Nobody declared this district. Returning early avoids sending `id=in.()`, which PostgREST
     // rejects as a syntax error rather than treating as "match nothing".
     if (servingIds.length === 0) return [];
@@ -92,10 +89,10 @@ export async function searchSpecialists(supabase: Client, filters: DiscoveryFilt
   if (filters.minPriceCents !== undefined) query = query.gte("services.price_cents", filters.minPriceCents);
   if (filters.maxPriceCents !== undefined) query = query.lte("services.price_cents", filters.maxPriceCents);
 
-  const { data, error } = await query;
-  if (error) throw new Error(error.message);
+  const response = await query;
+  if (response.error) throw new Error(response.error.message);
 
-  const rows = (data ?? []) as (DiscoverableSpecialist & {
+  const rows = response.data as (DiscoverableSpecialist & {
     specialist_areas: { area_id: number }[];
     services: Service[];
   })[];
@@ -126,18 +123,19 @@ export async function searchSpecialists(supabase: Client, filters: DiscoveryFilt
 
 /** One specialist for the public profile, or null when their card is not discoverable. */
 export async function getPublicSpecialist(supabase: Client, id: string): Promise<DiscoveryResult | null> {
-  const { data, error } = await supabase
+  const response = await supabase
     .from("discoverable_specialists")
     .select("*, specialist_areas(area_id), services(*)")
     .eq("id", id)
     .maybeSingle();
-  if (error) throw new Error(error.message);
-  if (!data) return null;
+  if (response.error) throw new Error(response.error.message);
+  if (!response.data) return null;
 
-  const { specialist_areas, services, ...specialist } = data as DiscoverableSpecialist & {
+  const row = response.data as DiscoverableSpecialist & {
     specialist_areas: { area_id: number }[];
     services: Service[];
   };
+  const { specialist_areas, services, ...specialist } = row;
 
   return {
     specialist,

@@ -65,6 +65,19 @@ const astroConfig = tseslint.config({
     "astro/no-set-html-directive": "error",
     "astro/no-unused-css-selector": "warn",
     "astro/prefer-class-list-directive": "warn",
+
+    // CRASHES on Astro frontmatter, it does not merely misfire. A top-level `return` — the
+    // idiomatic way to send a 404 or a redirect from a page — parses with `Program` as its
+    // parent, and the rule's checkReturnStatement handler asserts a function parent:
+    //
+    //   Error: Non-null Assertion Failed: Expected node to have a parent.
+    //   Rule: "@typescript-eslint/no-misused-promises"
+    //   Occurred while linting src/pages/specialists/[id].astro
+    //
+    // ESLint then exits 2 having linted nothing further, which is a failed CI run rather than a
+    // reported violation. Scoped to .astro only, so the rule keeps working everywhere else.
+    // Revisit when typescript-eslint or astro-eslint-parser fixes the parent linkage.
+    "@typescript-eslint/no-misused-promises": "off",
   },
 });
 

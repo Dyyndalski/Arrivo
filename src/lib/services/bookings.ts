@@ -59,7 +59,9 @@ export interface BookingRequestInput {
  * apologise for.
  */
 export async function requestBooking(supabase: Client, input: BookingRequestInput): Promise<string> {
-  const { data, error } = await supabase.rpc("request_booking", {
+  // Not destructured, matching the other service modules: without generated database types the
+  // response's `data` is `any`, and destructuring it trips `no-unsafe-assignment`.
+  const result = await supabase.rpc("request_booking", {
     p_specialist_id: input.specialist_id,
     p_service_id: input.service_id,
     p_proposed_at: input.proposed_at.toISOString(),
@@ -72,16 +74,16 @@ export async function requestBooking(supabase: Client, input: BookingRequestInpu
     p_area_id: input.area_id,
   });
 
-  if (error) {
-    if (error.code === "23505") throw new AlreadyPendingError();
-    if (error.code === "42501") throw new NotAllowedError();
+  if (result.error) {
+    if (result.error.code === "23505") throw new AlreadyPendingError();
+    if (result.error.code === "42501") throw new NotAllowedError();
     // The function raises 23503 for "service does not belong to that specialist" and for "not
     // discoverable" — both mean the same thing to a client who is mid-flow.
-    if (error.code === "23503") throw new UnavailableError();
-    throw new Error(error.message);
+    if (result.error.code === "23503") throw new UnavailableError();
+    throw new Error(result.error.message);
   }
 
-  return data as string;
+  return result.data as string;
 }
 
 /**
@@ -92,12 +94,12 @@ export async function requestBooking(supabase: Client, input: BookingRequestInpu
  * from the snapshot on the booking, not from `services`, so a deleted service still renders.
  */
 export async function listOwnBookings(supabase: Client, userId: string): Promise<Booking[]> {
-  const { data, error } = await supabase
+  const result = await supabase
     .from("bookings")
     .select("*")
     .eq("client_id", userId)
     .order("proposed_at", { ascending: false });
 
-  if (error) throw new Error(error.message);
-  return (data ?? []) as Booking[];
+  if (result.error) throw new Error(result.error.message);
+  return result.data as Booking[];
 }

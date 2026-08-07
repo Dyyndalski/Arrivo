@@ -32,9 +32,11 @@ function rethrow(error: { code?: string; message: string } | null): void {
 
 /** The caller's own profile row, or null before they have saved one. */
 export async function getOwnProfile(supabase: Client, userId: string): Promise<ClientProfile | null> {
-  const { data, error } = await supabase.from("client_profiles").select("*").eq("id", userId).maybeSingle();
-  rethrow(error);
-  return (data ?? null) as ClientProfile | null;
+  // Not destructured, matching src/lib/services/specialists.ts: without generated database types
+  // `data` is `any`, and destructuring it trips `no-unsafe-assignment`.
+  const result = await supabase.from("client_profiles").select("*").eq("id", userId).maybeSingle();
+  rethrow(result.error);
+  return (result.data ?? null) as ClientProfile | null;
 }
 
 /**
@@ -48,6 +50,6 @@ export async function upsertOwnProfile(
   userId: string,
   input: Omit<ClientProfile, "id" | "created_at" | "updated_at">,
 ): Promise<void> {
-  const { error } = await supabase.from("client_profiles").upsert({ id: userId, ...input }, { onConflict: "id" });
-  rethrow(error);
+  const result = await supabase.from("client_profiles").upsert({ id: userId, ...input }, { onConflict: "id" });
+  rethrow(result.error);
 }
