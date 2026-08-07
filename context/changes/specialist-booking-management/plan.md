@@ -511,28 +511,28 @@ alters an existing column or policy.
 
 #### Automated
 
-- [x] 1.1 Migration applies from scratch: `npx supabase db reset`
-- [x] 1.2 Existing suite still green: `npx supabase test db`
-- [x] 1.3 Lint passes by exit code: `npx eslint . ; echo $?` prints `0`
-- [x] 1.4 Build passes: `npm run build`
+- [x] 1.1 Migration applies from scratch: `npx supabase db reset` — 7ca8c18
+- [x] 1.2 Existing suite still green: `npx supabase test db` — 7ca8c18
+- [x] 1.3 Lint passes by exit code: `npx eslint . ; echo $?` prints `0` — 7ca8c18
+- [x] 1.4 Build passes: `npm run build` — 7ca8c18
 
 #### Manual
 
-- [x] 1.5 `resolved_by` present; no UPDATE for `authenticated`, nothing for `service_role`
-- [x] 1.6 `bookings_view` returns only the caller's rows as a signed-in client
+- [x] 1.5 `resolved_by` present; no UPDATE for `authenticated`, nothing for `service_role` — 7ca8c18
+- [x] 1.6 `bookings_view` returns only the caller's rows as a signed-in client — 7ca8c18
 
 ### Phase 2: Auto-expiry via pg_cron
 
 #### Automated
 
-- [ ] 2.1 Reset applies both migrations twice without a duplicate-job error
-- [ ] 2.2 Exactly one `expire-stale-bookings` row in `cron.job`
-- [ ] 2.3 Lint passes by exit code: `npx eslint . ; echo $?` prints `0`
+- [x] 2.1 Reset applies both migrations twice without a duplicate-job error
+- [x] 2.2 Exactly one `expire-stale-bookings` row in `cron.job`
+- [x] 2.3 Lint passes by exit code: `npx eslint . ; echo $?` prints `0`
 
 #### Manual
 
-- [ ] 2.4 Function expires a past-window pending row, returns 1, then returns 0 on re-run
-- [ ] 2.5 An accepted booking with a past `proposed_at` is untouched
+- [x] 2.4 Function expires a past-window pending row, returns 1, then returns 0 on re-run
+- [x] 2.5 An accepted booking with a past `proposed_at` is untouched
 - [ ] 2.6 `cron.job_run_details` shows successful runs on the hosted project
 
 ### Phase 3: pgTAP coverage
