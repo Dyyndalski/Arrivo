@@ -6,15 +6,19 @@ import { useTranslations } from "@/lib/i18n/t";
 import { formatInZone } from "@/lib/time";
 import { formatPrice } from "@/lib/format";
 import { BOOKING_TIMEZONE } from "@/lib/schemas/limits";
-import type { Booking, BookingStatus, ServiceCategory, ServiceSubtype, SpecialistProfile } from "@/types";
+import type { BookingStatus, BookingView, ServiceCategory, ServiceSubtype, SpecialistProfile } from "@/types";
 
 /**
  * One row of the client's own bookings. Everything shown comes from the SNAPSHOT on the booking —
  * a service the specialist has since deleted or repriced still renders as what was actually
  * requested.
+ *
+ * The row is deliberately ignorant of what the `action` slot contains: S-05 puts a withdraw form
+ * there for pending rows, and a later slice can put something else there without touching this
+ * file.
  */
 interface Props {
-  booking: Booking;
+  booking: BookingView;
   specialist: SpecialistProfile | undefined;
   categoriesById: Map<number, ServiceCategory>;
   subtypesById: Map<number, ServiceSubtype>;
@@ -23,6 +27,19 @@ interface Props {
 const { booking, specialist, categoriesById, subtypesById } = Astro.props;
 const { locale } = Astro.locals;
 const t = useTranslations(locale);
+
+// The computed status, not the stored one: a request whose window closed reads "wygasła" here the
+// moment it lapses rather than whenever the 15-minute job next runs.
+const status = booking.effective_status;
+
+// A decline has two possible authors. `declined` + `resolved_by = 'client'` is a withdrawal — the
+// schema has no `cancelled` status, so this column is the only thing that tells them apart.
+const declineNote =
+  status === "declined"
+    ? booking.resolved_by === "client"
+      ? t("bookings.withdrawnByYou")
+      : t("bookings.declinedBySpecialist")
+    : null;
 
 // `Badge` already carries every one of these variants — they were ported wholesale in S-03
 // phase 1 rather than one at a time, so this slice adds no styling.
@@ -66,9 +83,12 @@ const taxonomy = [category ? localizedName(category, locale) : null, subtype ? l
           ` · ${t("specialist.services.duration", { minutes: booking.duration_minutes })}`
       }
     </p>
+    {declineNote && <p class="text-muted-foreground mt-0.5 truncate text-[12.5px]">{declineNote}</p>}
   </div>
 
   <span class="text-foreground shrink-0 font-bold">{formatPrice(booking.price_cents)}</span>
 
-  <Badge variant={BADGE[booking.status]}>{t(STATUS_KEY[booking.status])}</Badge>
+  <Badge variant={BADGE[status]}>{t(STATUS_KEY[status])}</Badge>
+
+  <slot name="action" />
 </li>

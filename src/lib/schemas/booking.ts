@@ -22,6 +22,16 @@ import { composeInZone } from "@/lib/time";
 
 const emptyToNull = (v: unknown) => (typeof v === "string" && v.trim() === "" ? null : (v ?? null));
 
+/**
+ * S-05. A booking id arriving from the URL of the withdraw action.
+ *
+ * Deliberately a client-namespaced twin of `bookingIdSchema` in `schemas/specialist.ts` rather
+ * than a shared export: the two differ only in which catalog key a malformed id resolves to, and
+ * a client must never be redirected to a `specialist.*` key. The message matches the one a booking
+ * belonging to somebody else produces — see `NotYoursError` in services/bookings.ts.
+ */
+export const bookingIdSchema = z.uuid({ error: "bookings.error.notFound" });
+
 const optionalName = z.preprocess(
   emptyToNull,
   z.string().trim().max(NAME_MAX, { error: "booking.error.nameLength" }).nullable(),

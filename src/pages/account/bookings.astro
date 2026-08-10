@@ -7,13 +7,10 @@ import BookingRow from "@/components/booking/BookingRow.astro";
 import { createClient } from "@/lib/supabase";
 import { listOwnBookings } from "@/lib/services/bookings";
 import { getTaxonomy } from "@/lib/services/specialists";
-import { useTranslations, isMessageKey } from "@/lib/i18n/t";
-import type { Booking, BookingStatus, ServiceCategory, ServiceSubtype, SpecialistProfile } from "@/types";
+import { useTranslations, isMessageKey, tUnknown } from "@/lib/i18n/t";
+import type { BookingStatus, BookingView, ServiceCategory, ServiceSubtype, SpecialistProfile } from "@/types";
 
 // Signed-in gate lives in src/middleware.ts (`/account` is in PROTECTED_ROUTES).
-//
-// Read-only: every transition belongs to S-05. Until then everything here is `pending`, which is
-// the honest state of the world rather than a placeholder.
 const { user, role, locale } = Astro.locals;
 const t = useTranslations(locale);
 const supabase = createClient(Astro.request.headers, Astro.cookies);
@@ -31,7 +28,7 @@ const STATUSES = ["pending", "accepted", "completed", "declined", "expired"] as 
 const requested = Astro.url.searchParams.get("status");
 const activeStatus = (STATUSES as readonly string[]).includes(requested ?? "") ? (requested as BookingStatus) : null;
 
-let bookings: Booking[] = [];
+let bookings: BookingView[] = [];
 let specialistsById = new Map<string, SpecialistProfile>();
 let categoriesById = new Map<number, ServiceCategory>();
 let subtypesById = new Map<number, ServiceSubtype>();
@@ -60,7 +57,9 @@ if (!supabase) {
   }
 }
 
-const visible = activeStatus === null ? bookings : bookings.filter((b) => b.status === activeStatus);
+// Filters read `effective_status`, not the stored one — a request whose window closed shows up
+// under "wygasłe" immediately rather than waiting for the 15-minute job.
+const visible = activeStatus === null ? bookings : bookings.filter((b) => b.effective_status === activeStatus);
 
 // Filters are links, like the discovery chips — they apply on click and need no JavaScript.
 function statusHref(status: BookingStatus | null): string {
@@ -72,6 +71,7 @@ function statusHref(status: BookingStatus | null): string {
 }
 
 const message = Astro.url.searchParams.get("message");
+const formError = Astro.url.searchParams.get("error");
 ---
 
 <Layout title={t("bookings.title")}>
@@ -92,6 +92,14 @@ const message = Astro.url.searchParams.get("message");
     }
 
     {
+      formError && (
+        <p class="bg-danger-soft text-danger mb-5 rounded-sm px-3.5 py-2.5 text-sm">
+          {tUnknown(locale, formError, "bookings.error.actionFailed")}
+        </p>
+      )
+    }
+
+    {
       loadError ? (
         <p class="bg-danger-soft text-danger rounded-md px-4 py-6 text-center text-sm">{loadError}</p>
       ) : bookings.length === 0 ? (
@@ -105,7 +113,7 @@ const message = Astro.url.searchParams.get("message");
             {
               /* Only statuses that actually occur in this client's history get a chip. A filter
                  that can only ever return nothing is worse than no filter. */
-              STATUSES.filter((s) => bookings.some((b) => b.status === s)).map((status) => (
+              STATUSES.filter((s) => bookings.some((b) => b.effective_status === s)).map((status) => (
                 <Chip href={statusHref(status)} active={activeStatus === status}>
                   {t(`bookings.status.${status}`)}
                 </Chip>
@@ -123,7 +131,20 @@ const message = Astro.url.searchParams.get("message");
                   specialist={specialistsById.get(booking.specialist_id)}
                   categoriesById={categoriesById}
                   subtypesById={subtypesById}
-                />
+                >
+                  {/* Only a live request can be withdrawn. Withdrawal frees the pair immediately,
+                      so a mistyped address costs a re-request rather than a 48-hour lockout. */}
+                  {booking.effective_status === "pending" && (
+                    <form slot="action" method="POST" action={`/api/bookings/${booking.id}/cancel`}>
+                      <button
+                        type="submit"
+                        class="text-danger border-danger/30 hover:bg-danger-soft cursor-pointer rounded-sm border px-3 py-1.5 text-[13px] font-semibold transition-colors"
+                      >
+                        {t("bookings.action.withdraw")}
+                      </button>
+                    </form>
+                  )}
+                </BookingRow>
               ))}
             </ul>
           )}

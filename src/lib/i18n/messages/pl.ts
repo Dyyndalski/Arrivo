@@ -333,6 +333,19 @@ export const pl = {
   "bookings.status.expired": "Wygasła",
   "bookings.status.completed": "Zakończona",
 
+  // S-05. A withdrawal is `declined` + `resolved_by = 'client'`, so the two labels below are the
+  // only thing separating "specjalista odmówił" from "sam(a) wycofałem/am".
+  "bookings.action.withdraw": "Wycofaj",
+  "bookings.withdrawnByYou": "Wycofane przez Ciebie",
+  "bookings.declinedBySpecialist": "Odrzucone przez specjalistę",
+
+  "bookings.message.withdrawn": "Zapytanie wycofane — możesz umówić się ponownie",
+
+  "bookings.error.notFound": "Nie znaleźliśmy tej rezerwacji",
+  "bookings.error.staleState": "Status tej rezerwacji już się zmienił — odśwież stronę",
+  "bookings.error.expired": "To zapytanie już wygasło",
+  "bookings.error.actionFailed": "Nie udało się wykonać tej akcji — spróbuj ponownie",
+
   // --- S-05: the specialist's inbox ------------------------------------------------------
   //
   // A pending request is ANONYMOUS here. The client's name, phone, street and note live in

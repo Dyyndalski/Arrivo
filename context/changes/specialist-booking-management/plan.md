@@ -550,32 +550,32 @@ alters an existing column or policy.
 
 #### Automated
 
-- [x] 4.1 Lint passes by exit code: `npx eslint . ; echo $?` prints `0`
-- [x] 4.2 Build passes: `npm run build`
-- [x] 4.3 No catalog import from a `.tsx` file
+- [x] 4.1 Lint passes by exit code: `npx eslint . ; echo $?` prints `0` — 4b0bf5c
+- [x] 4.2 Build passes: `npm run build` — 4b0bf5c
+- [x] 4.3 No catalog import from a `.tsx` file — 4b0bf5c
 
 #### Manual
 
-- [x] 4.4 Pending card shows no name, phone or note
-- [x] 4.5 Accepting reveals the contact panel
-- [x] 4.6 Declining never reveals an address
-- [x] 4.7 Completion button absent before `proposed_at`, present after
-- [x] 4.8 A client opening `/specialist/bookings` is redirected to `/dashboard`
-- [x] 4.9 Both language versions render with no missing-key fallbacks
+- [x] 4.4 Pending card shows no name, phone or note — 4b0bf5c
+- [x] 4.5 Accepting reveals the contact panel — 4b0bf5c
+- [x] 4.6 Declining never reveals an address — 4b0bf5c
+- [x] 4.7 Completion button absent before `proposed_at`, present after — 4b0bf5c
+- [x] 4.8 A client opening `/specialist/bookings` is redirected to `/dashboard` — 4b0bf5c
+- [x] 4.9 Both language versions render with no missing-key fallbacks — 4b0bf5c
 
 ### Phase 5: Client withdrawal and close-out
 
 #### Automated
 
-- [ ] 5.1 Lint passes by exit code: `npx eslint . ; echo $?` prints `0`
-- [ ] 5.2 Build passes: `npm run build`
-- [ ] 5.3 Full database suite still green: `npx supabase test db ; echo $?` prints `0`
+- [x] 5.1 Lint passes by exit code: `npx eslint . ; echo $?` prints `0`
+- [x] 5.2 Build passes: `npm run build`
+- [x] 5.3 Full database suite still green: `npx supabase test db ; echo $?` prints `0`
 
 #### Manual
 
-- [ ] 5.4 A past-window pending request reads "wygasłe" before any cron run
-- [ ] 5.5 Withdrawing frees the pair immediately
-- [ ] 5.6 Specialist-declined and client-withdrawn read differently
-- [ ] 5.7 Migrations pushed: `npx supabase db push`
-- [ ] 5.8 Deployed and walked through against production: `npx wrangler deploy`
+- [x] 5.4 A past-window pending request reads "wygasłe" before any cron run
+- [x] 5.5 Withdrawing frees the pair immediately
+- [x] 5.6 Specialist-declined and client-withdrawn read differently
+- [x] 5.7 Migrations pushed: `npx supabase db push`
+- [x] 5.8 Deployed and walked through against production: `npx wrangler deploy`
 - [ ] 5.9 `cron.job_run_details` on hosted shows 15-minute runs

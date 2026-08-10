@@ -3,7 +3,7 @@ change_id: specialist-booking-management
 title: Specialist booking management
 status: implementing
 created: 2026-08-07
-updated: 2026-08-07
+updated: 2026-08-10
 archived_at: null
 ---
 

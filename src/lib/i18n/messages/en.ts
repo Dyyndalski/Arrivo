@@ -311,6 +311,17 @@ export const en: Record<MessageKey, string> = {
   "bookings.status.expired": "Expired",
   "bookings.status.completed": "Completed",
 
+  "bookings.action.withdraw": "Withdraw",
+  "bookings.withdrawnByYou": "Withdrawn by you",
+  "bookings.declinedBySpecialist": "Declined by the specialist",
+
+  "bookings.message.withdrawn": "Request withdrawn — you can book again",
+
+  "bookings.error.notFound": "We could not find that booking",
+  "bookings.error.staleState": "That booking has already changed status — refresh the page",
+  "bookings.error.expired": "That request has already expired",
+  "bookings.error.actionFailed": "That action did not go through — please try again",
+
   // --- S-05: the specialist's inbox ------------------------------------------------------
 
   "specialist.bookings.nav": "Bookings",
