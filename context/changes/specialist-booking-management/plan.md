@@ -533,7 +533,7 @@ alters an existing column or policy.
 
 - [x] 2.4 Function expires a past-window pending row, returns 1, then returns 0 on re-run — 010de4a
 - [x] 2.5 An accepted booking with a past `proposed_at` is untouched — 010de4a
-- [ ] 2.6 `cron.job_run_details` shows successful runs on the hosted project
+- [x] 2.6 `cron.job_run_details` shows successful runs on the hosted project — 010de4a
 
 ### Phase 3: pgTAP coverage
 
@@ -567,15 +567,15 @@ alters an existing column or policy.
 
 #### Automated
 
-- [x] 5.1 Lint passes by exit code: `npx eslint . ; echo $?` prints `0`
-- [x] 5.2 Build passes: `npm run build`
-- [x] 5.3 Full database suite still green: `npx supabase test db ; echo $?` prints `0`
+- [x] 5.1 Lint passes by exit code: `npx eslint . ; echo $?` prints `0` — ad14ce4
+- [x] 5.2 Build passes: `npm run build` — ad14ce4
+- [x] 5.3 Full database suite still green: `npx supabase test db ; echo $?` prints `0` — ad14ce4
 
 #### Manual
 
-- [x] 5.4 A past-window pending request reads "wygasłe" before any cron run
-- [x] 5.5 Withdrawing frees the pair immediately
-- [x] 5.6 Specialist-declined and client-withdrawn read differently
-- [x] 5.7 Migrations pushed: `npx supabase db push`
-- [x] 5.8 Deployed and walked through against production: `npx wrangler deploy`
-- [ ] 5.9 `cron.job_run_details` on hosted shows 15-minute runs
+- [x] 5.4 A past-window pending request reads "wygasłe" before any cron run — ad14ce4
+- [x] 5.5 Withdrawing frees the pair immediately — ad14ce4
+- [x] 5.6 Specialist-declined and client-withdrawn read differently — ad14ce4
+- [x] 5.7 Migrations pushed: `npx supabase db push` — ad14ce4
+- [x] 5.8 Deployed and walked through against production: `npx wrangler deploy` — ad14ce4
+- [x] 5.9 `cron.job_run_details` on hosted shows 15-minute runs — ad14ce4
