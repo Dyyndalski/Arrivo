@@ -98,3 +98,9 @@ export const serviceSchema = z.object({
 });
 
 export const serviceIdSchema = z.uuid({ error: "specialist.message.serviceGone" });
+
+/**
+ * S-05. A booking id arriving from the URL. The failure message is deliberately the same one a
+ * booking belonging to somebody else produces — see `NotYoursError` in services/bookings.ts.
+ */
+export const bookingIdSchema = z.uuid({ error: "specialist.bookings.error.notYours" });

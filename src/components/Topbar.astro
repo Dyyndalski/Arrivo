@@ -34,6 +34,12 @@ if (user) {
     links.push({ href: "/account/bookings", label: t("bookings.title"), key: "bookings" });
     links.push({ href: "/account/profile", label: t("nav.profile"), key: "profile" });
   }
+  if (role === "specialist") {
+    // The specialist half of that same slot, filled by S-05 once its buttons could do something.
+    // The mockup puts this in a vertical sidebar; that layout is a change of its own, and part of
+    // it ("Zespół") has no requirement behind it at all.
+    links.push({ href: "/specialist/bookings", label: t("specialist.bookings.nav"), key: "bookings" });
+  }
 }
 ---
 

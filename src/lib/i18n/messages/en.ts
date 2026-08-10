@@ -310,4 +310,40 @@ export const en: Record<MessageKey, string> = {
   "bookings.status.declined": "Declined",
   "bookings.status.expired": "Expired",
   "bookings.status.completed": "Completed",
+
+  // --- S-05: the specialist's inbox ------------------------------------------------------
+
+  "specialist.bookings.nav": "Bookings",
+  "specialist.bookings.title": "Booking requests",
+  "specialist.bookings.subtitle": "Accept or decline requests, and close out visits you have done",
+  "specialist.bookings.empty": "You have no requests yet.",
+  "specialist.bookings.emptyFiltered": "No requests with this status.",
+  "specialist.bookings.filter.all": "All",
+  "specialist.bookings.anonymous": "Booking request",
+
+  "specialist.bookings.field.service": "Service",
+  "specialist.bookings.field.proposedAt": "Proposed time",
+  "specialist.bookings.field.area": "Approximate location",
+  "specialist.bookings.field.contact": "Contact details",
+  "specialist.bookings.field.note": "Message from the client",
+  "specialist.bookings.respondBy": "Respond by {when}",
+  "specialist.bookings.privacyNote": "The client's address and contact details appear once you accept",
+  "specialist.bookings.nudge": "This visit's time has passed — mark it completed",
+  "specialist.bookings.declinedByClient": "The client withdrew this request",
+  "specialist.bookings.declinedByYou": "Declined by you",
+
+  "specialist.bookings.action.accept": "Accept",
+  "specialist.bookings.action.decline": "Decline",
+  "specialist.bookings.action.complete": "Mark as completed",
+
+  "specialist.bookings.message.accepted": "Request accepted — the client's contact details are now visible",
+  "specialist.bookings.message.declined": "Request declined",
+  "specialist.bookings.message.completed": "Visit marked as completed",
+
+  "specialist.bookings.error.notYours": "We could not find that request",
+  "specialist.bookings.error.staleState": "That request has already changed status — refresh the page",
+  "specialist.bookings.error.expired": "That request has expired",
+  "specialist.bookings.error.tooEarly": "A visit cannot be completed before it was due",
+  "specialist.bookings.error.actionFailed": "That action did not go through — please try again",
+  "specialist.bookings.error.loadFailed": "We could not load your requests — please try again",
 };

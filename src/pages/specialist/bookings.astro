@@ -1,0 +1,153 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import Topbar from "@/components/Topbar.astro";
+import Chip from "@/components/ui/Chip.astro";
+import EmptyState from "@/components/ui/EmptyState.astro";
+import RequestCard from "@/components/booking/RequestCard.astro";
+import { createClient } from "@/lib/supabase";
+import { listContactDetails, listSpecialistBookings } from "@/lib/services/bookings";
+import { getAreaDictionary, getTaxonomy } from "@/lib/services/specialists";
+import { useTranslations, tUnknown, isMessageKey } from "@/lib/i18n/t";
+import type {
+  BookingStatus,
+  BookingView,
+  BookingContactDetails,
+  ServiceArea,
+  ServiceCategory,
+  ServiceSubtype,
+} from "@/types";
+
+// Signed-in gate lives in src/middleware.ts. The role gate is here, mirroring the client screens:
+// a client landing on this page would see a specialist work queue that lists nothing, which is a
+// dead end rather than a leak — but the codebase should not disagree with itself.
+const { user, role, locale } = Astro.locals;
+const t = useTranslations(locale);
+const supabase = createClient(Astro.request.headers, Astro.cookies);
+
+if (user && role !== "specialist") {
+  return Astro.redirect("/dashboard");
+}
+
+const STATUSES = ["pending", "accepted", "completed", "declined", "expired"] as const;
+
+const requested = Astro.url.searchParams.get("status");
+const activeStatus = (STATUSES as readonly string[]).includes(requested ?? "") ? (requested as BookingStatus) : null;
+
+let bookings: BookingView[] = [];
+let contactsById = new Map<string, BookingContactDetails>();
+let categoriesById = new Map<number, ServiceCategory>();
+let subtypesById = new Map<number, ServiceSubtype>();
+let areasById = new Map<number, ServiceArea>();
+let loadError: string | null = null;
+
+if (!supabase) {
+  loadError = t("booking.error.notConfigured");
+} else if (!user) {
+  loadError = t("auth.error.sessionExpired");
+} else {
+  try {
+    const [own, taxonomy, dictionary] = await Promise.all([
+      listSpecialistBookings(supabase, user.id),
+      getTaxonomy(supabase),
+      getAreaDictionary(supabase),
+    ]);
+    bookings = own;
+    categoriesById = new Map(taxonomy.categories.map((c) => [c.id, c]));
+    subtypesById = new Map(taxonomy.subtypes.map((s) => [s.id, s]));
+    areasById = new Map(dictionary.areas.map((a) => [a.id, a]));
+
+    // Ask only for what this specialist is entitled to see. RLS enforces it either way — the
+    // policy is scoped to `status = 'accepted'` — but a query that requests addresses for declined
+    // bookings is one careless edit away from a query that gets them.
+    const acceptedIds = own.filter((b) => b.effective_status === "accepted").map((b) => b.id);
+    contactsById = await listContactDetails(supabase, acceptedIds);
+  } catch {
+    loadError = t("specialist.bookings.error.loadFailed");
+  }
+}
+
+// Filters read `effective_status`, so a request whose window closed shows up under "wygasłe"
+// immediately rather than waiting for the 15-minute job.
+const visible = activeStatus === null ? bookings : bookings.filter((b) => b.effective_status === activeStatus);
+
+// Links, not JavaScript — the same choice as the discovery chips and the client's list.
+function statusHref(status: BookingStatus | null): string {
+  const params = new URLSearchParams(Astro.url.search);
+  if (status === null) params.delete("status");
+  else params.set("status", status);
+  const query = params.toString();
+  return query ? `${Astro.url.pathname}?${query}` : Astro.url.pathname;
+}
+
+const formError = Astro.url.searchParams.get("error");
+const message = Astro.url.searchParams.get("message");
+
+const pendingCount = bookings.filter((b) => b.effective_status === "pending").length;
+---
+
+<Layout title={t("specialist.bookings.title")}>
+  <Topbar current="bookings" />
+
+  <main class="mx-auto w-full max-w-3xl px-6 py-9">
+    <div class="mb-6">
+      <h1 class="text-foreground font-display text-[26px]">{t("specialist.bookings.title")}</h1>
+      <p class="text-ink-soft mt-1 text-sm">{t("specialist.bookings.subtitle")}</p>
+    </div>
+
+    {
+      /* Only a recognised key renders — a success fallback would claim an acceptance that never
+         happened, and this one tells the specialist an address is now visible. */
+      message && isMessageKey(message) && (
+        <p class="bg-success-soft text-success-soft-text mb-5 rounded-sm px-3.5 py-2.5 text-sm">{t(message)}</p>
+      )
+    }
+
+    {
+      formError && (
+        <p class="bg-danger-soft text-danger mb-5 rounded-sm px-3.5 py-2.5 text-sm">
+          {tUnknown(locale, formError, "specialist.bookings.error.actionFailed")}
+        </p>
+      )
+    }
+
+    {
+      loadError ? (
+        <p class="bg-danger-soft text-danger rounded-md px-4 py-6 text-center text-sm">{loadError}</p>
+      ) : bookings.length === 0 ? (
+        <EmptyState title={t("specialist.bookings.empty")} />
+      ) : (
+        <>
+          <div class="mb-5 flex flex-wrap gap-2">
+            <Chip href={statusHref(null)} active={activeStatus === null}>
+              {t("specialist.bookings.filter.all")}
+            </Chip>
+            {
+              /* Only statuses this specialist actually has get a chip. Pending carries a count,
+                 as in the mockup — it is the one number that decides whether to open this page. */
+              STATUSES.filter((s) => bookings.some((b) => b.effective_status === s)).map((status) => (
+                <Chip href={statusHref(status)} active={activeStatus === status}>
+                  {t(`bookings.status.${status}`)}
+                  {status === "pending" && pendingCount > 0 && ` (${pendingCount})`}
+                </Chip>
+              ))
+            }
+          </div>
+
+          {visible.length === 0 ? (
+            <EmptyState title={t("specialist.bookings.emptyFiltered")} />
+          ) : (
+            visible.map((booking) => (
+              <RequestCard
+                booking={booking}
+                contact={contactsById.get(booking.id)}
+                categoriesById={categoriesById}
+                subtypesById={subtypesById}
+                areasById={areasById}
+              />
+            ))
+          )}
+        </>
+      )
+    }
+  </main>
+</Layout>

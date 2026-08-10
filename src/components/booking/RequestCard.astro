@@ -1,0 +1,190 @@
+---
+import Avatar from "@/components/ui/Avatar.astro";
+import Badge from "@/components/ui/Badge.astro";
+import Card from "@/components/ui/Card.astro";
+import { localizedName } from "@/lib/i18n/dictionary";
+import { useTranslations } from "@/lib/i18n/t";
+import { formatInZone } from "@/lib/time";
+import { formatPrice } from "@/lib/format";
+import { BOOKING_TIMEZONE } from "@/lib/schemas/limits";
+import type {
+  BookingContactDetails,
+  BookingStatus,
+  BookingView,
+  ServiceArea,
+  ServiceCategory,
+  ServiceSubtype,
+} from "@/types";
+
+/**
+ * One request in the specialist's inbox — `context/foundation/design/web/booking-requests-specialist.html`,
+ * minus the client's identity.
+ *
+ * THE MOCKUP SHOWS A NAME on a pending request ("Katarzyna J.", "Klientka od maja 2026"). It does
+ * not survive contact with the schema: first_name, last_name, phone, street and note all live in
+ * `booking_contact_details`, which S-04's policy gates on `status = 'accepted'`. A pending card
+ * therefore carries a service, a time, a district and nothing else. That is not a shortfall — a
+ * specialist decides on whether they travel there and do that work, not on who is asking.
+ *
+ * `contact` is undefined for every status but `accepted`. Do not "fix" that by widening the
+ * policy; the pgTAP suite asserts the boundary from both sides.
+ */
+interface Props {
+  booking: BookingView;
+  contact: BookingContactDetails | undefined;
+  categoriesById: Map<number, ServiceCategory>;
+  subtypesById: Map<number, ServiceSubtype>;
+  areasById: Map<number, ServiceArea>;
+}
+
+const { booking, contact, categoriesById, subtypesById, areasById } = Astro.props;
+const { locale } = Astro.locals;
+const t = useTranslations(locale);
+
+const BADGE: Record<BookingStatus, "pending" | "accepted" | "declined" | "completed"> = {
+  pending: "pending",
+  accepted: "accepted",
+  declined: "declined",
+  expired: "declined",
+  completed: "completed",
+};
+
+const STATUS_KEY = {
+  pending: "bookings.status.pending",
+  accepted: "bookings.status.accepted",
+  declined: "bookings.status.declined",
+  expired: "bookings.status.expired",
+  completed: "bookings.status.completed",
+} as const;
+
+const status = booking.effective_status;
+
+const category = categoriesById.get(booking.category_id);
+const subtype = booking.subtype_id === null ? undefined : subtypesById.get(booking.subtype_id);
+const area = areasById.get(booking.area_id);
+
+const serviceLabel = booking.service_name ?? (category ? localizedName(category, locale) : "—");
+const taxonomy = [category ? localizedName(category, locale) : null, subtype ? localizedName(subtype, locale) : null]
+  .filter(Boolean)
+  .join(" · ");
+
+// Only a live request can be acted on. `effective_status` is what decides, not the stored status —
+// a request whose window closed an hour ago must not offer buttons that the database will refuse.
+const isPending = status === "pending";
+const isAccepted = status === "accepted";
+const isDue = isAccepted && new Date(booking.proposed_at).getTime() <= Date.now();
+
+// A decline has two possible authors, and saying the wrong one is worse than saying nothing.
+const declineNote =
+  status === "declined"
+    ? booking.resolved_by === "client"
+      ? t("specialist.bookings.declinedByClient")
+      : t("specialist.bookings.declinedByYou")
+    : null;
+
+const contactLine = contact ? [contact.first_name, contact.last_name].filter(Boolean).join(" ") || null : null;
+---
+
+<Card class="mb-3.5">
+  <div class="mb-3.5 flex flex-wrap items-center justify-between gap-3">
+    <div class="flex min-w-0 items-center gap-3">
+      {/* No name to seed the avatar from until the request is accepted — that is the point. */}
+      <Avatar name={contactLine} size="md" />
+      <div class="min-w-0">
+        <p class="text-foreground truncate text-[15px] font-semibold">
+          {contactLine ?? t("specialist.bookings.anonymous")}
+        </p>
+        <p class="text-muted-foreground truncate text-[12.5px]">
+          {
+            isPending
+              ? t("specialist.bookings.respondBy", {
+                  when: formatInZone(booking.expires_at, locale, BOOKING_TIMEZONE),
+                })
+              : (declineNote ?? taxonomy)
+          }
+        </p>
+      </div>
+    </div>
+    <Badge variant={BADGE[status]}>{t(STATUS_KEY[status])}</Badge>
+  </div>
+
+  <div class="mb-4 grid gap-4 sm:grid-cols-2">
+    <div>
+      <div class="text-muted-foreground text-[12.5px]">{t("specialist.bookings.field.service")}</div>
+      <div class="text-foreground text-[14.5px] font-medium">
+        {serviceLabel} · {formatPrice(booking.price_cents)}
+      </div>
+    </div>
+    <div>
+      <div class="text-muted-foreground text-[12.5px]">{t("specialist.bookings.field.proposedAt")}</div>
+      <div class="text-foreground text-[14.5px] font-medium">
+        {formatInZone(booking.proposed_at, locale, BOOKING_TIMEZONE)}
+      </div>
+    </div>
+  </div>
+
+  <div class="mb-4">
+    <div class="text-muted-foreground text-[12.5px]">{t("specialist.bookings.field.area")}</div>
+    <div class="text-foreground text-[14.5px] font-medium">{area ? localizedName(area, locale) : "—"}</div>
+  </div>
+
+  {
+    /* The half that only exists once the specialist has committed to travelling there. */
+    contact && (
+      <div class="bg-muted mb-4 rounded-md px-4 py-3">
+        <div class="text-muted-foreground mb-1 text-[12.5px]">{t("specialist.bookings.field.contact")}</div>
+        <p class="text-foreground text-[14.5px] font-medium">{contact.street}</p>
+        <p class="text-ink-soft text-[13px]">{[contact.postal_code, contact.phone].filter(Boolean).join(" · ")}</p>
+        {contact.note && (
+          <p class="text-ink-soft mt-2 text-[13px]">
+            <span class="text-muted-foreground">{t("specialist.bookings.field.note")}:</span> {contact.note}
+          </p>
+        )}
+      </div>
+    )
+  }
+
+  {
+    isPending && (
+      <>
+        <p class="text-muted-foreground mb-3 text-[12.5px]">{t("specialist.bookings.privacyNote")}</p>
+        <div class="flex flex-wrap gap-3">
+          <form method="POST" action={`/api/specialist/bookings/${booking.id}/accept`}>
+            <button
+              type="submit"
+              class="bg-primary hover:bg-primary-dark cursor-pointer rounded-sm px-4 py-2 text-sm font-semibold text-white transition-colors"
+            >
+              {t("specialist.bookings.action.accept")}
+            </button>
+          </form>
+          <form method="POST" action={`/api/specialist/bookings/${booking.id}/decline`}>
+            <button
+              type="submit"
+              class="text-danger border-danger/30 hover:bg-danger-soft cursor-pointer rounded-sm border px-4 py-2 text-sm font-semibold transition-colors"
+            >
+              {t("specialist.bookings.action.decline")}
+            </button>
+          </form>
+        </div>
+      </>
+    )
+  }
+
+  {
+    /* Completion appears only once the visit was actually due — the database refuses it before
+       then (Z0003), and offering a button that always fails is worse than offering none. */
+    isDue && (
+      <>
+        <p class="text-muted-foreground mb-3 text-[12.5px]">{t("specialist.bookings.nudge")}</p>
+        <form method="POST" action={`/api/specialist/bookings/${booking.id}/complete`}>
+          <button
+            type="submit"
+            class="bg-primary hover:bg-primary-dark cursor-pointer rounded-sm px-4 py-2 text-sm font-semibold text-white transition-colors"
+          >
+            {t("specialist.bookings.action.complete")}
+          </button>
+        </form>
+      </>
+    )
+  }
+</Card>

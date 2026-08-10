@@ -539,29 +539,29 @@ alters an existing column or policy.
 
 #### Automated
 
-- [x] 3.1 Full suite green by exit code: `npx supabase test db ; echo $?` prints `0`
-- [x] 3.2 Assertion count has grown by at least 30
+- [x] 3.1 Full suite green by exit code: `npx supabase test db ; echo $?` prints `0` — 0d82e21
+- [x] 3.2 Assertion count has grown by at least 30 — 0d82e21
 
 #### Manual
 
-- [x] 3.3 Deliberately breaking a function turns a test red
+- [x] 3.3 Deliberately breaking a function turns a test red — 0d82e21
 
 ### Phase 4: Specialist inbox
 
 #### Automated
 
-- [ ] 4.1 Lint passes by exit code: `npx eslint . ; echo $?` prints `0`
-- [ ] 4.2 Build passes: `npm run build`
-- [ ] 4.3 No catalog import from a `.tsx` file
+- [x] 4.1 Lint passes by exit code: `npx eslint . ; echo $?` prints `0`
+- [x] 4.2 Build passes: `npm run build`
+- [x] 4.3 No catalog import from a `.tsx` file
 
 #### Manual
 
-- [ ] 4.4 Pending card shows no name, phone or note
-- [ ] 4.5 Accepting reveals the contact panel
-- [ ] 4.6 Declining never reveals an address
-- [ ] 4.7 Completion button absent before `proposed_at`, present after
-- [ ] 4.8 A client opening `/specialist/bookings` is redirected to `/dashboard`
-- [ ] 4.9 Both language versions render with no missing-key fallbacks
+- [x] 4.4 Pending card shows no name, phone or note
+- [x] 4.5 Accepting reveals the contact panel
+- [x] 4.6 Declining never reveals an address
+- [x] 4.7 Completion button absent before `proposed_at`, present after
+- [x] 4.8 A client opening `/specialist/bookings` is redirected to `/dashboard`
+- [x] 4.9 Both language versions render with no missing-key fallbacks
 
 ### Phase 5: Client withdrawal and close-out
 

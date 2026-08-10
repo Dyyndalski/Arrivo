@@ -332,6 +332,46 @@ export const pl = {
   "bookings.status.declined": "Odrzucona",
   "bookings.status.expired": "Wygasła",
   "bookings.status.completed": "Zakończona",
+
+  // --- S-05: the specialist's inbox ------------------------------------------------------
+  //
+  // A pending request is ANONYMOUS here. The client's name, phone, street and note live in
+  // booking_contact_details and appear only after acceptance — so there is deliberately no
+  // "client name" key for the pending state to render.
+
+  "specialist.bookings.nav": "Rezerwacje",
+  "specialist.bookings.title": "Zapytania o rezerwację",
+  "specialist.bookings.subtitle": "Przyjmij lub odrzuć zapytania i oznaczaj zakończone wizyty",
+  "specialist.bookings.empty": "Nie masz jeszcze żadnych zapytań.",
+  "specialist.bookings.emptyFiltered": "Brak zapytań o tym statusie.",
+  "specialist.bookings.filter.all": "Wszystkie",
+  "specialist.bookings.anonymous": "Zapytanie o rezerwację",
+
+  "specialist.bookings.field.service": "Usługa",
+  "specialist.bookings.field.proposedAt": "Proponowany termin",
+  "specialist.bookings.field.area": "Przybliżona lokalizacja",
+  "specialist.bookings.field.contact": "Dane kontaktowe",
+  "specialist.bookings.field.note": "Wiadomość od klienta",
+  "specialist.bookings.respondBy": "Odpowiedz do {when}",
+  "specialist.bookings.privacyNote": "Adres i dane kontaktowe klienta zobaczysz po przyjęciu zapytania",
+  "specialist.bookings.nudge": "Termin tej wizyty już minął — oznacz ją jako zakończoną",
+  "specialist.bookings.declinedByClient": "Klient wycofał zapytanie",
+  "specialist.bookings.declinedByYou": "Odrzucone przez Ciebie",
+
+  "specialist.bookings.action.accept": "Akceptuj",
+  "specialist.bookings.action.decline": "Odrzuć",
+  "specialist.bookings.action.complete": "Oznacz jako zakończoną",
+
+  "specialist.bookings.message.accepted": "Zapytanie przyjęte — dane kontaktowe klienta są już widoczne",
+  "specialist.bookings.message.declined": "Zapytanie odrzucone",
+  "specialist.bookings.message.completed": "Wizyta oznaczona jako zakończona",
+
+  "specialist.bookings.error.notYours": "Nie znaleźliśmy tego zapytania",
+  "specialist.bookings.error.staleState": "Status tego zapytania już się zmienił — odśwież stronę",
+  "specialist.bookings.error.expired": "To zapytanie wygasło",
+  "specialist.bookings.error.tooEarly": "Wizyty nie można zakończyć przed jej terminem",
+  "specialist.bookings.error.actionFailed": "Nie udało się wykonać tej akcji — spróbuj ponownie",
+  "specialist.bookings.error.loadFailed": "Nie udało się wczytać zapytań — spróbuj ponownie",
 } as const;
 
 export type MessageKey = keyof typeof pl;
