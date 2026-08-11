@@ -7,7 +7,7 @@
 -- Counting convention as in the other suites: every assertion is scoped to its fixtures.
 
 begin;
-select plan(23);
+select plan(26);
 
 do $$
 declare pgtap_schema text;
@@ -313,6 +313,55 @@ select is(
   0,
   'service_role has no DML on client_profiles, for the same reason'
 );
+
+-- ===========================================================================
+-- S-05 impl-review F1: a lapsed pending request must not lock the pair.
+--
+-- bookings_view.effective_status says "expired" the moment the window closes, but
+-- bookings_one_pending_per_pair reads the STORED status and cancel_booking refuses a lapsed row
+-- with Z0002 — so between the lapse and the next cron run the client was told their request had
+-- expired and then refused a new one, with no action available that resolved it. request_booking
+-- now expires its own pair's lapsed row before inserting (20260810120000).
+--
+-- S2's request is the one still pending at this point; S1's was flipped to accepted above.
+-- ===========================================================================
+reset role;
+update public.bookings
+   set expires_at = now() - interval '1 minute'
+ where specialist_id = 'bc000000-0000-0000-0000-000000000052' and status = 'pending';
+
+select set_config('request.jwt.claims', '{"sub":"bc000000-0000-0000-0000-00000000000c"}', true);
+set local role authenticated;
+
+select lives_ok(
+  $$select public.request_booking(
+      'bc000000-0000-0000-0000-000000000052',
+      (select id from public.services where specialist_id = 'bc000000-0000-0000-0000-000000000052'),
+      now() + interval '5 days', null, 'Marta', 'Nowak', null, 'ul. Kwiatowa 12/3', '00-001',
+      (select a.id from public.service_areas a join public.cities c on c.id = a.city_id
+        where c.slug = 'warszawa' and a.slug = 'ursynow')
+    )$$,
+  'a client whose request already lapsed can request that specialist again, before any cron run'
+);
+
+-- 'system', not 'client': this is expiry catching up, not a withdrawal. The client's list renders
+-- the two differently, and calling it a withdrawal would tell them they did something they did not.
+select is(
+  (select count(*)::int from public.bookings
+    where specialist_id = 'bc000000-0000-0000-0000-000000000052'
+      and status = 'expired' and resolved_by = 'system'),
+  1,
+  'the lapsed row is closed as expired/system, not as a withdrawal'
+);
+
+select is(
+  (select count(*)::int from public.bookings
+    where specialist_id = 'bc000000-0000-0000-0000-000000000052' and status = 'pending'),
+  1,
+  'exactly one live request remains for the pair'
+);
+
+reset role;
 
 select * from finish();
 rollback;

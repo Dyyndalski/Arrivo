@@ -59,6 +59,11 @@ if (!supabase) {
     // Ask only for what this specialist is entitled to see. RLS enforces it either way — the
     // policy is scoped to `status = 'accepted'` — but a query that requests addresses for declined
     // bookings is one careless edit away from a query that gets them.
+    //
+    // `accepted` ONLY, deliberately (impl-review F2). Completing a visit ends this specialist's
+    // access to that client's address and phone, so a completed card renders anonymous. That is the
+    // guardrail behaving as the PRD states it, not an oversight — widening it to `completed` means
+    // address visibility with no end date and belongs in a migration with its own assertions.
     const acceptedIds = own.filter((b) => b.effective_status === "accepted").map((b) => b.id);
     contactsById = await listContactDetails(supabase, acceptedIds);
   } catch {

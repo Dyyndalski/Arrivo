@@ -195,6 +195,12 @@ export interface Booking {
  * Read this, not `bookings`, on every screen. A pending row past its window reads `expired` here
  * the moment it lapses, rather than whenever the 15-minute job next runs. The stored `status` is
  * still what `bookings_one_pending_per_pair` enforces, which is why the job exists as well.
+ *
+ * `extends Booking` is a PROMISE THE VIEW CAN BREAK (impl-review F3). The view is
+ * `select b.*`, and Postgres expands that at creation time — a column added to `public.bookings`
+ * later is absent here until the view is recreated, and this interface would still claim it,
+ * silently, as `undefined`. Adding a column to `bookings` means recreating `bookings_view` in the
+ * same migration.
  */
 export interface BookingView extends Booking {
   effective_status: BookingStatus;

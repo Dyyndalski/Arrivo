@@ -344,8 +344,18 @@ single `supabase.rpc(...)`. New typed errors carrying catalog keys, in the style
 **Intent**: Fetch addresses for accepted bookings only.
 
 **Contract**: `listContactDetails(supabase, bookingIds)` → `Map<string, BookingContactDetails>`. Pass
-only the ids of bookings the caller already sees as `accepted` or `completed`; RLS enforces it
-regardless, but the call should not ask for what it must not get.
+only the ids of bookings the caller already sees as `accepted`; RLS enforces it regardless, but the
+call should not ask for what it must not get.
+
+> **Corrected during impl-review (F2).** This line originally read "`accepted` or `completed`". That
+> was wrong: `booking_contact_details_select_accepted_specialist` (`20260807100000:152-161`) is
+> scoped to `status = 'accepted'` and nothing in this slice widens it, so completed bookings return
+> nothing whatever is asked for. The consequence is real and accepted: **marking a visit completed
+> ends the specialist's access to that client's address and phone**, and the card falls back to the
+> anonymous heading. Keeping the policy as the PRD's launch guardrail states it beats widening
+> address visibility indefinitely past the visit with no retention rule to bound it. If S-06 or
+> invoicing later needs the address after completion, that is a deliberate policy change with its
+> own pgTAP assertions — not a quiet `in ('accepted', 'completed')`.
 
 #### 3. Action endpoints
 
@@ -380,6 +390,13 @@ passed shows the completion action. Terminal cards show status only, and for `de
 New keys for the four actions, their success and error messages, the empty state, the "do
 domknięcia" nudge, and both decline variants — in both catalogs. Catalogs must not reach the client
 bundle; islands receive resolved strings as props.
+
+> **Deviation recorded during impl-review (F6).** `src/components/booking/strings.ts` is listed
+> above but was never touched. That module exists solely to hand resolved strings to React islands,
+> and the specialist inbox is pure Astro (`RequestCard.astro` + form posts) — no island, so no
+> string props to pass. The "catalogs must not reach the client bundle" rule therefore holds
+> trivially here, which is also why criterion 4.3 passes without work. If a later slice turns any
+> part of this inbox into an island, that is when `strings.ts` gains its specialist entries.
 
 ### Success Criteria:
 

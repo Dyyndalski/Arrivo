@@ -29,8 +29,11 @@ const emptyToNull = (v: unknown) => (typeof v === "string" && v.trim() === "" ? 
  * than a shared export: the two differ only in which catalog key a malformed id resolves to, and
  * a client must never be redirected to a `specialist.*` key. The message matches the one a booking
  * belonging to somebody else produces — see `NotYoursError` in services/bookings.ts.
+ *
+ * Named `client`-first (impl-review F4) precisely because the twin exists: two same-named exports
+ * across two modules is an auto-import away from a client seeing a specialist's error copy.
  */
-export const bookingIdSchema = z.uuid({ error: "bookings.error.notFound" });
+export const clientBookingIdSchema = z.uuid({ error: "bookings.error.notFound" });
 
 const optionalName = z.preprocess(
   emptyToNull,

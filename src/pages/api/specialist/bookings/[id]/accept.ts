@@ -2,7 +2,7 @@ import type { APIRoute } from "astro";
 import { createClient } from "@/lib/supabase";
 import { parseOrError } from "@/lib/schemas/parse";
 import { bookingIdSchema } from "@/lib/schemas/specialist";
-import { acceptBooking, ExpiredError, NotYoursError, StaleStateError, TooEarlyError } from "@/lib/services/bookings";
+import { acceptBooking, ExpiredError, NotYoursError, StaleStateError } from "@/lib/services/bookings";
 
 const PAGE = "/specialist/bookings";
 
@@ -37,12 +37,8 @@ export const POST: APIRoute = async (context) => {
   try {
     await acceptBooking(supabase, parsed.data);
   } catch (err) {
-    if (
-      err instanceof NotYoursError ||
-      err instanceof StaleStateError ||
-      err instanceof ExpiredError ||
-      err instanceof TooEarlyError
-    ) {
+    // `TooEarlyError` is not listed: Z0003 belongs to completion alone (impl-review F5).
+    if (err instanceof NotYoursError || err instanceof StaleStateError || err instanceof ExpiredError) {
       return context.redirect(`${PAGE}?error=${err.key}`);
     }
     // eslint-disable-next-line no-console -- server-side diagnostics (Workers observability)

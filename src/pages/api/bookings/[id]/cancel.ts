@@ -1,7 +1,7 @@
 import type { APIRoute } from "astro";
 import { createClient } from "@/lib/supabase";
 import { parseOrError } from "@/lib/schemas/parse";
-import { bookingIdSchema } from "@/lib/schemas/booking";
+import { clientBookingIdSchema } from "@/lib/schemas/booking";
 import { cancelBooking, ExpiredError, NotYoursError, StaleStateError } from "@/lib/services/bookings";
 
 const PAGE = "/account/bookings";
@@ -32,7 +32,7 @@ export const POST: APIRoute = async (context) => {
     return context.redirect(`${PAGE}?error=booking.error.notConfigured`);
   }
 
-  const parsed = parseOrError(bookingIdSchema, context.params.id);
+  const parsed = parseOrError(clientBookingIdSchema, context.params.id);
   if (!parsed.ok) {
     return context.redirect(`${PAGE}?error=${parsed.error}`);
   }

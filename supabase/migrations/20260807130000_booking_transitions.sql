@@ -251,6 +251,14 @@ comment on function public.cancel_booking is
 -- Note what this view does NOT do: it does not free bookings_one_pending_per_pair. That index reads
 -- the stored status. A client whose request expired an hour ago sees "wygasłe" here but still
 -- cannot request that specialist again until the job runs. That is why the job exists as well.
+-- (S-05 impl-review F1 narrowed that gap for the one case where it was user-visible:
+-- request_booking now expires its own pair's lapsed row before inserting — 20260810120000.)
+--
+-- `b.*` IS EXPANDED NOW, not at query time. Postgres records the column list when the view is
+-- created, so a later `alter table public.bookings add column` does NOT appear here — while
+-- `BookingView extends Booking` in src/types.ts keeps claiming it does, and the field reads as
+-- undefined at runtime with no type error to catch it. Any migration that adds a column to
+-- public.bookings must also `create or replace view public.bookings_view` in the same file.
 -- ---------------------------------------------------------------------------
 create view public.bookings_view
 with (security_invoker = true)
