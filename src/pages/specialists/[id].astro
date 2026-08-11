@@ -12,8 +12,9 @@ import { localizedName } from "@/lib/i18n/dictionary";
 import { useTranslations } from "@/lib/i18n/t";
 import { formatPrice } from "@/lib/format";
 
-// PUBLIC, like the list. FR-009: name, services and a star summary; no review bodies, because v1
-// has no review text and no moderation path for it.
+// SIGNED-IN ONLY, like the list — `/specialists` is in PROTECTED_ROUTES, which covers this path
+// too. FR-009: name, services and a star summary; no review bodies, because v1 has no review text
+// and no moderation path for it.
 const { locale } = Astro.locals;
 const t = useTranslations(locale);
 const supabase = createClient(Astro.request.headers, Astro.cookies);

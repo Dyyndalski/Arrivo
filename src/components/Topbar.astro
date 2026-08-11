@@ -24,11 +24,11 @@ const t = useTranslations(locale);
 
 const links: { href: string; label: string; key: NonNullable<Props["current"]> }[] = [];
 
-// Discovery is public, so it is offered to signed-out visitors too — that is the page the PRD
-// wants a first-time visitor to land on.
-links.push({ href: "/specialists", label: t("nav.discover"), key: "discover" });
-
 if (user) {
+  // Discovery moved inside the `if (user)` block when `/specialists` was gated: offering it to a
+  // signed-out visitor would be a nav link straight into the sign-in wall, which is the "dead nav
+  // link" this comment block warns about. Signed out, the header carries Sign in / Sign up only.
+  links.push({ href: "/specialists", label: t("nav.discover"), key: "discover" });
   links.push({ href: "/dashboard", label: t("nav.dashboard"), key: "dashboard" });
   if (role === "client") {
     // The slot S-03 deliberately left empty rather than filling with a dead link.

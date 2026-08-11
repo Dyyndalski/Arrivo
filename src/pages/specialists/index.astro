@@ -15,10 +15,14 @@ import type { DiscoveryResult } from "@/lib/services/discovery";
 import type { ServiceArea, ServiceCategory } from "@/types";
 
 /**
- * PUBLIC. Not in `PROTECTED_ROUTES` — the PRD's Access Control lets unauthenticated visitors
- * browse listings, and `matchesRoute()` in the middleware matches on a path boundary, so
- * `/specialists` is not captured by the `/specialist` specialist-only gate (fixed in S-02 for
- * exactly this page).
+ * SIGNED-IN ONLY. `/specialists` is in `PROTECTED_ROUTES`, a deliberate divergence from the PRD's
+ * Access Control (which describes browsing as public) — see the comment on that array. A signed-out
+ * visitor never reaches this page; the middleware sends them to sign-in carrying `redirectTo`, so
+ * they arrive back here once they have an account.
+ *
+ * Both roles may open it: `matchesRoute()` matches on a path boundary, so `/specialists` is not
+ * captured by the `/specialist` specialist-ONLY gate (fixed in S-02 for exactly this page). A
+ * specialist browsing the competition is allowed; only booking is client-only.
  */
 const { user, role, locale } = Astro.locals;
 const t = useTranslations(locale);

@@ -9,8 +9,9 @@ import type { UserRole } from "@/types";
  * place instead of being restated at each redirect site.
  *
  * A null role — the profile row is briefly invisible right after sign-up, see `src/middleware.ts`
- * — falls back to the client home. Discovery is public, so the worst case is a page the visitor
- * was allowed to open anyway.
+ * — falls back to the client home. That target is signed-in-only now, but it is reached only by an
+ * account that IS signed in (a signed-out visitor is stopped earlier), and discovery renders for
+ * either role, so the fallback cannot loop or leak.
  */
 export function homeFor(role: UserRole | null): string {
   return role === "specialist" ? "/specialist/bookings" : "/specialists";

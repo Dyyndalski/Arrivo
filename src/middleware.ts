@@ -4,10 +4,16 @@ import { createClient } from "@/lib/supabase";
 import { homeFor } from "@/lib/routes";
 import type { UserRole } from "@/types";
 
-// `/specialists` (plural) is deliberately absent: the PRD's Access Control lets unauthenticated
-// visitors browse listings. `matchesRoute` below matches on a path boundary, so the singular
-// `/specialist` entry does not capture it.
-const PROTECTED_ROUTES = ["/dashboard", "/specialist", "/account"];
+// `/specialists` (plural) is listed on purpose, and this is a DELIBERATE DIVERGENCE from the
+// PRD's Access Control, which lets unauthenticated visitors browse listings. The product call is
+// that nothing behind a URL should render app content to a signed-out visitor: pasting any link
+// while logged out must land on sign-in, not on a page that looks like the app. `matchesRoute`
+// matches on a path boundary, so this one entry covers the list, `/specialists/<id>` and the
+// booking form beneath it.
+//
+// context/foundation/prd.md still describes browsing as public — it is the older statement of
+// intent, kept until the PRD is revised.
+const PROTECTED_ROUTES = ["/dashboard", "/specialist", "/specialists", "/account"];
 
 // Routes only a specialist-role account may open. Checked after PROTECTED_ROUTES, so a signed
 // -out visitor still gets the sign-in redirect rather than being bounced to a dashboard they
@@ -20,8 +26,9 @@ const SPECIALIST_ROUTES = ["/specialist"];
 
 /**
  * Match on a path boundary, not a bare prefix. `startsWith("/specialist")` would also claim
- * `/specialists` — which is exactly the shape S-03's public browse page is likely to take,
- * and it would silently require a specialist account to view (impl-review F3).
+ * `/specialists` (impl-review F3). Both are protected now, but they are protected differently —
+ * the singular one additionally requires the specialist ROLE — so conflating them would lock every
+ * client out of discovery.
  */
 function matchesRoute(pathname: string, route: string): boolean {
   return pathname === route || pathname.startsWith(`${route}/`);
@@ -61,7 +68,17 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
   if (PROTECTED_ROUTES.some((route) => matchesRoute(context.url.pathname, route))) {
     if (!context.locals.user) {
-      return context.redirect("/auth/signin");
+      // Carry the requested path so a pasted link survives the sign-in it triggers — otherwise
+      // gating discovery would mean every shared specialist link dumps the visitor on their home
+      // page with no way back to what they were sent. Same `redirectTo` contract the booking form
+      // already used; the endpoint re-validates it with `safeRedirect`.
+      //
+      // Only the path and query — never the origin — and only for GET, since replaying a POST
+      // after sign-in would resubmit a form the visitor cannot see.
+      const back = `${context.url.pathname}${context.url.search}`;
+      const to =
+        context.request.method === "GET" ? `/auth/signin?redirectTo=${encodeURIComponent(back)}` : "/auth/signin";
+      return context.redirect(to);
     }
   }
 

@@ -23,7 +23,9 @@ const specialistId = Astro.params.id;
 const serviceId = Astro.params.serviceId;
 const here = `/specialists/${specialistId}/book/${serviceId}`;
 
-// Not in PROTECTED_ROUTES — /specialists is public by design — so the gate lives here.
+// The middleware now gates all of /specialists, so a signed-out visitor is redirected before this
+// runs. Kept as defense in depth, and because it is the only guard that knows `here` — the
+// middleware's own redirectTo would work too, but this one predates it and costs nothing.
 if (!user) {
   return Astro.redirect(`/auth/signin?redirectTo=${encodeURIComponent(here)}`);
 }
