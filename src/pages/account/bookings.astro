@@ -8,6 +8,7 @@ import { createClient } from "@/lib/supabase";
 import { listOwnBookings } from "@/lib/services/bookings";
 import { getTaxonomy } from "@/lib/services/specialists";
 import { useTranslations, isMessageKey, tUnknown } from "@/lib/i18n/t";
+import { homeFor } from "@/lib/routes";
 import type { BookingStatus, BookingView, ServiceCategory, ServiceSubtype, SpecialistProfile } from "@/types";
 
 // Signed-in gate lives in src/middleware.ts (`/account` is in PROTECTED_ROUTES).
@@ -20,7 +21,7 @@ const supabase = createClient(Astro.request.headers, Astro.cookies);
 // which is a dead end rather than a leak, but the booking form already guards its role and the
 // codebase should not disagree with itself (impl-review F4).
 if (user && role !== "client") {
-  return Astro.redirect("/dashboard");
+  return Astro.redirect(homeFor(role));
 }
 
 const STATUSES = ["pending", "accepted", "completed", "declined", "expired"] as const;

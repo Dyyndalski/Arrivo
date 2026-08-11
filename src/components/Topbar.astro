@@ -3,6 +3,7 @@ import LanguageSwitcher from "@/components/LanguageSwitcher.astro";
 import Wordmark from "@/components/Wordmark.astro";
 import Avatar from "@/components/ui/Avatar.astro";
 import { useTranslations } from "@/lib/i18n/t";
+import { homeFor } from "@/lib/routes";
 import { cn } from "@/lib/utils";
 
 /**
@@ -13,7 +14,7 @@ import { cn } from "@/lib/utils";
  * /specialists and /account with phase 5.
  */
 interface Props {
-  current?: "discover" | "bookings" | "profile" | "dashboard";
+  current?: "discover" | "bookings" | "profile" | "services" | "dashboard";
   class?: string;
 }
 
@@ -39,12 +40,21 @@ if (user) {
     // The mockup puts this in a vertical sidebar; that layout is a change of its own, and part of
     // it ("Zespół") has no requirement behind it at all.
     links.push({ href: "/specialist/bookings", label: t("specialist.bookings.nav"), key: "bookings" });
+    // Profile and services were reachable only through /dashboard, which was fine while the
+    // dashboard was where a specialist landed. Now that `homeFor()` opens the inbox instead, the
+    // two setup screens need their own nav entries or the landing page is a cul-de-sac.
+    links.push({ href: "/specialist/services", label: t("nav.services"), key: "services" });
+    links.push({ href: "/specialist/profile", label: t("nav.profile"), key: "profile" });
   }
 }
 ---
 
 <header class:list={[cn("border-border bg-card flex items-center justify-between border-b px-6 py-3.5", className)]}>
-  <a href={user ? "/dashboard" : "/"} class="shrink-0"><Wordmark /></a>
+  {
+    /* The wordmark means "home", and home is now the role's own screen — the same target `/`
+      dispatches to. Signed out it points at `/`, which redirects to sign-in. */
+  }
+  <a href={user ? homeFor(role) : "/"} class="shrink-0"><Wordmark /></a>
 
   {
     links.length > 0 && (

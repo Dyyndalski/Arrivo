@@ -8,6 +8,7 @@ import { createClient } from "@/lib/supabase";
 import { listContactDetails, listSpecialistBookings } from "@/lib/services/bookings";
 import { getAreaDictionary, getTaxonomy } from "@/lib/services/specialists";
 import { useTranslations, tUnknown, isMessageKey } from "@/lib/i18n/t";
+import { homeFor } from "@/lib/routes";
 import type {
   BookingStatus,
   BookingView,
@@ -25,7 +26,7 @@ const t = useTranslations(locale);
 const supabase = createClient(Astro.request.headers, Astro.cookies);
 
 if (user && role !== "specialist") {
-  return Astro.redirect("/dashboard");
+  return Astro.redirect(homeFor(role));
 }
 
 const STATUSES = ["pending", "accepted", "completed", "declined", "expired"] as const;

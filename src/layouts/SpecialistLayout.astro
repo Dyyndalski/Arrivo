@@ -9,9 +9,9 @@ import { useTranslations } from "@/lib/i18n/t";
 /**
  * The mockups' `.page-shell` + `.sidebar` (context/foundation/design/web/dashboard-specialist.html).
  *
- * Entries for Bookings and Team are NOT rendered: one is S-05, the other is out of PRD v1 scope
- * entirely (Arrivo is independent specialists, not salons with employees). A nav link to a route
- * that does not exist is worse than a shorter nav.
+ * Bookings is now the first entry: S-05 shipped `/specialist/bookings`, and it is where a
+ * specialist lands (`homeFor`), so the setup screens have to lead back to it. Team stays absent —
+ * out of PRD v1 scope entirely (Arrivo is independent specialists, not salons with employees).
  *
  * The sidebar collapses below 720px, matching the mockup stylesheet's own media query; the same
  * links stay reachable from the dashboard.
@@ -19,7 +19,9 @@ import { useTranslations } from "@/lib/i18n/t";
 interface Props {
   title: string;
   subtitle?: string;
-  current: "profile" | "services";
+  // `bookings` is in the union so the link below can be compared against it. No page using this
+  // layout passes it — the inbox has the horizontal Topbar, not this sidebar.
+  current: "profile" | "services" | "bookings";
 }
 
 const { title, subtitle, current } = Astro.props;
@@ -27,6 +29,7 @@ const { user, locale } = Astro.locals;
 const t = useTranslations(locale);
 
 const links = [
+  { key: "bookings", href: "/specialist/bookings", label: t("specialist.bookings.nav") },
   { key: "profile", href: "/specialist/profile", label: t("nav.profile") },
   { key: "services", href: "/specialist/services", label: t("nav.services") },
 ] as const;
@@ -35,7 +38,8 @@ const links = [
 <Layout title={title}>
   <div class="flex min-h-screen">
     <aside class="border-border bg-card hidden w-60 shrink-0 flex-col gap-1 border-r p-4 md:flex">
-      <a href="/dashboard" class="px-3 pt-1 pb-5"><Wordmark size="sm" /></a>
+      {/* Wordmark = home = the role's own screen, same as Topbar and `/`. */}
+      <a href="/specialist/bookings" class="px-3 pt-1 pb-5"><Wordmark size="sm" /></a>
 
       {
         links.map((link) => (
@@ -67,7 +71,7 @@ const links = [
       <div class="border-border bg-card flex items-center justify-between border-b px-6 py-3.5">
         {/* The wordmark and nav move into the header once the sidebar is hidden. */}
         <div class="flex items-center gap-5 md:hidden">
-          <a href="/dashboard"><Wordmark size="sm" /></a>
+          <a href="/specialist/bookings"><Wordmark size="sm" /></a>
           <nav class="flex items-center gap-4 text-sm">
             {
               links.map((link) => (

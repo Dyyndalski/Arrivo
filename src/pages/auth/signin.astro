@@ -16,6 +16,11 @@ const error = Astro.url.searchParams.get("error");
 const message = Astro.url.searchParams.get("message");
 const email = Astro.url.searchParams.get("email");
 
+// Set by pages that turn a signed-out visitor away — /specialists/[id]/book/[serviceId] is the
+// one that matters: without this, someone who picked a service, hit the booking form and signed in
+// was dropped on their role's home page and had to find the specialist again.
+const redirectTo = Astro.url.searchParams.get("redirectTo");
+
 const strings = authStrings(locale, t("auth.signIn.submit"), t("auth.signIn.pending"));
 ---
 
@@ -32,6 +37,7 @@ const strings = authStrings(locale, t("auth.signIn.submit"), t("auth.signIn.pend
     <SignInForm
       serverError={error ? tUnknown(locale, error, "auth.error.generic", { min: MIN_PASSWORD_LENGTH }) : null}
       initialEmail={email ?? undefined}
+      redirectTo={redirectTo}
       strings={strings}
       client:load
     />

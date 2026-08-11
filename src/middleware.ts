@@ -1,6 +1,7 @@
 import { defineMiddleware } from "astro:middleware";
 import { LOCALE_COOKIE, resolveLocale } from "@/lib/i18n";
 import { createClient } from "@/lib/supabase";
+import { homeFor } from "@/lib/routes";
 import type { UserRole } from "@/types";
 
 // `/specialists` (plural) is deliberately absent: the PRD's Access Control lets unauthenticated
@@ -66,7 +67,10 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
   if (SPECIALIST_ROUTES.some((route) => matchesRoute(context.url.pathname, route))) {
     if (context.locals.role !== "specialist") {
-      return context.redirect("/dashboard");
+      // Bounce to the caller's own home rather than the dashboard: for a client that is
+      // discovery, the screen they actually work in. Cannot loop — `homeFor` never returns a
+      // path under `/specialist`, which is the only prefix this branch guards.
+      return context.redirect(homeFor(context.locals.role));
     }
   }
 

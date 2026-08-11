@@ -10,10 +10,16 @@ interface Props {
   /** Already translated by the page — this island never sees a catalog key. */
   serverError?: string | null;
   initialEmail?: string;
+  /**
+   * Where to land after a successful sign-in, when the visitor was sent here from a page that
+   * required an account (the booking form does this). Rendered as a hidden field and re-validated
+   * server-side — `safeRedirect` in the endpoint — because it arrives from the query string.
+   */
+  redirectTo?: string | null;
   strings: AuthStrings;
 }
 
-export default function SignInForm({ serverError, initialEmail, strings }: Props) {
+export default function SignInForm({ serverError, initialEmail, redirectTo, strings }: Props) {
   const [email, setEmail] = useState(initialEmail ?? "");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -46,6 +52,8 @@ export default function SignInForm({ serverError, initialEmail, strings }: Props
 
   return (
     <form method="POST" action="/api/auth/signin" className="space-y-4" onSubmit={handleSubmit} noValidate>
+      {redirectTo ? <input type="hidden" name="redirectTo" value={redirectTo} /> : null}
+
       <FormField
         id="email"
         type="email"

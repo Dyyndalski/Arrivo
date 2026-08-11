@@ -12,6 +12,7 @@ import { getPublicSpecialist } from "@/lib/services/discovery";
 import { localizedName } from "@/lib/i18n/dictionary";
 import { useTranslations, tUnknown } from "@/lib/i18n/t";
 import { formatPrice } from "@/lib/format";
+import { homeFor } from "@/lib/routes";
 import { BOOKING_WINDOW_HOURS } from "@/lib/schemas/limits";
 
 const { user, role, locale } = Astro.locals;
@@ -27,7 +28,7 @@ if (!user) {
   return Astro.redirect(`/auth/signin?redirectTo=${encodeURIComponent(here)}`);
 }
 if (role !== "client") {
-  return Astro.redirect("/dashboard");
+  return Astro.redirect(homeFor(role));
 }
 if (!supabase || !specialistId || !serviceId) {
   return Astro.redirect("/specialists");

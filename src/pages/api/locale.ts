@@ -1,20 +1,6 @@
 import type { APIRoute } from "astro";
 import { isLocale, LOCALE_COOKIE, LOCALE_COOKIE_MAX_AGE } from "@/lib/i18n";
-
-/**
- * Reject anything that is not a path on this origin.
- *
- * `redirectTo` comes from a form field, so it is attacker-controllable: a crafted link posting
- * `//evil.example` would otherwise send the visitor off-site with our domain in the referrer, and
- * a protocol-relative URL passes a naive `startsWith("/")` check. Backslash is rejected too —
- * browsers normalise `/\evil.example` to a protocol-relative URL.
- */
-function safeRedirect(target: FormDataEntryValue | null): string {
-  if (typeof target !== "string") return "/";
-  if (!target.startsWith("/")) return "/";
-  if (target.startsWith("//") || target.startsWith("/\\")) return "/";
-  return target;
-}
+import { safeRedirect } from "@/lib/routes";
 
 export const POST: APIRoute = async (context) => {
   const form = await context.request.formData();

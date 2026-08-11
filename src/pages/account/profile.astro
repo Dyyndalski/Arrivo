@@ -9,6 +9,7 @@ import { createClient } from "@/lib/supabase";
 import { getAreaDictionary } from "@/lib/services/specialists";
 import { getOwnProfile } from "@/lib/services/clients";
 import { useTranslations, tUnknown, isMessageKey } from "@/lib/i18n/t";
+import { homeFor } from "@/lib/routes";
 import type { City, ClientProfile, ServiceArea } from "@/types";
 
 // Signed-in gate lives in src/middleware.ts (PROTECTED_ROUTES), which does not distinguish roles.
@@ -19,7 +20,7 @@ const t = useTranslations(locale);
 const supabase = createClient(Astro.request.headers, Astro.cookies);
 
 if (user && role !== "client") {
-  return Astro.redirect("/dashboard");
+  return Astro.redirect(homeFor(role));
 }
 
 let profile: ClientProfile | null = null;

@@ -1,8 +1,20 @@
 ---
-import Welcome from "@/components/Welcome.astro";
-import Layout from "@/layouts/Layout.astro";
----
+import { homeFor } from "@/lib/routes";
 
-<Layout>
-  <Welcome />
-</Layout>
+/**
+ * `/` is a dispatcher, not a page. A signed-out visitor gets the sign-in screen; a signed-in one
+ * goes straight to the screen their role works in — discovery for a client, the request inbox for
+ * a specialist (`homeFor`).
+ *
+ * The starter's marketing hero (`src/components/Welcome.astro`) used to render here and was
+ * deleted with this change: it advertised "10x Astro Starter" on the old dark theme and was the
+ * last screen in the app that was not Arrivo.
+ *
+ * This does NOT close public browsing. `/specialists` stays outside `PROTECTED_ROUTES` and is
+ * reachable without an account, as the PRD's Access Control requires — it is only no longer what
+ * a signed-out visitor sees at the root.
+ */
+const { user, role } = Astro.locals;
+
+return Astro.redirect(user ? homeFor(role) : "/auth/signin");
+---

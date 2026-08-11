@@ -3,21 +3,9 @@ import { createClient } from "@/lib/supabase";
 import { parseOrError } from "@/lib/schemas/parse";
 import { clientProfileSchema } from "@/lib/schemas/client";
 import { NotAllowedError, upsertOwnProfile } from "@/lib/services/clients";
+import { safeRedirect } from "@/lib/routes";
 
 const PAGE = "/account/profile";
-
-/**
- * Reject anything that is not a path on this origin — the same guard as
- * src/pages/api/locale.ts. `redirectTo` reaches here from a form field, so a crafted link could
- * otherwise bounce the visitor off-site with our domain in the referrer, and a protocol-relative
- * URL slips past a naive `startsWith("/")`.
- */
-function safeRedirect(target: FormDataEntryValue | null, fallback: string): string {
-  if (typeof target !== "string" || target === "") return fallback;
-  if (!target.startsWith("/")) return fallback;
-  if (target.startsWith("//") || target.startsWith("/\\")) return fallback;
-  return target;
-}
 
 // `?error=` and `?message=` carry message-catalog keys, never sentences — the page translates.
 export const POST: APIRoute = async (context) => {
