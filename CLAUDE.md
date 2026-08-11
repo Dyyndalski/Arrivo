@@ -8,7 +8,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 The full product spec — personas, functional requirements (FR-001…FR-015), business logic, access control, and non-goals — is the source of truth for scope and lives in @context/foundation/prd.md. Read it before implementing a feature. Load-bearing scope decisions that are easy to get wrong: **no payments** and **no in-app chat** in v1; booking is **request/accept**, not calendar scheduling; reviews are **star-rating only** (no free text); there is **no admin role**.
 
-> Current state: the codebase is still the unmodified 10x-astro-starter scaffold — **none of Arrivo's domain features exist yet**. `src/pages/` and `src/components/` carry the starter's demo auth flow and landing page, not Arrivo screens.
+> Current state (2026-08-11): the scaffold is gone and six roadmap items have shipped and been archived — F-01 (roles + address privacy), S-01 (accounts), S-02 (specialist listings), S-03 (area-matched discovery), S-04 (booking request), S-05 (specialist accept/decline/expire/complete). `src/pages/` carries Arrivo screens, not the starter's demo. The app is deployed to Cloudflare Workers against hosted Supabase. **S-06 (reviews + trust rating) is the only must-have slice left** — see `@context/foundation/roadmap.md`.
+
+Two routing rules that are easy to violate because they are not visible from any single file:
+
+- **Landing is role-aware and lives in one place.** `homeFor(role)` in `src/lib/routes.ts` decides where an account lands; `/` is a dispatcher that redirects there (or to sign-in), and `src/pages/index.astro` renders nothing. Wrong-role redirects on pages go to `homeFor(role)`, never to a hardcoded path. There is no marketing landing page.
+- **Nothing is public.** `/specialists` is in `PROTECTED_ROUTES` alongside `/dashboard`, `/specialist` and `/account`, so every application URL bounces a signed-out visitor to sign-in carrying `redirectTo`. This **deliberately diverges** from the PRD's original Access Control; the PRD records the amendment. Do not "restore" public browsing on the strength of an older comment or an FR that predates it.
 
 ## Project context & guardrails
 
@@ -23,8 +28,9 @@ The full product spec — personas, functional requirements (FR-001…FR-015), b
 - `npm run lint` / `npm run lint:fix` — ESLint with type-checked rules
 - `npm run format` — Prettier (astro + tailwindcss plugins)
 - `npx astro sync` — regenerate `astro:env` / content types; run it after editing the `env.schema` in `astro.config.mjs` (CI runs it before lint)
+- `npx supabase test db` — the pgTAP suite (5 files, 121 assertions), the project's only automated tests. Needs the local stack running; run `npx supabase db reset` first when a migration changed.
 
-**No test runner is configured** — there is no `test` script and no test framework in `package.json`. Do not assume Vitest/Playwright exist; add and wire one before writing tests.
+**There is no JS test runner** — no `test` script, no Vitest/Playwright. Do not assume they exist. Automated coverage is pgTAP against the database, which is where the RLS policies and booking transitions that actually need pinning live; a change to a policy or a transition function is expected to come with assertions in `supabase/tests/database/`.
 
 Pre-commit (husky + lint-staged) auto-runs `eslint --fix` on `*.{ts,tsx,astro}` and `prettier --write` on `*.{json,css,md}`.
 
@@ -43,7 +49,7 @@ Astro SSR app (`output: "server"` in `astro.config.mjs`) with React 19 islands, 
 - **Astro for static/layout; React only where interactivity is required.** There are no Next.js directives here — `"use client"` etc. are meaningless. Extract React hooks to `src/components/hooks/`.
 - **Tailwind class merging:** use the `cn()` helper from `@/lib/utils` (clsx + tailwind-merge). Do not concatenate class strings by hand.
 - **shadcn/ui** components live in `src/components/ui/` ("new-york" variant). Add new ones via `npx shadcn@latest add <name>` — don't hand-write them.
-- **API routes:** uppercase handler exports (`GET`, `POST`, …); validate request input with a schema validator before use. `zod` is the intended choice but is **not yet in `package.json`** — add it when you build the first endpoint.
+- **API routes:** uppercase handler exports (`GET`, `POST`, …); validate request input before use with `zod` (v4, already a dependency) through the `parseOrError` helper in `src/lib/schemas/parse.ts`. Schemas live in `src/lib/schemas/`, one module per domain. Validation failures redirect with `?error=<catalog key>` — a message-catalog key, never a sentence; the page translates it.
 - **Supabase migrations:** `supabase/migrations/`, named `YYYYMMDDHHmmss_short_description.sql`. Always enable RLS on new tables with granular per-operation, per-role policies — the client/specialist split (see the PRD's access control) is the core authorization boundary.
 - **Shared entity/DTO types** go in `src/types.ts`; extracted business logic in `src/lib/` (or `src/lib/services/`).
 
@@ -52,7 +58,7 @@ Astro SSR app (`output: "server"` in `astro.config.mjs`) with React 19 islands, 
 - **Node 22.x LTS is required** (`.nvmrc`). Newer majors (23+) emit `EBADENGINE` warnings and are unsupported by the toolchain — install may still succeed, but switch to 22.x for real work.
 - **Local secrets:** copy `.env.example` → `.env` (Node) and/or `.dev.vars` (Cloudflare local dev; gitignored). Local Supabase stack: `npx supabase start` (needs Docker; Studio at `http://localhost:54323`). Full setup steps are in @README.md.
 - **CI:** `.github/workflows/ci.yml` runs lint + build on push/PR to `main`. The `build` step reads `SUPABASE_URL` / `SUPABASE_KEY` from repo secrets (the env schema marks them optional, so it also builds without them).
-- **Docs drift:** the README still says "Astro 6", but `package.json` is on **Astro 7** (`astro@^7.1.4`) with ESLint 9 and Vite 8 (no `overrides`). When they disagree, trust `package.json`; update the README so this note can go.
+- **Docs drift:** the README is still the starter's — it is titled "10x Astro Starter", points `git clone` at the starter repo, and describes none of Arrivo. Its Astro version claim was corrected to v7 (`astro@^7.1.4`); everything else in it predates the product. When it and `package.json` disagree, trust `package.json`.
 
 <!-- BEGIN @przeprogramowani/10x-cli -->
 

@@ -206,8 +206,25 @@ Two distinct roles, chosen at sign-up:
 Role → capability separation:
 - A client cannot list services; a specialist cannot book another specialist
   (single-role accounts in the MVP).
-- Unauthenticated visitors may browse/search public specialist listings and
-  reviews, but must sign in to book or to list.
+- Unauthenticated visitors may not reach any application screen. Browsing,
+  search, specialist profiles, booking and listing all require an account; a
+  link pasted while signed out lands on sign-in and returns the visitor to that
+  link once they have signed in.
+
+> **Amended 2026-08-11.** This bullet previously read: "Unauthenticated visitors
+> may browse/search public specialist listings and reviews, but must sign in to
+> book or to list." It was implemented that way through S-03 and S-04 —
+> `/specialists` and `/specialists/<id>` were deliberately public, and S-02 fixed
+> a bug where they were accidentally gated. The rule was reversed by product
+> decision: no URL should render app content to a signed-out visitor. The cost is
+> accepted and worth stating, because it works against the demand-first bet in
+> the Vision — a first-time visitor can no longer see that supply exists before
+> creating an account, so sign-up now carries the whole top of the funnel.
+> Enforced in `src/middleware.ts` (`PROTECTED_ROUTES`), which carries the
+> requested path through sign-in as `redirectTo`.
+>
+> `version:` is intentionally not bumped: `context/foundation/roadmap.md` pins
+> `prd_version: 1`, and this amendment does not change any FR.
 
 No admin/moderator role in the MVP (deliberate scope cut). Consequence: review
 moderation and dispute handling have no in-app owner in v1 — routed to Open
