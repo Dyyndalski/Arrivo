@@ -3,7 +3,7 @@ project: Arrivo
 version: 1
 status: draft
 created: 2026-07-28
-updated: 2026-08-07
+updated: 2026-08-11
 prd_version: 1
 main_goal: market-feedback
 top_blocker: time
@@ -32,7 +32,7 @@ Arrivo is a home-visit-first marketplace for beauty/hair services: it connects c
 | S-02 | specialist-service-listing    | (specialist) create a profile with declared areas and list a service        | S-01          | US-02, FR-004, FR-005             | done     |
 | S-03 | area-matched-discovery        | (client) set your area and find specialists who serve it, filtered by type/price, with a rating summary | S-01, S-02    | FR-003, FR-006, FR-007, FR-008, FR-009 | done     |
 | S-04 | client-booking-request        | (client) request a booking from a matched specialist, proposing a date/time | S-03          | US-01, FR-010                     | done     |
-| S-05 | specialist-booking-management | (specialist) accept/decline a request, auto-expire stale ones, mark completed | S-04          | FR-011, FR-012                    | proposed |
+| S-05 | specialist-booking-management | (specialist) accept/decline a request, auto-expire stale ones, mark completed | S-04          | FR-011, FR-012                    | done     |
 | S-06 | reviews-and-trust-rating      | (client) rate a completed visit; profiles show an average once enough ratings exist | S-05, S-03    | US-03, FR-013, FR-014             | proposed |
 
 ## Baseline
@@ -126,7 +126,7 @@ What's already in place in the codebase as of 2026-07-28 (auto-researched + user
   - Auto-expire window — concrete duration? Owner: user. Block: no (PRD suggests ~3 days as a default; the scheduled job maps to a Cloudflare Cron Trigger per infrastructure.md).
   - Two-sided completion — should completion be mutual rather than specialist-marked? Owner: user. Block: no (PRD accepts specialist-marked completion for v1).
 - **Risk:** Closes the two-sided transaction the north star opens. The auto-expire piece is the only background/scheduled work in the MVP; it must resolve every pending request so clients never sit blocked forever.
-- **Status:** proposed
+- **Status:** done
 
 ### S-06: Reviews + trust rating
 
@@ -182,3 +182,4 @@ What's already in place in the codebase as of 2026-07-28 (auto-researched + user
 - **S-02: a signed-in specialist can create/edit a provider profile (name + declared service areas) and list a service by choosing a type from a fixed taxonomy and setting a price** — Archived 2026-08-04 → `context/archive/2026-08-03-specialist-service-listing/`. Lesson: —.
 - **S-03: a signed-in client can set/edit their saved home address, browse a filterable list of specialists, filter by service type and price, restrict results to specialists whose declared areas cover them, and open a profile showing services plus a star-rating summary** — Archived 2026-08-07 → `context/archive/2026-08-04-area-matched-discovery/`. Lesson: —.
 - **S-04 (north star): a client can request a booking from a discovered specialist by proposing a date/time; the request records the chosen service, the proposed date/time, and the client's address, revealed to the specialist only after acceptance** — Archived 2026-08-07 → `context/archive/2026-08-07-client-booking-request/`. Lesson: two — `service_role` grants differ between local and hosted and it bypasses RLS; a grep over lint output cannot tell "clean" from "crashed".
+- **S-05: a specialist can accept or decline a booking request; a request not acted on within a set window auto-expires; a specialist can mark an accepted booking as completed** — Archived 2026-08-11 → `context/archive/2026-08-07-specialist-booking-management/`. Lesson: —.

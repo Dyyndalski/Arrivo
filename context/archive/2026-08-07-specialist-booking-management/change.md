@@ -1,10 +1,10 @@
 ---
 change_id: specialist-booking-management
 title: Specialist booking management
-status: impl_reviewed
+status: archived
 created: 2026-08-07
-updated: 2026-08-10
-archived_at: null
+updated: 2026-08-11
+archived_at: 2026-08-11T09:18:03Z
 ---
 
 ## Notes
