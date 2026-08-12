@@ -415,27 +415,27 @@ rolling back means writing a new one that restores the previous grants — so th
 
 #### Automated
 
-- [x] 1.1 Migration applies from scratch: `npx supabase db reset ; echo $?` prints `0`
-- [x] 1.2 Existing suite still green: `npx supabase test db ; echo $?` prints `0`
-- [x] 1.3 Lint passes by exit code: `npx eslint . ; echo $?` prints `0`
+- [x] 1.1 Migration applies from scratch: `npx supabase db reset ; echo $?` prints `0` — 01635a1
+- [x] 1.2 Existing suite still green: `npx supabase test db ; echo $?` prints `0` — 01635a1
+- [x] 1.3 Lint passes by exit code: `npx eslint . ; echo $?` prints `0` — 01635a1
 
 #### Manual
 
-- [x] 1.4 `select count(*) from public.reviews` on hosted returns 0 before the push
-- [x] 1.5 `authenticated` holds no SELECT on `client_id`
-- [x] 1.6 `service_role` has no privileges on `reviews`
-- [x] 1.7 An unrated specialist card still renders "Nowy specjalista"
+- [x] 1.4 `select count(*) from public.reviews` on hosted returns 0 before the push — 01635a1
+- [x] 1.5 `authenticated` holds no SELECT on `client_id` — 01635a1
+- [x] 1.6 `service_role` has no privileges on `reviews` — 01635a1
+- [x] 1.7 An unrated specialist card still renders "Nowy specjalista" — 01635a1
 
 ### Phase 2: pgTAP coverage
 
 #### Automated
 
-- [ ] 2.1 Full suite green by exit code: `npx supabase test db ; echo $?` prints `0`
-- [ ] 2.2 Assertion count grows by at least 12
+- [x] 2.1 Full suite green by exit code: `npx supabase test db ; echo $?` prints `0`
+- [x] 2.2 Assertion count grows by at least 12
 
 #### Manual
 
-- [ ] 2.3 Weakening a check in `submit_review` turns a test red
+- [x] 2.3 Weakening a check in `submit_review` turns a test red
 
 ### Phase 3: Service layer and endpoint
 
