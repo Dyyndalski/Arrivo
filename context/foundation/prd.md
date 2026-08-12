@@ -257,8 +257,16 @@ Non-functional non-goals:
    specialist mark completed (FR-012), which gates and can bias reviews.
 5. **Review integrity: does specialist-gated completion inflate ratings?** —
    Owner: user. Relevant to the >4.0 rating guardrail's meaning (FR-013).
-6. **What is the ratings threshold before an average is shown?** — Owner: user.
-   Needs a concrete N for FR-014 (e.g. 3).
+6. ~~**What is the ratings threshold before an average is shown?**~~ —
+   **RESOLVED 2026-08-12: three ratings.** Chosen in S-03, which shipped the
+   read side of FR-014, and confirmed in S-06 when the write side opened. The
+   value is expressed in exactly one place, `RATING_THRESHOLD` in
+   `src/lib/schemas/limits.ts`, read only by `ratingLabel()` in
+   `src/lib/services/discovery.ts` — deliberately not in the
+   `discoverable_specialists` view, so moving it is a one-line edit rather than
+   a migration. Below three, a card shows the "New specialist" label instead of
+   an average. Cost accepted: at cold start every specialist carries that label
+   until three separate completed visits have been rated.
 7. **What is the auto-expire window for pending booking requests?** — Owner:
    user. Needs a concrete duration for FR-011 (e.g. 3 days — consider whether
    24–48h fits better given clients likely want a near-term visit).

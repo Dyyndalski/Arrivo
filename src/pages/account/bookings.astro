@@ -4,8 +4,11 @@ import Topbar from "@/components/Topbar.astro";
 import Chip from "@/components/ui/Chip.astro";
 import EmptyState from "@/components/ui/EmptyState.astro";
 import BookingRow from "@/components/booking/BookingRow.astro";
+import RatingForm from "@/components/booking/RatingForm.astro";
+import Stars from "@/components/ui/Stars.astro";
 import { createClient } from "@/lib/supabase";
 import { listOwnBookings } from "@/lib/services/bookings";
+import { listOwnRatings } from "@/lib/services/reviews";
 import { getTaxonomy } from "@/lib/services/specialists";
 import { useTranslations, isMessageKey, tUnknown } from "@/lib/i18n/t";
 import { homeFor } from "@/lib/routes";
@@ -33,6 +36,7 @@ let bookings: BookingView[] = [];
 let specialistsById = new Map<string, SpecialistProfile>();
 let categoriesById = new Map<number, ServiceCategory>();
 let subtypesById = new Map<number, ServiceSubtype>();
+let ratingsByBooking = new Map<string, number>();
 let loadError: string | null = null;
 
 if (!supabase) {
@@ -53,6 +57,15 @@ if (!supabase) {
       const { data } = await supabase.from("specialist_profiles").select("*").in("id", ids);
       specialistsById = new Map(((data ?? []) as SpecialistProfile[]).map((s) => [s.id, s]));
     }
+
+    // Completed ids only — the same "ask only for what this caller is entitled to" rule the
+    // specialist inbox follows. Nothing else can carry a rating, so a wider query would only be a
+    // larger `in` list with the same result.
+    //
+    // Keyed by booking, never by client: `authenticated` has no select on `reviews.client_id`, and
+    // Postgres refuses a query that so much as references a column it cannot read.
+    const completedIds = own.filter((b) => b.effective_status === "completed").map((b) => b.id);
+    ratingsByBooking = await listOwnRatings(supabase, completedIds);
   } catch {
     loadError = t("booking.error.saveFailed");
   }
@@ -145,6 +158,21 @@ const formError = Astro.url.searchParams.get("error");
                       </button>
                     </form>
                   )}
+
+                  {/* FR-013 opens only once the specialist marks the visit completed, so no other
+                      status offers the control. A rating cannot be changed, so once one exists the
+                      stars are replaced by what was given rather than by a disabled form. */}
+                  {booking.effective_status === "completed" &&
+                    (ratingsByBooking.has(booking.id) ? (
+                      <Stars
+                        slot="action"
+                        value={ratingsByBooking.get(booking.id) ?? 0}
+                        label={t("reviews.given", { rating: ratingsByBooking.get(booking.id) ?? 0 })}
+                        class="shrink-0"
+                      />
+                    ) : (
+                      <RatingForm slot="action" bookingId={booking.id} />
+                    ))}
                 </BookingRow>
               ))}
             </ul>

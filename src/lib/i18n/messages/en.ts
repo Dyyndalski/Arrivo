@@ -357,4 +357,18 @@ export const en: Record<MessageKey, string> = {
   "specialist.bookings.error.tooEarly": "A visit cannot be completed before it was due",
   "specialist.bookings.error.actionFailed": "That action did not go through — please try again",
   "specialist.bookings.error.loadFailed": "We could not load your requests — please try again",
+
+  // --- S-06: ratings ---------------------------------------------------------------------
+
+  "reviews.prompt": "Rate this visit:",
+  "reviews.star": "{count} out of 5",
+  "reviews.given": "Your rating: {rating} out of 5",
+
+  "reviews.message.submitted": "Thanks for the rating",
+
+  "reviews.error.alreadyRated": "You have already rated this visit — a rating cannot be changed",
+  "reviews.error.notYours": "We could not find that visit",
+  "reviews.error.notCompleted": "A visit can be rated once the specialist marks it completed",
+  "reviews.error.invalidRating": "A rating must be a number of stars from 1 to 5",
+  "reviews.error.actionFailed": "We could not save your rating — please try again",
 };

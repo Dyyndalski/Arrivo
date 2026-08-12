@@ -385,6 +385,20 @@ export const pl = {
   "specialist.bookings.error.tooEarly": "Wizyty nie można zakończyć przed jej terminem",
   "specialist.bookings.error.actionFailed": "Nie udało się wykonać tej akcji — spróbuj ponownie",
   "specialist.bookings.error.loadFailed": "Nie udało się wczytać zapytań — spróbuj ponownie",
+
+  // --- S-06: oceny -----------------------------------------------------------------------
+
+  "reviews.prompt": "Oceń wizytę:",
+  "reviews.star": "{count} z 5",
+  "reviews.given": "Twoja ocena: {rating} z 5",
+
+  "reviews.message.submitted": "Dziękujemy za ocenę",
+
+  "reviews.error.alreadyRated": "Tę wizytę już oceniłeś — oceny nie można zmienić",
+  "reviews.error.notYours": "Nie znaleźliśmy tej wizyty",
+  "reviews.error.notCompleted": "Wizytę można ocenić dopiero, gdy specjalista oznaczy ją jako zakończoną",
+  "reviews.error.invalidRating": "Ocena musi być liczbą gwiazdek od 1 do 5",
+  "reviews.error.actionFailed": "Nie udało się zapisać oceny — spróbuj ponownie",
 } as const;
 
 export type MessageKey = keyof typeof pl;

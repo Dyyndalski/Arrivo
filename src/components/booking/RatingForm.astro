@@ -1,0 +1,45 @@
+---
+import { useTranslations } from "@/lib/i18n/t";
+import { RATING_MAX, RATING_MIN } from "@/lib/schemas/limits";
+
+/**
+ * The five stars a client presses to rate a completed visit (FR-013).
+ *
+ * Pure Astro, no island: each star is its own submit button carrying `name="rating"`, so the whole
+ * control is one form post and no JavaScript is involved. That is also why no strings are passed in
+ * — `src/components/booking/strings.ts` exists to hand resolved copy to React, and nothing here
+ * crosses into a client bundle.
+ *
+ * There is no confirmation step, and there cannot be an undo: `public.reviews` has no update or
+ * delete grant, so a press is final. The stars are large enough targets to make a misclick
+ * unlikely, which is the whole mitigation.
+ */
+interface Props {
+  bookingId: string;
+}
+
+const { bookingId } = Astro.props;
+const { locale } = Astro.locals;
+const t = useTranslations(locale);
+
+const stars = Array.from({ length: RATING_MAX - RATING_MIN + 1 }, (_, i) => RATING_MIN + i);
+---
+
+<form method="POST" action={`/api/bookings/${bookingId}/review`} class="flex shrink-0 items-center gap-1">
+  <span class="text-muted-foreground mr-1 hidden text-[12.5px] sm:inline">{t("reviews.prompt")}</span>
+
+  {
+    stars.map((star) => (
+      <button
+        type="submit"
+        name="rating"
+        value={star}
+        aria-label={t("reviews.star", { count: star })}
+        title={t("reviews.star", { count: star })}
+        class="text-ink-soft hover:text-warning focus-visible:ring-ring/50 cursor-pointer rounded-sm px-0.5 text-lg leading-none transition-colors focus-visible:ring-[3px] focus-visible:outline-none"
+      >
+        ★
+      </button>
+    ))
+  }
+</form>
