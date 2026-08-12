@@ -430,12 +430,12 @@ rolling back means writing a new one that restores the previous grants — so th
 
 #### Automated
 
-- [x] 2.1 Full suite green by exit code: `npx supabase test db ; echo $?` prints `0`
-- [x] 2.2 Assertion count grows by at least 12
+- [x] 2.1 Full suite green by exit code: `npx supabase test db ; echo $?` prints `0` — 07b7dcd
+- [x] 2.2 Assertion count grows by at least 12 — 07b7dcd
 
 #### Manual
 
-- [x] 2.3 Weakening a check in `submit_review` turns a test red
+- [x] 2.3 Weakening a check in `submit_review` turns a test red — 07b7dcd
 
 ### Phase 3: Service layer and endpoint
 

@@ -109,13 +109,21 @@ export interface ClientProfile {
 /**
  * A star rating for a completed visit (FR-013).
  *
- * Read-only in S-03 — the table has no write grant for anyone until S-06 adds `booking_id` and
- * the "only after a completed booking" rule that needs it.
+ * Written only by `public.submit_review` — there is no insert grant, so no client of this type can
+ * create one (S-06, 20260811120000).
+ *
+ * `client_id` IS a column and is deliberately ABSENT from this interface: `authenticated` holds a
+ * COLUMN-level select grant that excludes it, so a query naming it fails outright rather than
+ * returning null. A specialist must not be able to join a rating back to the client who wrote it,
+ * and v1 has no moderation path that would justify the alternative. Do not add the field back
+ * without changing the grant in a migration first — the type would promise data the database
+ * refuses to hand over.
  */
 export interface Review {
   id: string;
   specialist_id: string;
-  client_id: string;
+  /** The visit this rates. Unique — one rating per completed booking, FR-013. */
+  booking_id: string;
   /** 1–5. */
   rating: number;
   created_at: string;

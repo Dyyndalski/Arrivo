@@ -69,6 +69,14 @@ export const POSTAL_CODE_PATTERN = /^\d{2}-\d{3}$/;
  */
 export const RATING_THRESHOLD = 3;
 
+/**
+ * The star range. Mirrors the `check (rating between 1 and 5)` constraint on `public.reviews`
+ * (20260804120300) — the database is the boundary; these exist so the form and the schema render
+ * and reject the same range without hardcoding it twice.
+ */
+export const RATING_MIN = 1;
+export const RATING_MAX = 5;
+
 // --- S-04: booking requests -----------------------------------------------------------------
 // Mirror 20260807100000_bookings.sql.
 
