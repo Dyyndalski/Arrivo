@@ -464,5 +464,8 @@ rolling back means writing a new one that restores the previous grants — so th
 - [x] 4.6 Submitting replaces the stars with the given rating, surviving a reload
 - [x] 4.7 A third rating flips the card to an average
 - [x] 4.8 Both language versions render with no missing-key fallbacks
-- [ ] 4.9 Migrations pushed: `npx supabase db push`
+- [x] 4.9 Migrations pushed: `npx supabase db push` — both applied; `db diff --linked` shows no drift on `reviews`, so the `service_role` revoke held on hosted
 - [ ] 4.10 Deployed and walked through against production: `npx wrangler deploy`
+      - deployed: version `6068d234-f7d7-43f1-8441-a64cb319ca91`, live at https://arrivo.dyndalski.workers.dev
+      - verified signed-out: `/`, `/specialists` and `/account/bookings` all 302 to sign-in carrying `redirectTo`; sign-in renders 200
+      - NOT yet verified: the signed-in rating flow against production. Needs a real session, which the agent does not create.
