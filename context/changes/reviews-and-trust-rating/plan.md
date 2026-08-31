@@ -446,8 +446,8 @@ rolling back means writing a new one that restores the previous grants — so th
 
 #### Manual
 
-- [ ] 3.3 Rating someone else's booking redirects with the "not found" key
-- [ ] 3.4 Rating twice redirects with the "already rated" key
+- [x] 3.3 Rating someone else's booking redirects with the "not found" key
+- [x] 3.4 Rating twice redirects with the "already rated" key
 
 ### Phase 4: Client UI, copy, and PRD close-out
 
@@ -460,9 +460,9 @@ rolling back means writing a new one that restores the previous grants — so th
 
 #### Manual
 
-- [ ] 4.5 Stars appear only on completed bookings
-- [ ] 4.6 Submitting replaces the stars with the given rating, surviving a reload
-- [ ] 4.7 A third rating flips the card to an average
-- [ ] 4.8 Both language versions render with no missing-key fallbacks
+- [x] 4.5 Stars appear only on completed bookings
+- [x] 4.6 Submitting replaces the stars with the given rating, surviving a reload
+- [x] 4.7 A third rating flips the card to an average
+- [x] 4.8 Both language versions render with no missing-key fallbacks
 - [ ] 4.9 Migrations pushed: `npx supabase db push`
 - [ ] 4.10 Deployed and walked through against production: `npx wrangler deploy`
