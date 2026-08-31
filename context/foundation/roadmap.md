@@ -3,7 +3,7 @@ project: Arrivo
 version: 1
 status: draft
 created: 2026-07-28
-updated: 2026-08-11
+updated: 2026-08-31
 prd_version: 1
 main_goal: market-feedback
 top_blocker: time
@@ -33,7 +33,7 @@ Arrivo is a home-visit-first marketplace for beauty/hair services: it connects c
 | S-03 | area-matched-discovery        | (client) set your area and find specialists who serve it, filtered by type/price, with a rating summary | S-01, S-02    | FR-003, FR-006, FR-007, FR-008, FR-009 | done     |
 | S-04 | client-booking-request        | (client) request a booking from a matched specialist, proposing a date/time | S-03          | US-01, FR-010                     | done     |
 | S-05 | specialist-booking-management | (specialist) accept/decline a request, auto-expire stale ones, mark completed | S-04          | FR-011, FR-012                    | done     |
-| S-06 | reviews-and-trust-rating      | (client) rate a completed visit; profiles show an average once enough ratings exist | S-05, S-03    | US-03, FR-013, FR-014             | proposed |
+| S-06 | reviews-and-trust-rating      | (client) rate a completed visit; profiles show an average once enough ratings exist | S-05, S-03    | US-03, FR-013, FR-014             | done     |
 
 ## Baseline
 
@@ -140,7 +140,7 @@ What's already in place in the codebase as of 2026-07-28 (auto-researched + user
   - Ratings threshold before an average is shown — concrete N? Owner: user. Block: no (PRD suggests e.g. 3).
   - Specialist-gated completion may bias ratings upward. Owner: user. Block: no (integrity risk logged; relevant to the >4.0 guardrail's meaning).
 - **Risk:** Feeds the trust half of the wedge (ratings shown in discovery, S-03) and the >4.0 average guardrail. Last on the must-have path because it needs completed bookings to exist; free-text review text is deferred to v2.
-- **Status:** proposed
+- **Status:** done
 
 ## Backlog Handoff
 
@@ -183,3 +183,4 @@ What's already in place in the codebase as of 2026-07-28 (auto-researched + user
 - **S-03: a signed-in client can set/edit their saved home address, browse a filterable list of specialists, filter by service type and price, restrict results to specialists whose declared areas cover them, and open a profile showing services plus a star-rating summary** — Archived 2026-08-07 → `context/archive/2026-08-04-area-matched-discovery/`. Lesson: —.
 - **S-04 (north star): a client can request a booking from a discovered specialist by proposing a date/time; the request records the chosen service, the proposed date/time, and the client's address, revealed to the specialist only after acceptance** — Archived 2026-08-07 → `context/archive/2026-08-07-client-booking-request/`. Lesson: two — `service_role` grants differ between local and hosted and it bypasses RLS; a grep over lint output cannot tell "clean" from "crashed".
 - **S-05: a specialist can accept or decline a booking request; a request not acted on within a set window auto-expires; a specialist can mark an accepted booking as completed** — Archived 2026-08-11 → `context/archive/2026-08-07-specialist-booking-management/`. Lesson: —.
+- **S-06: a client can leave a star rating for a booking the specialist has marked completed (one rating per completed booking); a specialist's profile shows an average rating once a threshold number of ratings exists, otherwise a "New specialist" label** — Archived 2026-08-31 → `context/archive/2026-08-11-reviews-and-trust-rating/`. Lesson: one, in two halves — a column grant cannot hide a value that a joinable key re-derives (withholding `reviews.client_id` left `booking_id` joinable to `bookings.client_id`, and the pgTAP assertion that "proved" otherwise only tested the direct column read); and a test that sets up data it does not own turns any later fixture into a false regression (`bookings_rls.test.sql` seeded every specialist in the database, not its own two).

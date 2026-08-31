@@ -1,10 +1,10 @@
 ---
 change_id: reviews-and-trust-rating
 title: Star ratings for completed visits and the specialist trust average
-status: impl_reviewed
+status: archived
 created: 2026-08-11
 updated: 2026-08-31
-archived_at: null
+archived_at: 2026-08-31T12:52:16Z
 ---
 
 ## Notes
