@@ -4,6 +4,8 @@ Marketplace usług fryzjerskich i beauty **z dojazdem do klienta**. Łączy osob
 
 **Na żywo:** https://arrivo.dyndalski.workers.dev
 
+![Lista specjalistów dojeżdżających na Mokotów, z oceną zaufania na kartach](docs/screenshots/discovery.jpg)
+
 ## Na czym polega produkt
 
 Regułą, która trzyma całą aplikację, jest to, że **klient widzi wyłącznie specjalistów, których zadeklarowany obszar działania go obejmuje** — opatrzonych oceną zaufania wyliczoną z zakończonych wizyt. Usuń tę regułę, a zostaje kolejna aplikacja do rezerwacji w salonie.
@@ -43,6 +45,10 @@ Wszystkie sześć wycinków ze ścieżki must-have jest wdrożonych i zarchiwizo
 Historia i uzasadnienia decyzji każdego wycinka są w [`context/archive/`](context/archive/). Roadmapa: [`context/foundation/roadmap.md`](context/foundation/roadmap.md).
 
 Interfejs jest dwujęzyczny — polski domyślnie, angielski przełącznikiem w nagłówku.
+
+![Rezerwacje klienta — kontrolka oceny pokazuje się wyłącznie przy wizytach zakończonych](docs/screenshots/bookings.jpg)
+
+Kontrolka oceny pojawia się tylko przy statusie „Zakończona". Wizyty oczekujące, potwierdzone, odrzucone i wygasłe nie mają gwiazdek, bo FR-013 otwiera ocenianie dopiero wtedy, gdy specjalista oznaczy wizytę jako zakończoną. Ocena jest jednorazowa i trwała — po wysłaniu gwiazdki znikają, a na ich miejscu zostaje to, co przyznano.
 
 ## Stack
 
