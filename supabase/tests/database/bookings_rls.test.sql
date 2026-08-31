@@ -33,14 +33,25 @@ insert into public.specialist_profiles (id, display_name) values
   ('bc000000-0000-0000-0000-000000000051', 'Specjalista Jeden'),
   ('bc000000-0000-0000-0000-000000000052', 'Specjalista Dwa');
 
+-- Scoped to THIS file's two fixtures by id, not `from public.specialist_profiles`.
+--
+-- Unscoped, these two statements set up every specialist the database happens to contain — which
+-- was invisible while the only rows were the ones above, and became a hard failure the moment
+-- supabase/seed.sql started shipping demo specialists: the Mokotów row already existed for them,
+-- so `specialist_areas_pkey` raised a duplicate key, the file aborted before `plan()`, and the run
+-- reported "Bad plan. You planned 26 tests but ran 0" — a red suite that reads like a regression
+-- in whatever slice is under review. See context/foundation/lessons.md, "A green pgTAP suite
+-- requires a reset first". A test sets up its own fixtures and nothing else.
 insert into public.specialist_areas (specialist_id, area_id)
-select id, (select a.id from public.service_areas a join public.cities c on c.id = a.city_id
-             where c.slug = 'warszawa' and a.slug = 'mokotow')
-from public.specialist_profiles;
+select sp.id, (select a.id from public.service_areas a join public.cities c on c.id = a.city_id
+                where c.slug = 'warszawa' and a.slug = 'mokotow')
+from public.specialist_profiles sp
+where sp.id in ('bc000000-0000-0000-0000-000000000051', 'bc000000-0000-0000-0000-000000000052');
 
 insert into public.services (specialist_id, category_id, price_cents, duration_minutes, name)
 select sp.id, (select id from public.service_categories where slug = 'fryzjerstwo-damskie'), 15000, 60, 'Koloryzacja'
-from public.specialist_profiles sp;
+from public.specialist_profiles sp
+where sp.id in ('bc000000-0000-0000-0000-000000000051', 'bc000000-0000-0000-0000-000000000052');
 
 -- The client lives in Mokotów. request_booking derives the district from this row; the calls
 -- below deliberately pass a DIFFERENT one to prove the argument is ignored (impl-review F2).
