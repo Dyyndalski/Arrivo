@@ -5,15 +5,18 @@
 --   1. The write path is one function. There is no insert grant, so the only way a row reaches
 --      public.reviews is through submit_review — and it takes the specialist and the client off
 --      the booking rather than off its arguments.
---   2. A rating does not name its author. `client_id` is withheld by a COLUMN grant, so a
---      specialist cannot join their bookings against reviews to learn who gave them one star.
+--   2. A rating does not name its author. The ROW POLICY is what holds this: only the client who
+--      wrote a review can read it, so a specialist cannot join their bookings against reviews to
+--      learn who gave them one star. The withheld `client_id` COLUMN grant is a second lock, not
+--      the lock — it was the only one until 20260831093000, and on its own it left the join open
+--      (impl-review F1). Both are asserted below, and so is the join itself.
 --      v1 has no moderation and no admin role, which makes non-attribution the only answer to
 --      retaliation available.
 --
 -- Counting convention as in the other suites: every assertion is scoped to its fixtures.
 
 begin;
-select plan(18);
+select plan(20);
 
 do $$
 declare pgtap_schema text;
@@ -80,10 +83,16 @@ select lives_ok(
   'the client on a completed booking can rate it'
 );
 
+-- Doubles as the positive control for the row policy added in 20260831093000. That policy is
+-- `using (client_id = (select auth.uid()))` — a predicate over a column this caller holds no
+-- SELECT on. It is legal because column privileges are checked against the columns the CALLER's
+-- query names, while a policy expression is injected afterwards by the rewriter. If that ever
+-- stopped being true, this assertion is what would go red, and listOwnRatings would be reading
+-- nothing on /account/bookings.
 select is(
   (select count(*)::int from public.reviews where booking_id = 'fa000000-0000-0000-0000-0000000000b1'),
   1,
-  'the rating row exists'
+  'the rating row exists, and its author can read it back'
 );
 
 -- FR-013's "one rating per completed booking" is the unique constraint and nothing else. No
@@ -160,12 +169,25 @@ select throws_ok(
   'the specialist on the booking cannot rate their own visit'
 );
 
--- The retaliation vector, closed. The specialist CAN see the rating — it is their average — but
--- joining it back to a person is what the column grant prevents.
+-- The retaliation vector, closed — by the ROW POLICY (20260831093000), not by the column grant.
+-- The specialist reads no review row at all; what they keep is the aggregate, asserted below.
 select is(
   (select count(*)::int from public.reviews where specialist_id = 'fa000000-0000-0000-0000-000000000051'),
-  1,
-  'the specialist can see that a rating exists'
+  0,
+  'the specialist reads no review row of their own'
+);
+
+-- THE ASSERTION THIS FILE WAS MISSING. Until 20260831093000 the two above passed while this
+-- returned the author's uuid: `booking_id` is in the column grant, and a specialist holds a
+-- table-wide select on their own bookings, `client_id` included. A column grant cannot hide a
+-- value that a joinable key re-derives. Do not delete this without re-running the join by hand.
+select is(
+  (select count(*)::int
+     from public.reviews r
+     join public.bookings b on b.id = r.booking_id
+    where b.specialist_id = 'fa000000-0000-0000-0000-000000000051'),
+  0,
+  'the specialist CANNOT re-derive the author by joining bookings on booking_id'
 );
 
 select throws_ok(
@@ -173,6 +195,14 @@ select throws_ok(
   '42501',
   NULL,
   'the specialist CANNOT learn who wrote it'
+);
+
+-- What the specialist does keep, and the reason the aggregate had to move to a SECURITY DEFINER
+-- function: under the new policy a correlated subquery over `reviews` would have shown them zero.
+select is(
+  (select rating_count from public.discoverable_specialists where id = 'fa000000-0000-0000-0000-000000000051'),
+  1,
+  'the specialist still sees their own rating COUNT through the aggregate'
 );
 
 -- ===========================================================================

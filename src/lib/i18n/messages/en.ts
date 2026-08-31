@@ -361,7 +361,7 @@ export const en: Record<MessageKey, string> = {
   // --- S-06: ratings ---------------------------------------------------------------------
 
   "reviews.prompt": "Rate this visit:",
-  "reviews.star": "{count} out of 5",
+  "reviews.star": "Rate {count} out of 5",
   "reviews.given": "Your rating: {rating} out of 5",
 
   "reviews.message.submitted": "Thanks for the rating",

@@ -166,7 +166,7 @@ write a rating.
 #### Automated Verification:
 
 - Migration applies from scratch: `npx supabase db reset ; echo $?` prints `0`
-- Existing suite still green: `npx supabase test db ; echo $?` prints `0`
+- Existing suite still green: `npx supabase db reset && npx supabase test db ; echo $?` prints `0`
 - Lint passes by exit code: `npx eslint . ; echo $?` prints `0`
 
 #### Manual Verification:
@@ -213,7 +213,7 @@ switching. Assertions, at minimum:
 
 #### Automated Verification:
 
-- Full suite green by exit code: `npx supabase test db ; echo $?` prints `0`
+- Full suite green by exit code: `npx supabase db reset && npx supabase test db ; echo $?` prints `0`
 - Assertion count grows by at least 12
 
 #### Manual Verification:
@@ -353,7 +353,7 @@ bumped, since no FR changes.
 - Lint passes by exit code: `npx eslint . ; echo $?` prints `0`
 - Build passes: `npm run build`
 - No catalog import from a `.tsx` file
-- Full database suite still green: `npx supabase test db ; echo $?` prints `0`
+- Full database suite still green: `npx supabase db reset && npx supabase test db ; echo $?` prints `0`
 
 #### Manual Verification:
 
@@ -416,7 +416,7 @@ rolling back means writing a new one that restores the previous grants — so th
 #### Automated
 
 - [x] 1.1 Migration applies from scratch: `npx supabase db reset ; echo $?` prints `0` — 01635a1
-- [x] 1.2 Existing suite still green: `npx supabase test db ; echo $?` prints `0` — 01635a1
+- [x] 1.2 Existing suite still green: `npx supabase db reset && npx supabase test db ; echo $?` prints `0` — 01635a1
 - [x] 1.3 Lint passes by exit code: `npx eslint . ; echo $?` prints `0` — 01635a1
 
 #### Manual
@@ -430,7 +430,7 @@ rolling back means writing a new one that restores the previous grants — so th
 
 #### Automated
 
-- [x] 2.1 Full suite green by exit code: `npx supabase test db ; echo $?` prints `0` — 07b7dcd
+- [x] 2.1 Full suite green by exit code: `npx supabase db reset && npx supabase test db ; echo $?` prints `0` — 07b7dcd
 - [x] 2.2 Assertion count grows by at least 12 — 07b7dcd
 
 #### Manual
@@ -441,8 +441,8 @@ rolling back means writing a new one that restores the previous grants — so th
 
 #### Automated
 
-- [ ] 3.1 Lint passes by exit code: `npx eslint . ; echo $?` prints `0`
-- [ ] 3.2 Build passes: `npm run build`
+- [x] 3.1 Lint passes by exit code: `npx eslint . ; echo $?` prints `0`
+- [x] 3.2 Build passes: `npm run build`
 
 #### Manual
 
@@ -453,10 +453,10 @@ rolling back means writing a new one that restores the previous grants — so th
 
 #### Automated
 
-- [ ] 4.1 Lint passes by exit code: `npx eslint . ; echo $?` prints `0`
-- [ ] 4.2 Build passes: `npm run build`
-- [ ] 4.3 No catalog import from a `.tsx` file
-- [ ] 4.4 Full database suite still green: `npx supabase test db ; echo $?` prints `0`
+- [x] 4.1 Lint passes by exit code: `npx eslint . ; echo $?` prints `0`
+- [x] 4.2 Build passes: `npm run build`
+- [x] 4.3 No catalog import from a `.tsx` file
+- [x] 4.4 Full database suite still green: `npx supabase db reset && npx supabase test db ; echo $?` prints `0`
 
 #### Manual
 

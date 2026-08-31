@@ -389,12 +389,12 @@ export const pl = {
   // --- S-06: oceny -----------------------------------------------------------------------
 
   "reviews.prompt": "Oceń wizytę:",
-  "reviews.star": "{count} z 5",
+  "reviews.star": "Oceń na {count} z 5",
   "reviews.given": "Twoja ocena: {rating} z 5",
 
   "reviews.message.submitted": "Dziękujemy za ocenę",
 
-  "reviews.error.alreadyRated": "Tę wizytę już oceniłeś — oceny nie można zmienić",
+  "reviews.error.alreadyRated": "Ta wizyta została już oceniona — oceny nie można zmienić",
   "reviews.error.notYours": "Nie znaleźliśmy tej wizyty",
   "reviews.error.notCompleted": "Wizytę można ocenić dopiero, gdy specjalista oznaczy ją jako zakończoną",
   "reviews.error.invalidRating": "Ocena musi być liczbą gwiazdek od 1 do 5",
