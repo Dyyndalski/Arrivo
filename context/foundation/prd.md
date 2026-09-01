@@ -227,12 +227,29 @@ records what was, and what still was not.
    rather than assumed. **Not verified:** actually rendering the app in Safari
    or Firefox, and the authenticated screens at a phone viewport.
 
-Two gaps this surfaced, both relevant to Open Question 8 rather than to any NFR
-as written: several controls have tap targets under the 44 px guideline (the
-show-password toggles at 16 px, the language switches at 20 px, the "sign in"
-link at 16 px), and the stylesheet handles neither `prefers-reduced-motion` nor
-`prefers-color-scheme`. The primary persona is elderly and limited-mobility
-users, which is exactly who small tap targets cost the most.
+**The two gaps this surfaced are now closed (2026-09-01).** Neither was demanded
+by an NFR as written — accessibility is a v1 non-goal — but both were cheap and
+both land on the primary persona, who is elderly and limited-mobility. That is
+exactly who a 16 px tap target costs the most, which is the tension Open
+Question 8 records.
+
+- _Tap targets._ Measured, fixed, re-measured in the browser. The show-password
+  toggle went from 16×16 to **44×44**, widened by a transparent `::before`
+  rather than padding so the eye glyph does not move inside the field. The
+  language pills went from ~20 px tall to **24 px**, enlarged with real padding
+  rather than an overlay, because the two sit 4 px apart and overlapping hit
+  areas would make the wrong language easy to press — worse than a small one.
+  Nothing interactive is now under 24×24 except inline text links, which WCAG
+  2.2 SC 2.5.8 exempts by name; the "sign in" link is one of those and was
+  deliberately left alone.
+  The bar is the **24 px of WCAG 2.2 AA (SC 2.5.8)**, not the 44 px of Apple's
+  HIG or AAA — 44 px is used where there is room for it, not imposed on a
+  header.
+- _Reduced motion._ `@media (prefers-reduced-motion: reduce)` now collapses
+  animation and transition durations in `src/styles/global.css`. Every animation
+  in this app is decorative, so nothing is lost. `prefers-color-scheme` is still
+  unhandled and stays that way: the product has one deliberate theme, and a dark
+  variant is a design decision, not an accessibility fix.
 
 ## Business Logic
 

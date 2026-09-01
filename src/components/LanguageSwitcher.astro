@@ -10,6 +10,11 @@ import { cn } from "@/lib/utils";
  *
  * `redirectTo` carries the current path so the switch lands the visitor back where they were
  * rather than on the home page. The endpoint validates it before redirecting.
+ *
+ * The pills were `px-2 py-0.5`, which rendered a 20px-tall target — under the 24px WCAG 2.2
+ * minimum. Enlarged with real padding rather than a transparent overlay: the two buttons sit 4px
+ * apart, and overlapping hit areas would make the wrong language easy to press, which is worse
+ * than a small target. The pill grows a few pixels; nothing else in the header moves.
  */
 interface Props {
   class?: string;
@@ -41,7 +46,7 @@ const here = Astro.url.pathname + Astro.url.search;
           aria-current={active ? "true" : undefined}
           aria-label={active ? undefined : t("language.switchTo", { language: t(`language.${code}`) })}
           class:list={[
-            "rounded-full px-2 py-0.5 text-xs font-semibold uppercase transition-colors",
+            "inline-flex min-h-6 items-center rounded-full px-2.5 py-1 text-xs font-semibold uppercase transition-colors",
             active ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground cursor-pointer",
           ]}
         >

@@ -174,23 +174,6 @@
   --color-danger-soft: var(--danger-soft);
 }
 
-/*
- * TRANSITIONAL — remove when the last caller is gone.
- *
- * The starter's dark gradient. It wrapped ten screens before phase 3; the six auth pages and the
- * dashboard have since moved onto the design system, leaving:
- *
- *   - src/pages/specialist/{profile,services}.astro — phase 4 retires these
- *   - src/components/Welcome.astro — the starter landing page, which this change deliberately
- *     does NOT redesign (it is the one screen with no mockup)
- *
- * So this block outlives the change: after phase 4 the landing page is its only caller, and it
- * goes when that page is eventually replaced. `grep -rln "bg-cosmic" src/` is the check.
- */
-@utility bg-cosmic {
-  background-image: linear-gradient(to bottom, #0a0e1a, #0f1529, #0a0e1a);
-}
-
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -203,5 +186,29 @@
   h1,
   h2 {
     @apply font-display;
+  }
+}
+
+/*
+ * Respect a request for less motion.
+ *
+ * Not a general accessibility pass — that is a declared v1 non-goal (PRD Open Question 8). This
+ * one is here because it is the cheapest possible answer to a stated OS-level preference, and
+ * because the primary persona includes elderly users, for whom vestibular triggers are not an
+ * edge case. Every animation in this app is decorative (colour and opacity transitions on hover
+ * and focus), so there is nothing to lose by cutting them for people who asked.
+ *
+ * `0.01ms` rather than `0`: a zero-duration transition never fires `transitionend`, and any
+ * handler waiting on that event would hang. Nothing here does today — this keeps it true if
+ * something later does.
+ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
