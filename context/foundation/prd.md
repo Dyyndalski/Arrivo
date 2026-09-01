@@ -43,14 +43,16 @@ provider in a single move.
 **Primary persona — the home-visit client (demand side).** The MVP is
 optimized for the person booking a service. Two sub-segments share the same
 core need (a service without the trip):
-- *Time-poor professional* — wants a service at home/work on their schedule.
-- *Elderly / limited-mobility client* — physically can't easily reach a salon.
+
+- _Time-poor professional_ — wants a service at home/work on their schedule.
+- _Elderly / limited-mobility client_ — physically can't easily reach a salon.
 
 The client's moment: they need a haircut/styling/cosmetic treatment, open the
 app, and want to find a nearby specialist, see who's trusted, and book a visit
 to their address.
 
 ### Secondary persona — the specialist (supply side)
+
 Independent hairdresser or beautician operating without fixed premises. Lists
 services, receives bookings, travels to the client. Essential to the
 marketplace but the MVP wins the demand side first; supply follows.
@@ -67,23 +69,27 @@ a date/time) → specialist accepts → after the completed visit the client lea
 a rating + review.
 
 **v1 scope-down decisions (from Phase 3):**
-- Travel-time computation replaced by *declared service areas* (no maps/routing
+
+- Travel-time computation replaced by _declared service areas_ (no maps/routing
   integration in v1).
-- Booking is *request/accept*, not calendar-slot scheduling (no availability
+- Booking is _request/accept_, not calendar-slot scheduling (no availability
   subsystem in v1).
-- Reviews kept, but only a client with a booking marked *completed* can review;
+- Reviews kept, but only a client with a booking marked _completed_ can review;
   no separate moderation in v1.
 
 ### Primary
+
 - ≥ 50% of onboarded specialists receive at least one booking within the first
   month (the core two-sided transaction actually completes for most supply).
 - The scoped v1 flow works end-to-end (list → filter by area → book → accept →
   review).
 
 ### Secondary
+
 - ≥ 10 specialists create a profile within the first month (supply seeding).
 
 ### Guardrails
+
 - Average specialist rating stays above 4.0 / 5 — a quality floor; if trust
   erodes below this, the marketplace is failing even if bookings happen.
 - Client home addresses are never publicly exposed — visible only to a
@@ -93,36 +99,46 @@ a rating + review.
 ## User Stories
 
 ### US-01: Client finds a nearby specialist and requests a booking
+
 - **Given** a signed-in client who has set their area
 - **When** they browse the list, filter by service type and price, and
   restrict to specialists serving their area
 - **Then** they see matching specialists with a rating summary, can open a
   profile, and can request a booking by proposing a date/time
+
 #### Acceptance Criteria
+
 - Results include only specialists whose declared service areas cover the
   client's area when the "serves my area" filter is on.
 - A booking request records the chosen service, the proposed date/time, and
   the client's address (visible to the specialist only after acceptance).
 
 ### US-02: Specialist lists a service
+
 - **Given** a signed-in specialist with a profile
 - **When** they add a service with a type, price, and declared service areas
 - **Then** the service becomes discoverable to clients whose area it covers
+
 #### Acceptance Criteria
+
 - A service with no declared area is not shown under any "serves my area" filter.
 
 ### US-03: Client reviews a completed visit
+
 - **Given** a client whose booking a specialist has marked completed
 - **When** they submit a star rating (free-text review deferred to v2)
 - **Then** the rating updates the specialist's average once the ratings
   threshold is met; below the threshold the profile shows "New specialist"
+
 #### Acceptance Criteria
+
 - Only a client with a booking in "completed" state for that specialist can
   submit a rating (one rating per completed booking).
 
 ## Functional Requirements
 
 ### Accounts & Access
+
 - FR-001: A visitor can sign up as either a client or a specialist using email + password (single-role account). Priority: must-have
   > Socratic: dual-use (a hairdresser who is also a client) considered. Resolution: kept single-role for v1 — simpler permissions and UI; dual-role account deferred to v2.
 - FR-002: A registered user can sign in, sign out, and recover a forgotten password via email. Priority: must-have
@@ -131,6 +147,7 @@ a rating + review.
   > Socratic: store-less design (area-only profile + per-booking address) considered. Resolution: kept saved address for convenience. Privacy guardrail still binds — the exact address is revealed to a specialist only after they accept the booking.
 
 ### Specialist listings
+
 - FR-004: A specialist can create and edit a provider profile with a name and declared service areas. Priority: must-have
   > Socratic: full profile-as-must-have considered. Resolution: split — name + declared areas is the discovery minimum (must-have); free-text bio demoted to nice-to-have (FR-015).
 - FR-005: A specialist can list a service by choosing a type from a fixed service-type taxonomy and setting a price. Priority: must-have
@@ -139,6 +156,7 @@ a rating + review.
   > Demoted from FR-004 during the Socratic round; polish, not required for discovery.
 
 ### Discovery
+
 - FR-006: A client can browse a filterable list of specialists and their services. Priority: must-have
   > Socratic: free-text search considered. Resolution: dropped for v1 — the launch catalog is small (<10 specialists per success metric); filters suffice. Search returns in v2 as the catalog grows.
 - FR-007: A client can filter results by service type and price. Priority: must-have
@@ -149,6 +167,7 @@ a rating + review.
   > Socratic: showing free-text reviews before any moderation exists risks abuse (no admin role in v1). Resolution: v1 shows star ratings only; free-text review text deferred to v2, when a moderation path exists.
 
 ### Booking
+
 - FR-010: A client can request a booking for a service, proposing a date/time. Priority: must-have
   > Socratic: blind proposals (no visible availability) cause declines and back-and-forth. Resolution: accepted for v1 — availability/calendar is a deferred v2 piece; request/accept is the scoped transaction.
 - FR-011: A specialist can accept or decline a booking request; a request the specialist does not act on within a set window auto-expires. Priority: must-have
@@ -157,6 +176,7 @@ a rating + review.
   > Socratic: specialist-controlled completion gates who can review (FR-013), which can bias ratings. Resolution: accepted for v1; two-sided completion confirmation routed to Open Questions.
 
 ### Reviews
+
 - FR-013: A client can leave a star rating for a booking the specialist has marked completed (one rating per completed booking). Priority: must-have
   > Socratic: specialist-gated completion biases ratings upward. Resolution: kept for v1 with the integrity risk logged as an Open Question. Free-text review text deferred to v2 (per FR-009).
 - FR-014: The app shows a specialist's average rating once they reach a threshold number of ratings; below the threshold the profile shows a "New specialist" label instead of an average. Priority: must-have
@@ -171,6 +191,48 @@ a rating + review.
   one second as perceived by the user (p95).
 - The product remains usable on the latest two major versions of the mainstream
   desktop and mobile web browsers.
+
+**NFR verification, 2026-09-01.** These three had never been measured; this
+records what was, and what still was not.
+
+1. _Address privacy_ — **verified, and pinned.** Enforced by RLS
+   (`booking_contact_details_select_accepted_specialist` carries the
+   `status = 'accepted'` term) plus an explicit `revoke all … from service_role`,
+   because that role is `BYPASSRLS` and a policy is invisible to it. Asserted
+   from both sides in `supabase/tests/database/bookings_rls.test.sql`.
+2. _Sub-one-second browsing (p95)_ — **met, with room.** Measured against the
+   seeded catalogue on the local stack:
+   - the discovery query over PostgREST — the real HTTP path, including the
+     `specialist_areas` and `services!inner` embeds — p50 6.0 ms, **p95 6.9 ms**
+     over 40 requests;
+   - full SSR of a rendered page, p95 95 ms locally and **296 ms from production
+     at the Cloudflare edge** (n=20, max 600 ms, which includes cold starts);
+   - headroom: growing the catalogue from 7 to 507 specialists with 2 500
+     ratings moved the view's execution time from 1.3 ms to 12.2 ms, and 9.8 ms
+     when filtered to one district. Roughly 72× the data for ~9× the time, so
+     the per-row `specialist_rating()` call that 20260831093000 added to the
+     view does not degrade non-linearly at any plausible v1 scale.
+   - **Not measured:** the authenticated discovery page end-to-end on
+     production. It needs a real session; the composed estimate is edge SSR plus
+     one database round trip, comfortably inside the budget, but it is an
+     estimate rather than a measurement.
+3. _Latest two major browser versions_ — **met by inference from the build, not
+   by running those browsers.** The compiled stylesheet uses `@property` (53
+   occurrences), `color-mix()` (34), `oklch()` (6), `@layer` (5) and `:has()`
+   (3). The last of those to ship across engines sets the floor at roughly
+   Chrome/Edge 111, Safari 16.4 and Firefox 128 — the newest of which is July
+   2024, so the latest two majors of every mainstream engine clear it by a wide
+   margin. The document carries `<meta name="viewport" content="width=device-width">`,
+   `lang="pl"`, and five responsive breakpoints, so the mobile layout is real
+   rather than assumed. **Not verified:** actually rendering the app in Safari
+   or Firefox, and the authenticated screens at a phone viewport.
+
+Two gaps this surfaced, both relevant to Open Question 8 rather than to any NFR
+as written: several controls have tap targets under the 44 px guideline (the
+show-password toggles at 16 px, the language switches at 20 px, the "sign in"
+link at 16 px), and the stylesheet handles neither `prefers-reduced-motion` nor
+`prefers-color-scheme`. The primary persona is elderly and limited-mobility
+users, which is exactly who small tap targets cost the most.
 
 ## Business Logic
 
@@ -190,20 +252,22 @@ exist to be meaningful.
 The client encounters the rule in two places: the browsable results view (only
 serving, matching specialists appear, filtered by type and price) and the
 specialist profile (services plus the trust summary). The rule is what turns a
-flat directory into a home-visit marketplace — it decides *who can serve you*
-and *how trusted they are*, rather than just listing everyone.
+flat directory into a home-visit marketplace — it decides _who can serve you_
+and _how trusted they are_, rather than just listing everyone.
 
 ## Access Control
 
 Multi-user, account-based. Sign-up and sign-in via **email + password**.
 
 Two distinct roles, chosen at sign-up:
+
 - **Client** — browses specialists and services, books visits to their own
   address, reads/writes reviews for services they've received.
 - **Specialist** — creates a provider profile, lists services (with price and
   service area), receives and manages bookings.
 
 Role → capability separation:
+
 - A client cannot list services; a specialist cannot book another specialist
   (single-role accounts in the MVP).
 - Unauthenticated visitors may not reach any application screen. Browsing,
@@ -233,6 +297,7 @@ Questions.
 ## Non-Goals
 
 Functional non-goals (v1 will not build these):
+
 - **No online / in-app payments** — payment happens directly with the
   specialist at the visit; the app never processes money in v1.
 - **No in-app chat or messaging** — no client↔specialist message thread; the
@@ -242,10 +307,12 @@ Functional non-goals (v1 will not build these):
   none of these in v1.
 
 Non-functional non-goals:
+
 - **No accessibility conformance target in v1** — see Open Question #8 (flagged
   as a tension with the elderly/limited-mobility persona).
 
 ## Open Questions
+
 1. **Who moderates reviews / handles disputes without an admin role?** — Owner:
    user. Deferred for MVP; may need a lightweight moderation path before public
    launch.
@@ -267,9 +334,19 @@ Non-functional non-goals:
    a migration. Below three, a card shows the "New specialist" label instead of
    an average. Cost accepted: at cold start every specialist carries that label
    until three separate completed visits have been rated.
-7. **What is the auto-expire window for pending booking requests?** — Owner:
-   user. Needs a concrete duration for FR-011 (e.g. 3 days — consider whether
-   24–48h fits better given clients likely want a near-term visit).
+7. ~~**What is the auto-expire window for pending booking requests?**~~ —
+   **RESOLVED 2026-09-01: 48 hours, or the proposed visit time, whichever comes
+   first.** Shipped in S-05 and live since; this entry only records what the
+   code already decided. The duration is expressed once, as
+   `BOOKING_WINDOW_HOURS = 48` in `src/lib/schemas/limits.ts`, and
+   `bookings.expires_at` is written as the earlier of `created_at + 48h` and
+   `proposed_at` — the second term is the load-bearing half, because a request
+   for a visit two hours away must not sit "pending" until after the slot has
+   passed. The 3-day default the roadmap suggested was rejected for that reason.
+   Expiry is applied by `pg_cron` every 15 minutes inside Postgres, not by a
+   Cloudflare Cron Trigger (`supabase/migrations/20260807140000_booking_expiry_cron.sql`
+   records why), and `bookings_view.effective_status` reports `expired` the
+   moment the window closes, so the UI is correct even between cron runs.
 8. **Is accessibility really out of scope for v1?** — Owner: user. The primary
    persona includes elderly / limited-mobility users, yet accessibility was
    not selected as a v1 NFR. Flagged as a possible tension, not a blocker.

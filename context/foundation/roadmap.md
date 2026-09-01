@@ -25,15 +25,15 @@ Arrivo is a home-visit-first marketplace for beauty/hair services: it connects c
 
 ## At a glance
 
-| ID   | Change ID                     | Outcome (user can …)                                                        | Prerequisites | PRD refs                          | Status   |
-| ---- | ----------------------------- | --------------------------------------------------------------------------- | ------------- | --------------------------------- | -------- |
-| F-01 | domain-data-rls-foundation    | (foundation) roles link accounts to client/specialist; address stays private until a booking is accepted | —             | Access Control, NFR (privacy)     | done     |
-| S-01 | role-aware-accounts           | sign up as a client or specialist, sign in/out, recover a password          | F-01          | FR-001, FR-002                    | done     |
-| S-02 | specialist-service-listing    | (specialist) create a profile with declared areas and list a service        | S-01          | US-02, FR-004, FR-005             | done     |
-| S-03 | area-matched-discovery        | (client) set your area and find specialists who serve it, filtered by type/price, with a rating summary | S-01, S-02    | FR-003, FR-006, FR-007, FR-008, FR-009 | done     |
-| S-04 | client-booking-request        | (client) request a booking from a matched specialist, proposing a date/time | S-03          | US-01, FR-010                     | done     |
-| S-05 | specialist-booking-management | (specialist) accept/decline a request, auto-expire stale ones, mark completed | S-04          | FR-011, FR-012                    | done     |
-| S-06 | reviews-and-trust-rating      | (client) rate a completed visit; profiles show an average once enough ratings exist | S-05, S-03    | US-03, FR-013, FR-014             | done     |
+| ID   | Change ID                     | Outcome (user can …)                                                                                     | Prerequisites | PRD refs                               | Status |
+| ---- | ----------------------------- | -------------------------------------------------------------------------------------------------------- | ------------- | -------------------------------------- | ------ |
+| F-01 | domain-data-rls-foundation    | (foundation) roles link accounts to client/specialist; address stays private until a booking is accepted | —             | Access Control, NFR (privacy)          | done   |
+| S-01 | role-aware-accounts           | sign up as a client or specialist, sign in/out, recover a password                                       | F-01          | FR-001, FR-002                         | done   |
+| S-02 | specialist-service-listing    | (specialist) create a profile with declared areas and list a service                                     | S-01          | US-02, FR-004, FR-005                  | done   |
+| S-03 | area-matched-discovery        | (client) set your area and find specialists who serve it, filtered by type/price, with a rating summary  | S-01, S-02    | FR-003, FR-006, FR-007, FR-008, FR-009 | done   |
+| S-04 | client-booking-request        | (client) request a booking from a matched specialist, proposing a date/time                              | S-03          | US-01, FR-010                          | done   |
+| S-05 | specialist-booking-management | (specialist) accept/decline a request, auto-expire stale ones, mark completed                            | S-04          | FR-011, FR-012                         | done   |
+| S-06 | reviews-and-trust-rating      | (client) rate a completed visit; profiles show an average once enough ratings exist                      | S-05, S-03    | US-03, FR-013, FR-014                  | done   |
 
 ## Baseline
 
@@ -98,10 +98,10 @@ What's already in place in the codebase as of 2026-07-28 (auto-researched + user
 - **Blockers:** —
 - **Unknowns:**
   - Self-declared areas can be gamed ("serves everywhere"). Owner: user. Block: no (PRD accepts self-declared areas for v1 as a known limitation; verification is deferred).
-- **Risk:** This is the wedge — the area-match rule made real. Sequenced right before the north star because a client must be able to *find* a serving specialist before they can request one. Address handling here must honor F-01's privacy policy (coarse area for matching; exact address stays private).
+- **Risk:** This is the wedge — the area-match rule made real. Sequenced right before the north star because a client must be able to _find_ a serving specialist before they can request one. Address handling here must honor F-01's privacy policy (coarse area for matching; exact address stays private).
 - **Status:** done
 
-### S-04: Client booking request  *(north star)*
+### S-04: Client booking request _(north star)_
 
 - **Outcome:** a client can request a booking from a discovered specialist by proposing a date/time; the request records the chosen service, the proposed date/time, and the client's address (revealed to the specialist only after acceptance).
 - **Change ID:** client-booking-request
@@ -144,15 +144,15 @@ What's already in place in the codebase as of 2026-07-28 (auto-researched + user
 
 ## Backlog Handoff
 
-| Roadmap ID | Change ID                     | Suggested issue title                                   | Ready for `/10x-plan` | Notes |
-| ---------- | ----------------------------- | ------------------------------------------------------- | --------------------- | ----- |
-| F-01       | domain-data-rls-foundation    | Domain roles + address-privacy policy foundation         | yes                   | Run `/10x-plan domain-data-rls-foundation` — unlocks the whole chain |
-| S-01       | role-aware-accounts           | Role-aware accounts (client/specialist sign-up, recovery) | no                    | After F-01 |
-| S-02       | specialist-service-listing    | Specialist profile + service listing                     | no                    | After S-01; needs a seed service-type taxonomy |
-| S-03       | area-matched-discovery        | Area-matched specialist discovery                        | no                    | After S-02; the wedge |
-| S-04       | client-booking-request        | Client booking request (north star)                      | no                    | After S-03; validation milestone |
-| S-05       | specialist-booking-management | Specialist booking accept/decline/expire/complete        | no                    | After S-04; includes the auto-expire cron |
-| S-06       | reviews-and-trust-rating      | Reviews + trust rating display                           | no                    | After S-05 |
+| Roadmap ID | Change ID                     | Suggested issue title                                     | Ready for `/10x-plan` | Notes                                                                |
+| ---------- | ----------------------------- | --------------------------------------------------------- | --------------------- | -------------------------------------------------------------------- |
+| F-01       | domain-data-rls-foundation    | Domain roles + address-privacy policy foundation          | yes                   | Run `/10x-plan domain-data-rls-foundation` — unlocks the whole chain |
+| S-01       | role-aware-accounts           | Role-aware accounts (client/specialist sign-up, recovery) | no                    | After F-01                                                           |
+| S-02       | specialist-service-listing    | Specialist profile + service listing                      | no                    | After S-01; needs a seed service-type taxonomy                       |
+| S-03       | area-matched-discovery        | Area-matched specialist discovery                         | no                    | After S-02; the wedge                                                |
+| S-04       | client-booking-request        | Client booking request (north star)                       | no                    | After S-03; validation milestone                                     |
+| S-05       | specialist-booking-management | Specialist booking accept/decline/expire/complete         | no                    | After S-04; includes the auto-expire cron                            |
+| S-06       | reviews-and-trust-rating      | Reviews + trust rating display                            | no                    | After S-05                                                           |
 
 ## Open Roadmap Questions
 
@@ -166,7 +166,7 @@ What's already in place in the codebase as of 2026-07-28 (auto-researched + user
 
 ## Parked
 
-- **Free-text specialist bio (FR-015, nice-to-have)** — Why parked: not required for discovery; polish, deferred behind the must-have path (main goal is market feedback under a tight timeline).
+- ~~**Free-text specialist bio (FR-015, nice-to-have)**~~ — **DELIVERED, unparked 2026-09-01.** Parked on the reasoning that it was polish behind the must-have path, then shipped anyway inside S-02 without anyone moving this entry: the bio is editable at `/specialist/profile` (`src/lib/schemas/specialist.ts` `bio`, `src/pages/api/specialist/profile.ts`), stored on `specialist_profiles.bio`, and rendered to clients at `src/pages/specialists/[id].astro:126`. This is the PRD's only nice-to-have, so v1 now covers FR-001…FR-015 in full.
 - **Online / in-app payments** — Why parked: PRD §Non-Goals — payment happens directly with the specialist at the visit in v1.
 - **In-app chat / messaging** — Why parked: PRD §Non-Goals — the request/accept flow carries the needed coordination.
 - **Native mobile apps** — Why parked: PRD §Non-Goals — web only for v1.
