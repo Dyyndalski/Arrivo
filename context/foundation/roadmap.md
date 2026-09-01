@@ -3,7 +3,7 @@ project: Arrivo
 version: 1
 status: draft
 created: 2026-07-28
-updated: 2026-08-31
+updated: 2026-09-01
 prd_version: 1
 main_goal: market-feedback
 top_blocker: time
