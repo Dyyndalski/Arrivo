@@ -9,7 +9,7 @@
 -- the day a seed file or a second city appears.
 
 begin;
-select plan(20);
+select plan(23);
 
 -- Let the role-switched sub-tests below call pgTAP assertion functions. pgtap lives in its
 -- own schema; grant usage/execute on it to both switched-to roles, for this tx only.
@@ -99,6 +99,39 @@ select throws_ok(
   '23503',
   NULL,
   'a subtype from another category is refused'
+);
+
+-- ---------------------------------------------------------------------------
+-- Editing a listed service (FR-005).
+--
+-- `services_update_own` and the update grant landed with this migration in S-02, but nothing in
+-- the application called them until the edit endpoint shipped — so this path went from "granted"
+-- to "reachable" without ever being asserted. Pinned from both sides now.
+--
+-- The policy carries `using` AND `with check` on the same predicate. `using` decides which rows
+-- are visible to the update; `with check` decides what they may become. Only the second stops a
+-- specialist moving one of their services onto somebody else's card, and it is the half that is
+-- easy to drop by accident when a policy is rewritten.
+-- ---------------------------------------------------------------------------
+select lives_ok(
+  $$update public.services set price_cents = 13500, duration_minutes = 50
+     where specialist_id = '44444444-4444-4444-4444-444444444444'$$,
+  'specialist can edit a service on their own card'
+);
+
+select is(
+  (select price_cents from public.services
+    where specialist_id = '44444444-4444-4444-4444-444444444444' limit 1),
+  13500,
+  'the edit is persisted, not just permitted'
+);
+
+select throws_ok(
+  $$update public.services set specialist_id = '55555555-5555-5555-5555-555555555555'
+     where specialist_id = '44444444-4444-4444-4444-444444444444'$$,
+  '42501',
+  NULL,
+  'specialist cannot move their service onto someone else''s card (WITH CHECK, not USING)'
 );
 
 -- The trigger's real job is ignoring what the client sends, not advancing a clock: now() is

@@ -4,8 +4,18 @@ import { localizedName } from "@/lib/i18n/dictionary";
 import { useTranslations } from "@/lib/i18n/t";
 import type { Service, ServiceCategory, ServiceSubtype } from "@/types";
 
-// No interactivity here — each row's remove button is a native form post, so this stays an
-// Astro component rather than a React island.
+// No interactivity here — each row's remove button and its edit form are native form posts, so
+// this stays an Astro component rather than a React island. The edit form is disclosed by a
+// <details>, which needs no JavaScript at all: the whole page works with scripting off, which
+// matters for a persona that includes people on old devices.
+//
+// The edit form covers name, duration and price. Category and subtype ride along as hidden
+// inputs carrying their current values, so the payload still satisfies `serviceSchema` in full.
+// They are not editable here on purpose: the subtype list would have to be filtered by the chosen
+// category to stay valid against the composite foreign key, and doing that without JavaScript
+// means shipping every subtype and letting a wrong pair fail at the database with a generic
+// error. Re-categorising a service is also a different act from repricing it — it changes which
+// filter a client finds it under — and remove-then-add expresses that honestly.
 interface Props {
   services: Service[];
   categories: ServiceCategory[];
@@ -45,27 +55,104 @@ const formatPrice = (cents: number) =>
   ) : (
     <ul class="space-y-3">
       {services.map((service) => (
-        <li class="border-border bg-card flex items-center gap-4 rounded-md border px-4 py-3.5">
-          <div class="min-w-0 flex-1">
-            <p class="text-foreground truncate text-[14.5px] font-semibold">{headline(service)}</p>
-            <p class="text-muted-foreground truncate text-[12.5px]">
-              {taxonomyLine(service)}
-              {service.duration_minutes !== null &&
-                ` · ${t("specialist.services.duration", { minutes: service.duration_minutes })}`}
-            </p>
-          </div>
+        <li class="border-border bg-card rounded-md border">
+          {/* The whole row IS the <summary>, so the disclosure widget wraps the list item rather
+              than sitting inside it. That is what lets the edit form use the full width: a
+              <details> nested in the flex row would constrain its own content to the width of the
+              button that opens it. */}
+          <details class="group">
+            <summary class="flex cursor-pointer list-none items-center gap-4 px-4 py-3.5 marker:content-none">
+              <div class="min-w-0 flex-1">
+                <p class="text-foreground truncate text-[14.5px] font-semibold">{headline(service)}</p>
+                <p class="text-muted-foreground truncate text-[12.5px]">
+                  {taxonomyLine(service)}
+                  {service.duration_minutes !== null &&
+                    ` · ${t("specialist.services.duration", { minutes: service.duration_minutes })}`}
+                </p>
+              </div>
 
-          <span class="text-foreground shrink-0 font-bold">{formatPrice(service.price_cents)}</span>
+              <span class="text-foreground shrink-0 font-bold">{formatPrice(service.price_cents)}</span>
 
-          <form method="POST" action={`/api/specialist/services/${service.id}/delete`}>
-            <button
-              type="submit"
-              class="border-border-strong text-ink-soft hover:border-danger hover:text-danger cursor-pointer rounded-sm border px-3 py-1.5 text-[13px] font-semibold transition-colors"
-              aria-label={t("specialist.services.removeLabel", { name: headline(service) })}
-            >
-              {t("specialist.services.remove")}
-            </button>
-          </form>
+              <span class="border-border-strong text-ink-soft group-hover:border-primary group-hover:text-primary inline-flex min-h-6 shrink-0 items-center rounded-sm border px-3 py-1.5 text-[13px] font-semibold transition-colors">
+                {t("specialist.services.edit")}
+              </span>
+            </summary>
+
+            <div class="border-border grid gap-3 border-t px-4 py-3.5 sm:grid-cols-3">
+              <form
+                method="POST"
+                action={`/api/specialist/services/${service.id}/update`}
+                class="grid gap-3 sm:col-span-3 sm:grid-cols-3"
+              >
+                {/* Category and subtype ride along unchanged so the payload still satisfies
+                    serviceSchema in full — see the note at the top of this file for why they are
+                    not editable here. */}
+                <input type="hidden" name="category_id" value={service.category_id} />
+                <input type="hidden" name="subtype_id" value={service.subtype_id ?? ""} />
+
+                <label class="block sm:col-span-3">
+                  <span class="text-muted-foreground mb-1 block text-[12.5px] font-semibold">
+                    {t("specialist.field.serviceName")} {t("specialist.field.serviceDetailOptional")}
+                  </span>
+                  <input
+                    type="text"
+                    name="name"
+                    value={service.name ?? ""}
+                    class="border-border bg-background text-foreground min-h-11 w-full rounded-sm border px-3 py-2 text-sm"
+                  />
+                </label>
+
+                <label class="block">
+                  <span class="text-muted-foreground mb-1 block text-[12.5px] font-semibold">
+                    {t("specialist.field.price")}
+                  </span>
+                  <input
+                    type="text"
+                    name="price"
+                    inputmode="decimal"
+                    required
+                    value={(service.price_cents / 100).toFixed(2)}
+                    class="border-border bg-background text-foreground min-h-11 w-full rounded-sm border px-3 py-2 text-sm"
+                  />
+                </label>
+
+                <label class="block">
+                  <span class="text-muted-foreground mb-1 block text-[12.5px] font-semibold">
+                    {t("specialist.field.duration")} {t("specialist.field.durationOptional")}
+                  </span>
+                  <input
+                    type="text"
+                    name="duration_minutes"
+                    inputmode="numeric"
+                    value={service.duration_minutes ?? ""}
+                    class="border-border bg-background text-foreground min-h-11 w-full rounded-sm border px-3 py-2 text-sm"
+                  />
+                </label>
+
+                <div class="flex items-end">
+                  <button
+                    type="submit"
+                    class="bg-primary text-primary-foreground hover:bg-primary-dark min-h-11 w-full cursor-pointer rounded-sm px-3 py-2 text-[13px] font-semibold transition-colors"
+                  >
+                    {t("specialist.services.save")}
+                  </button>
+                </div>
+              </form>
+
+              {/* Its own form, and deliberately last: removal sits behind the same disclosure as
+                  editing, so it takes two deliberate actions rather than one stray click in a
+                  list. */}
+              <form method="POST" action={`/api/specialist/services/${service.id}/delete`} class="sm:col-span-3">
+                <button
+                  type="submit"
+                  class="border-border-strong text-ink-soft hover:border-danger hover:text-danger min-h-11 cursor-pointer rounded-sm border px-3 py-1.5 text-[13px] font-semibold transition-colors"
+                  aria-label={t("specialist.services.removeLabel", { name: headline(service) })}
+                >
+                  {t("specialist.services.remove")}
+                </button>
+              </form>
+            </div>
+          </details>
         </li>
       ))}
     </ul>

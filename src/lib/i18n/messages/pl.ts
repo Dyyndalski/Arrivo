@@ -147,6 +147,9 @@ export const pl = {
   "specialist.services.subtitle": "Co oferujesz i w jakiej cenie",
   "specialist.services.add": "Dodaj usługę",
   "specialist.services.adding": "Dodawanie…",
+  "specialist.services.edit": "Edytuj",
+  "specialist.services.editLabel": "Edytuj usługę {name}",
+  "specialist.services.save": "Zapisz zmiany",
   "specialist.services.remove": "Usuń",
   "specialist.services.removeLabel": "Usuń usługę {name}",
   "specialist.services.empty": "Nie masz jeszcze żadnej usługi. Dodaj pierwszą, żeby Twoja wizytówka była widoczna.",
@@ -210,6 +213,7 @@ export const pl = {
 
   "specialist.message.profileSaved": "Profil zapisany",
   "specialist.message.serviceAdded": "Usługa dodana",
+  "specialist.message.serviceUpdated": "Usługa zaktualizowana",
   "specialist.message.serviceRemoved": "Usługa usunięta",
   "specialist.message.serviceGone": "Ta usługa już nie istnieje",
 

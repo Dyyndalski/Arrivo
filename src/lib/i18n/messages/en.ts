@@ -131,6 +131,9 @@ export const en: Record<MessageKey, string> = {
   "specialist.services.subtitle": "What you offer and what it costs",
   "specialist.services.add": "Add service",
   "specialist.services.adding": "Adding…",
+  "specialist.services.edit": "Edit",
+  "specialist.services.editLabel": "Edit service {name}",
+  "specialist.services.save": "Save changes",
   "specialist.services.remove": "Remove",
   "specialist.services.removeLabel": "Remove {name}",
   "specialist.services.empty": "No services yet. Add your first one to make your card visible.",
@@ -193,6 +196,7 @@ export const en: Record<MessageKey, string> = {
 
   "specialist.message.profileSaved": "Profile saved",
   "specialist.message.serviceAdded": "Service added",
+  "specialist.message.serviceUpdated": "Service updated",
   "specialist.message.serviceRemoved": "Service removed",
   "specialist.message.serviceGone": "That service no longer exists",
 

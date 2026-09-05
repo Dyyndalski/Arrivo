@@ -192,6 +192,40 @@ export async function addService(
 }
 
 /**
+ * Edit a service in place. Returns whether a row actually matched, for the same reason
+ * `deleteService` does: PostgREST reports no error when an update matches nothing, so a stale
+ * tab would otherwise be told "saved" over a list that did not change.
+ *
+ * Scoped by `specialist_id` as well as `id`. The `services_update_own` policy
+ * (20260803120100:151) already refuses someone else's row — this makes the intent explicit and
+ * keeps the query honest if the policy is ever relaxed, exactly as the delete below does.
+ *
+ * Takes the same field set as `addService` rather than a partial: the form posts every field on
+ * every save, so a partial update would silently keep a value the specialist just cleared.
+ */
+export async function updateService(
+  supabase: Client,
+  userId: string,
+  serviceId: string,
+  input: {
+    category_id: number;
+    subtype_id: number | null;
+    price_cents: number;
+    name: string | null;
+    duration_minutes: number | null;
+  },
+): Promise<boolean> {
+  const { data, error } = await supabase
+    .from("services")
+    .update(input)
+    .eq("id", serviceId)
+    .eq("specialist_id", userId)
+    .select("id");
+  rethrow(error);
+  return (data ?? []).length > 0;
+}
+
+/**
  * Returns whether a row was actually removed. PostgREST reports no error when a delete
  * matches nothing, so without asking for the rows back a stale tab or a double submit would
  * be answered with "Service removed" and then contradicted on reload (impl-review F4).
