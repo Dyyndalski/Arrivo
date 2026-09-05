@@ -166,3 +166,30 @@ join resolved r
  and r.author = m.client_id
  and m.proposed_at = now() - (r.days_ago || ' days')::interval
 on conflict (booking_id) do nothing;
+
+-- ---------------------------------------------------------------------------
+-- Make the fixture accounts usable through the auth API, not just through SQL.
+--
+-- Rows inserted straight into auth.users leave GoTrue's token columns NULL. GoTrue scans them
+-- into Go strings and cannot take NULL, so ANY auth-API call touching a fixture user fails with
+-- `500 Database error finding user` — "converting NULL to string is unsupported". The pgTAP suite
+-- never noticed, because it only ever talks to Postgres.
+--
+-- That mattered the moment anyone wanted to drive a signed-in screen against seeded data: minting
+-- a session for a fixture specialist is the only way to exercise the specialist UI without a
+-- password, and it was impossible until these columns were empty strings rather than NULL.
+--
+-- email_confirmed_at is set for the same reason: local config disables confirmations
+-- (supabase/config.toml), but the auth API still refuses an unconfirmed address.
+-- ---------------------------------------------------------------------------
+update auth.users
+set confirmation_token = coalesce(confirmation_token, ''),
+    recovery_token = coalesce(recovery_token, ''),
+    email_change_token_new = coalesce(email_change_token_new, ''),
+    email_change = coalesce(email_change, ''),
+    phone_change = coalesce(phone_change, ''),
+    phone_change_token = coalesce(phone_change_token, ''),
+    email_change_token_current = coalesce(email_change_token_current, ''),
+    reauthentication_token = coalesce(reauthentication_token, ''),
+    email_confirmed_at = coalesce(email_confirmed_at, now())
+where email like '%@test.local';
